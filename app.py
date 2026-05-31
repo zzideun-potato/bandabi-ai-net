@@ -491,4 +491,4 @@ html = load_render_html()
 if not html:
     st.error("bandabi_purple.html 파일을 찾을 수 없습니다.")
 else:
-    components.html(html, height=900, scrolling=False)
+    components.html(html, height=1400, scrolling=True)

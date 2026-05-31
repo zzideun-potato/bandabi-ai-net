@@ -40,10 +40,20 @@
       color: var(--ink);
     }
 
+    html, body {
+      min-height: 100%;
+      overflow-y: auto;
+    }
     body {
       margin: 0;
       background: var(--base) !important;
       color: var(--ink) !important;
+    }
+    main.app-shell,
+    .tab-content.active,
+    .flow-screen.active {
+      min-height: 0;
+      overflow-y: visible;
     }
 
     /* ── Weight ── */
@@ -685,7 +695,7 @@
               <div class="space-y-4">
                 <label class="block"><span class="text-xs font-bold text-slate-400">접근성 지원 필요 유형</span><div class="select-wrap"><select id="disability-type" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm"><option value="physical">휠체어 이용 또는 보행 보조 필요</option><option value="visual">음성 안내 또는 유도동선 필요</option><option value="developmental">보호자 동행 또는 단계별 안내 필요</option><option value="senior">일부 도움 필요 또는 저강도 안내 선호</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
                 <label class="block"><span class="text-xs font-bold text-slate-400">출발지</span><input id="origin" value="김포 구래역 1번 출구" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" /></label>
-                <label class="block"><span class="text-xs font-bold text-slate-400">목적지</span><div class="select-wrap"><select id="center-location" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" onchange="if(this.value==='gimpo2'){ blockUnavailableCenter('김포 제2 반다비 교육거점'); this.value='gimpo'; }"><option value="gimpo">김포 반다비체육센터</option><option value="gimpo2">김포 제2 반다비 체육거점</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
+                <label class="block"><span class="text-xs font-bold text-slate-400">목적지</span><div class="select-wrap"><select id="center-location" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" onchange="handleCenterLocationChange(this)"><option value="gimpo">김포 반다비체육센터</option><option value="gimpo2">김포 제2 반다비 체육거점</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
               </div>
               <div class="grid grid-cols-2 gap-3 content-start text-sm">
                 <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">보호자 알림</div>
@@ -710,6 +720,7 @@
               <p class="mt-4 font-black">이동 가능성을 계산하고 있어요</p>
             </div>
             <div id="route-result" class="hidden mt-6 space-y-4">
+              <p id="route-source-status" class="text-[10px] text-slate-500 leading-relaxed"></p>
               <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
                 <div class="lg:col-span-8 rounded-[2rem] bg-surface border border-lav-line p-4">
                   <div class="flex justify-between items-start gap-3 mb-2"><div><p class="text-xs text-slate-400">추천 경로</p><h3 id="route-title" class="text-xl font-black">김포 구래역 1번 출구 → 김포 반다비체육센터</h3></div><button onclick="simulateDispatch()" class="rounded-2xl bg-slate-800 hover:bg-slate-700 px-3 py-2 text-[11px] font-black">재계산</button></div>
@@ -937,6 +948,7 @@
     let latestSendGridPayload = null;
 
     // Server data injected by app.py (Streamlit). Real-time button API calls need FastAPI/component bridge.
+    var BANDABI_API_BASE = '';
     function getServerData(){
       return window.BANDABI_SERVER_DATA || {};
     }
@@ -949,31 +961,59 @@
       } catch(_) {}
       return '';
     }
-    function findServerRouteAnalysis(originText, destLabel, disability){
-      var cache = getServerData().route_analysis_cache;
-      if(!cache) return null;
-      var exactKey = disability + '|' + originText + '|' + destLabel;
-      if(cache[exactKey] && cache[exactKey].ok) return cache[exactKey];
-      var originNorm = (originText || '').replace(/\s+/g, '').trim();
-      var destNorm = (destLabel || '').replace(/\s+/g, '').trim();
-      var match = null;
-      Object.keys(cache).forEach(function(key){
-        if(match) return;
-        var parts = key.split('|');
-        if(parts.length < 3 || parts[0] !== disability) return;
-        var entry = cache[key];
-        if(!entry || !entry.ok) return;
-        var cachedDest = parts[2].replace(/\s+/g, '');
-        if(destNorm.indexOf('반다비') < 0 && cachedDest.indexOf('반다비') < 0) return;
-        if(destNorm.slice(0, 4) !== cachedDest.slice(0, 4) && destNorm.indexOf(cachedDest.slice(0, 6)) < 0) return;
-        var cachedOrigin = parts[1].replace(/\s+/g, '');
-        if(originNorm === cachedOrigin){ match = entry; return; }
-        if(/김포|구래|운양|양씨/.test(originNorm) && /김포|구래|운양|양씨/.test(cachedOrigin)){ match = entry; return; }
-        if(/성남|신흥|판교|강남/.test(originNorm) && /성남|신흥|판교|강남/.test(cachedOrigin)){ match = entry; return; }
-      });
-      return match;
+    function refreshApiBase(){
+      BANDABI_API_BASE = getApiBase();
+      return BANDABI_API_BASE;
     }
-    function applyRouteAnalysisPayload(data, originText, destLabel){
+    async function debugBandabiApiStatus(){
+      refreshApiBase();
+      if(!BANDABI_API_BASE){
+        console.warn('[Bandabi API unreachable] no API base URL');
+        return null;
+      }
+      try {
+        const res = await fetch(BANDABI_API_BASE + '/api/status');
+        const data = await res.json();
+        console.log('[Bandabi API status]', data);
+        return data;
+      } catch(e){
+        console.warn('[Bandabi API unreachable]', e);
+        return null;
+      }
+    }
+    function setRouteSourceStatus(text){
+      const el = document.getElementById('route-source-status');
+      if(el) el.textContent = text || '';
+    }
+    function buildFallbackStatusLine(){
+      return 'API 연결 실패 · JS fallback 사용 · VWorld fallback · 버스 도착 no_data · scoring rule_engine';
+    }
+    function isUnavailableCenterValue(value){
+      return value === 'gimpo2';
+    }
+    function isUnavailableCenterLabel(label){
+      return /제2\s*반다비|gimpo2/i.test(String(label || ''));
+    }
+    function handleCenterLocationChange(selectEl){
+      if(!selectEl) return false;
+      if(isUnavailableCenterValue(selectEl.value)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        selectEl.value = 'gimpo';
+        return false;
+      }
+      return true;
+    }
+    function ensureValidCenterSelection(){
+      const sel = document.getElementById('center-location');
+      if(!sel) return true;
+      if(isUnavailableCenterValue(sel.value)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        sel.value = 'gimpo';
+        return false;
+      }
+      return true;
+    }
+    function applyRouteAnalysisPayload(data, originText, destLabel, sourceStatus){
       document.getElementById('route-loading').classList.add('hidden');
       document.getElementById('route-result').classList.remove('hidden');
       injectRouteResults(
@@ -986,6 +1026,7 @@
         data.weather || {},
         data.arrival || { status: 'no_data' }
       );
+      setRouteSourceStatus(sourceStatus || data.status_line || 'FastAPI · python_modules');
       flowProgress.routeAnalyzed = true;
       saveFlowState();
     }
@@ -1033,11 +1074,18 @@
     }
 
     function getUserProfile(){
+      ensureValidCenterSelection();
+      const centerEl = document.getElementById('center-location');
+      let center = centerEl?.value || 'gimpo';
+      if(isUnavailableCenterValue(center) || isUnavailableCenterLabel(center)){
+        if(centerEl) centerEl.value = 'gimpo';
+        center = 'gimpo';
+      }
       return {
         disability: document.getElementById('disability-type')?.value || 'physical',
         origin: (document.getElementById('origin')?.value || '').trim(),
-        center: document.getElementById('center-location')?.value || 'gimpo',
-        centerLabel: document.getElementById('center-location')?.value === 'gimpo2' ? '김포 제2 반다비 체육거점' : '김포 반다비체육센터',
+        center: center,
+        centerLabel: '김포 반다비체육센터',
         name: getUserDisplayName(),
         email: (document.getElementById('login-email')?.value || document.getElementById('signup-email')?.value || loadSession()?.email || '').trim(),
         schedule: sessionStorage.getItem(SCHEDULE_SESSION_KEY) || '',
@@ -1049,7 +1097,6 @@
       const table = {
         '김포 구래역 1번 출구': { lat: 37.6451, lng: 126.6287, label: '김포 구래역 1번 출구' },
         '김포 반다비체육센터': { lat: 37.6428, lng: 126.6651, label: '김포 반다비체육센터' },
-        '김포 제2 반다비 체육거점': { lat: 37.6388, lng: 126.6712, label: '김포 제2 반다비 체육거점' },
       };
       return table[address] || { lat: 37.64, lng: 126.65, label: address };
     }
@@ -1583,6 +1630,8 @@
     }
     function blockUnavailableCenter(centerName){
       showAppToast(centerName + '은 아직 등록되지 않은 예정 시설입니다. 현재는 김포 반다비체육센터 기준으로 이용해 주세요.');
+      const sel = document.getElementById('center-location');
+      if(sel) sel.value = 'gimpo';
       return false;
     }
     function switchTab(tabId, btn){
@@ -1610,7 +1659,7 @@
     }
     function toggleHighContrast(){ document.getElementById('main-body').classList.toggle('high-contrast-active'); }
     function voiceDemo(){ const el=document.getElementById('voice-status'); el.textContent='인식 중'; setTimeout(function(){ const cmd=classifyVoiceCommand('경로 추천해줘'); el.textContent='완료'; if(cmd==='route'){ document.getElementById('disability-type').value='visual'; switchTab('main-tab', document.getElementById('tab-main-btn')); triggerAiEngine(); } else if(cmd==='schedule'){ switchTab('schedule-tab', document.getElementById('tab-schedule-btn')); } else if(cmd==='vision'){ switchTab('vision-tab', document.getElementById('tab-vision-btn')); } },900); }
-    function runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo){
+    function runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, isApiFallback){
       const weather = fetchWeatherShortForecast();
       const busRoute = fetchBusRoute(originGeo, destGeo);
       const arrival = fetchBusArrival(busRoute.routeId);
@@ -1634,11 +1683,17 @@
       document.getElementById('route-loading').classList.add('hidden');
       document.getElementById('route-result').classList.remove('hidden');
       injectRouteResults(originGeo.label || originText, destLabel, score, grade, action, busRoute, weather, arrival);
+      setRouteSourceStatus(isApiFallback ? buildFallbackStatusLine() : 'JS mock · VWorld fallback · 버스 도착 no_data · scoring rule_engine');
       flowProgress.routeAnalyzed = true;
       saveFlowState();
     }
     function triggerAiEngine(){
+      if(!ensureValidCenterSelection()) return;
       const profile = getUserProfile();
+      if(isUnavailableCenterValue(profile.center) || isUnavailableCenterLabel(profile.centerLabel)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        return;
+      }
       const originText = profile.origin || '김포 구래역 1번 출구';
       const destLabel = profile.centerLabel;
       const originGeo = geocode_vworld(originText);
@@ -1646,14 +1701,11 @@
       showFlow('route-screen');
       document.getElementById('route-loading').classList.remove('hidden');
       document.getElementById('route-result').classList.add('hidden');
-      const serverRoute = findServerRouteAnalysis(originText, destLabel, profile.disability);
-      if(serverRoute){
-        setTimeout(function(){ applyRouteAnalysisPayload(serverRoute, originText, destLabel); }, 300);
-        return;
-      }
-      const apiBase = getApiBase();
+      setRouteSourceStatus('');
+      const apiBase = refreshApiBase();
       if(!apiBase){
-        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo); }, 300);
+        console.warn('[Bandabi API unreachable] FastAPI 미실행 — python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000');
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, true); }, 300);
         return;
       }
       fetch(apiBase + '/api/route-analysis', {
@@ -1661,13 +1713,17 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ origin: originText, destination: destLabel, disability: profile.disability }),
       })
-      .then(function(res){ if(!res.ok) throw new Error('api_error'); return res.json(); })
+      .then(function(res){
+        if(!res.ok) throw new Error('api_error:' + res.status);
+        return res.json();
+      })
       .then(function(data){
         if(!data || !data.ok) throw new Error('analysis_failed');
-        applyRouteAnalysisPayload(data, originText, destLabel);
+        applyRouteAnalysisPayload(data, originText, destLabel, data.status_line);
       })
-      .catch(function(){
-        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo); }, 300);
+      .catch(function(err){
+        console.warn('[Bandabi API unreachable]', err);
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, true); }, 300);
       });
     }
     function simulateDispatch(){ triggerAiEngine(); showAppToast('경로를 다시 계산했습니다.'); }
@@ -1945,6 +2001,8 @@
     }
     tryRestoreSession();
     renderPublicApiStatus();
+    ensureValidCenterSelection();
+    refreshApiBase();
     window.scrollTo(0, 0);
   </script>
 </body>

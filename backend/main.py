@@ -20,11 +20,18 @@ from backend.security import create_access_token, decode_access_token, hash_pass
 
 app = FastAPI(title="Bandabi Auth API", version="1.0.0")
 
-cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+_default_cors = "http://localhost:8501,http://127.0.0.1:8501"
+_cors_raw = os.getenv("CORS_ORIGINS", _default_cors).strip()
+if _cors_raw == "*":
+    _cors_origins = ["*"]
+    _cors_credentials = False
+else:
+    _cors_origins = [origin.strip() for origin in _cors_raw.split(",") if origin.strip()]
+    _cors_credentials = True
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[origin.strip() for origin in cors_origins if origin.strip()],
-    allow_credentials=True,
+    allow_origins=_cors_origins,
+    allow_credentials=_cors_credentials,
     allow_methods=["*"],
     allow_headers=["*"],
 )

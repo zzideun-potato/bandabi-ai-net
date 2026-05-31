@@ -272,6 +272,12 @@ def analyze_route_for_api(origin: str, destination: str, disability: str = "phys
     arrival = result["bus_arrival"]
     arrival_status = arrival.get("status", "fallback")
 
+    origin_status = str(result["origin_coord"].get("data_status", "mock_fallback"))
+    vworld_label = "VWorld 실제 API" if origin_status == "real_api" else "VWorld fallback"
+    weather_label = f"기상 {weather_status}"
+    arrival_label = f"버스 도착 {arrival_status if arrival_status == 'real_api' else 'no_data'}"
+    status_line = f"{vworld_label} · {weather_label} · {arrival_label} · scoring rule_engine"
+
     return {
         "ok": True,
         "origin_label": s(result["origin_coord"].get("label", origin)),
@@ -279,6 +285,7 @@ def analyze_route_for_api(origin: str, destination: str, disability: str = "phys
         "score": int(score_result.get("score", 0)),
         "grade": display_grade,
         "action": result["explanation"],
+        "status_line": status_line,
         "bus_route": {
             "routeId": "API-ROUTE",
             "duration": duration,
