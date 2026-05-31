@@ -22,7 +22,7 @@ except Exception:  # pragma: no cover - Streamlit can still render without chart
     pd = None
 
 
-st.set_page_config(page_title="반다비 AI", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="반다비 AI", page_icon="🐻", layout="wide", initial_sidebar_state="collapsed")
 
 
 USER_ROLE = "B2C"
@@ -375,7 +375,7 @@ def inject_css() -> None:
         }}
         .auth-entry-title {{
             margin: 0;
-            color: #241936;
+            color: #2d2040;
             font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 30px;
             line-height: 1.05;
@@ -383,7 +383,7 @@ def inject_css() -> None:
         }}
         .auth-entry-sub {{
             margin: 17px 0 0 !important;
-            color: #6f5f96;
+            color: #7868a0;
             font-size: 14px !important;
             line-height: 1.65 !important;
             font-weight: 300 !important;
@@ -417,7 +417,7 @@ def inject_css() -> None:
         .auth-choice.secondary {{
             background: #fff;
             border: 1px solid rgba(184,172,216,.26);
-            color: #241936 !important;
+            color: #2d2040 !important;
             box-shadow: 0 10px 24px rgba(109,40,217,.075);
         }}
         .auth-choice-icon {{
@@ -459,14 +459,14 @@ def inject_css() -> None:
             color: inherit;
         }}
         .auth-choice.secondary .auth-choice-desc {{
-            color: #7a6aa0;
+            color: #7868a0;
         }}
         .auth-notice {{
             margin-top: 26px;
             border-radius: 14px;
             border: 1px solid rgba(184,172,216,.32);
             background: #f0ecf8;
-            color: #6f5f96;
+            color: #7868a0;
             padding: 15px 17px 15px;
             font-size: 12px;
             line-height: 1.72;
@@ -496,25 +496,25 @@ def inject_css() -> None:
         .auth-form-card {{
             box-sizing: border-box;
             width: min(540px, calc(100vw - 36px));
-            min-height: 986px;
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.18);
             border-radius: 20px;
-            padding: 34px 34px 31px;
+            padding: 34px 34px 28px;
             box-shadow: 0 24px 60px rgba(74,45,122,.115);
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
         }}
         .auth-form-page {{
             min-height: calc(100vh - 28px);
             display: flex;
             align-items: center;
             justify-content: center;
-            transform: translateY(-20px);
+            transform: translateY(-14px);
         }}
         .auth-form-head {{
             display: flex;
             align-items: flex-start;
             gap: 24px;
-            margin-bottom: 34px;
+            margin-bottom: 28px;
         }}
         .auth-form-logo {{
             width: 96px;
@@ -529,15 +529,15 @@ def inject_css() -> None:
         }}
         .auth-form-title {{
             margin: 0;
-            color: #241936;
+            color: #2d2040;
             font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 30px;
             line-height: 1.05;
             font-weight: 900;
         }}
         .auth-form-sub {{
-            margin: 42px 0 0 !important;
-            color: #6f5f96;
+            margin: 36px 0 0 !important;
+            color: #7868a0;
             font-size: 14px !important;
             line-height: 1.65 !important;
             font-weight: 300 !important;
@@ -545,14 +545,14 @@ def inject_css() -> None:
         }}
         .signup-panel-title {{
             margin: 0;
-            color: #241936;
+            color: #2d2040;
             font-size: 20px;
             line-height: 1.25;
             font-weight: 900;
         }}
         .signup-panel-copy {{
-            margin: 8px 0 25px !important;
-            color: #7a6aa0;
+            margin: 8px 0 20px !important;
+            color: #7868a0;
             font-size: 13px !important;
             line-height: 1.55 !important;
             font-weight: 300 !important;
@@ -561,18 +561,20 @@ def inject_css() -> None:
         .signup-panel {{
             box-sizing: border-box;
             width: 100%;
-            min-height: 526px;
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.34);
             border-radius: 16px;
-            padding: 20px 19px 18px;
+            padding: 22px 20px 20px;
         }}
         .signup-field {{
-            margin-top: 22px;
+            margin-top: 18px;
+        }}
+        .signup-panel .signup-field:first-of-type {{
+            margin-top: 0;
         }}
         .signup-label {{
             display: block;
-            margin: 0 0 14px;
+            margin: 0 0 10px;
             color: #6f5f96;
             font-size: 13px;
             line-height: 1.25;
@@ -586,7 +588,7 @@ def inject_css() -> None:
             border-radius: 12px;
             background: #ffffff;
             padding: 0 20px;
-            color: #241936;
+            color: #2d2040;
             font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 16px;
             font-weight: 300;
@@ -601,7 +603,7 @@ def inject_css() -> None:
         .auth-form-buttons {{
             display: flex;
             gap: 10px;
-            margin-top: 18px;
+            margin-top: 16px;
         }}
         .auth-form-action {{
             box-sizing: border-box;
@@ -612,12 +614,13 @@ def inject_css() -> None:
             height: 55px;
             border-radius: 12px;
             text-decoration: none !important;
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 16px;
             font-weight: 900;
         }}
         .auth-form-action.back {{
             background: #f0ecf8;
-            color: #241936;
+            color: #4a2d7a;
             border: 1px solid rgba(184,172,216,.34);
             box-shadow: none;
         }}
@@ -628,7 +631,7 @@ def inject_css() -> None:
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .auth-form-notice {{
-            margin-top: 24px;
+            margin-top: 20px;
         }}
         @media (max-width: 640px) {{
             .auth-entry-card, .auth-form-card {{
