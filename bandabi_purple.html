@@ -1416,6 +1416,10 @@
       showAppToast(role === 'B2G' ? '기관 관리자 모드로 접속했습니다.' : '이용자 모드로 접속했습니다.');
     }
     function logout(){
+      if(window.BANDABI_STREAMLIT_AUTH){
+        showAppToast('화면 상단의 로그아웃 버튼을 이용해 주세요.');
+        return;
+      }
       saveSession(null);
       resetFlowProgress();
       currentRole = null;
@@ -1429,9 +1433,18 @@
       showFlow('start-screen');
       showAppToast('로그아웃되었습니다.');
     }
+    function bootstrapFromStreamlit(){
+      const boot = window.BANDABI_BOOTSTRAP;
+      if(!boot || !boot.email || !boot.role) return false;
+      saveSession({ email: boot.email, name: boot.name, role: boot.role });
+      applyUserToForm({ email: boot.email, name: boot.name });
+      enterAppWithRole(boot.role, boot.name);
+      return true;
+    }
     function tryRestoreSession(){
       loadTokensFromSession();
       loadFlowState();
+      if(bootstrapFromStreamlit()) return;
       const session = loadSession();
       if(!session || !session.email) return;
       applyUserToForm(session);

@@ -1,57 +1,74 @@
 # 반다비 AI — HTML 프로토타입 (Streamlit 렌더링)
 
-완성형 프론트 **`bandabi_purple.html`** 을 Streamlit에서 **수정 없이** iframe으로 보여 줍니다.  
-HTML·CSS·JS는 **건드리지 않습니다.** 백엔드/API 연결은 추후 별도 작업입니다.
+완성형 프론트 **`bandabi_purple.html`** 의 UI·탭·기능 흐름을 유지하고, **Streamlit 배포 시 로그인/회원가입만 `app.py` 최상위 화면**에서 처리합니다.
 
 ## 구조
 
 ```
 project/
-├── app.py
-├── bandabi_purple.html
-├── backend/              ← FastAPI 인증 API
+├── app.py                 ← Streamlit 진입 · 로그인/회원가입 · iframe 렌더
+├── bandabi_purple.html    ← 메인 UI (mock 엔진 · 기능 흐름)
 ├── requirements.txt
 └── README.md
 ```
 
 ## 로컬 실행
 
-**1) 인증 API (터미널 1)**
-
-```bash
-pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
-```
-
-**2) Streamlit UI (터미널 2)**
-
 ```bash
 pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-`app.py`는 `bandabi_purple.html`에 `BACKEND_API_URL`(기본 `http://localhost:8000`)만 주입합니다.  
-로그인·회원가입은 FastAPI + SQLite(`backend/data/bandabi.db`) + JWT로 처리됩니다.
+FastAPI·DB·SendGrid 실발송은 **현재 단계에서 사용하지 않습니다.**
 
-### 인증 흐름
+## 인증 흐름 (Streamlit 배포)
 
-| 단계 | 설명 |
-|------|------|
-| 회원가입 | 이름 · 이메일 · 비밀번호(8자+) → `/auth/signup` |
-| 로그인 | 이메일 · 비밀번호 → `/auth/login` |
-| 역할 선택 | 이용자(B2C) / 기관 관리자(B2G) → `/auth/select-role` |
-| 세션 유지 | JWT를 브라우저 `localStorage`에 저장, 새로고침 시 `/auth/me`로 복원 |
+| 단계 | 처리 위치 | 설명 |
+|------|-----------|------|
+| 회원가입 | `app.py` | 이름 · 이메일 · 비밀번호(8자+) · 역할 → `st.session_state` |
+| 로그인 | `app.py` | 이메일 · 비밀번호 · 역할 → `st.session_state` |
+| 앱 진입 | `bandabi_purple.html` (iframe) | 로그인 후에만 렌더 · `BANDABI_BOOTSTRAP`으로 모달 건너뜀 |
+| 로그아웃 | `app.py` 상단 버튼 | iframe 내부 로그아웃은 Streamlit 모드에서 안내 토스트만 표시 |
 
-배포 시 `.streamlit/secrets.toml`에 `BACKEND_API_URL`, 백엔드 env에 `JWT_SECRET`을 설정하세요.
+### `st.session_state` 키
 
-API 서버 없이 Streamlit만 실행하면 로그인/회원가입 요청이 실패합니다. **1)+2)** 를 함께 실행하세요.
+- `is_authenticated`
+- `user_name`
+- `user_email`
+- `role` (`B2C` / `B2G`)
+- `registered_users` (프로토타입용 in-memory 계정 목록)
 
-## 원본과 동일하게 보기
+※ **프로토타입용 로컬 인증**이며, 실제 DB·서버 보안 인증이 아닙니다.
 
-1. **브라우저에서 HTML 직접 열기:** `bandabi_purple.html` 더블클릭 또는 `file://` 로 열기  
-2. **Streamlit:** `python -m streamlit run app.py`
+## Chrome 비밀번호 관리자
 
-두 화면을 나란히 비교합니다. Streamlit 쪽은 `app.py`가 여백·헤더만 제거하고 `components.html(..., height=3000, scrolling=True)` 로 렌더링합니다.
+| 환경 | 비밀번호 추천·저장·불러오기 |
+|------|------------------------------|
+| `app.py` Streamlit 최상위 로그인/회원가입 | **인식 가능성 높음** (`st.form` + `autocomplete` 속성 주입) |
+| `components.html()` iframe 내부 HTML 폼 | **불안정** — Chrome이 강력한 비밀번호 추천·저장 UI를 표시하지 않을 수 있음 |
+
+**중요:** Chrome 비밀번호 추천 UI는 브라우저가 판단하는 기능입니다. 코드로 강제로 띄울 수 없습니다.  
+다만 iframe이 아닌 Streamlit 최상위 화면에 폼을 두어 인식 가능성을 높였습니다.
+
+권장 input 속성 (로그인):
+
+```html
+<input type="email" name="email" autocomplete="email" />
+<input type="password" name="current-password" autocomplete="current-password" />
+```
+
+회원가입:
+
+```html
+<input type="password" name="new-password" autocomplete="new-password" />
+<input type="password" name="new-password-confirm" autocomplete="new-password" />
+```
+
+## HTML 직접 열기 (개발·비교용)
+
+`bandabi_purple.html`을 브라우저에서 직접 열면 **HTML 내부 로그인 모달**이 그대로 동작합니다 (`localStorage` / `sessionStorage` 프로토타입 인증).
+
+Streamlit 배포와는 별도 경로입니다.
 
 ## Streamlit Cloud 배포
 
@@ -59,51 +76,13 @@ API 서버 없이 Streamlit만 실행하면 로그인/회원가입 요청이 실
 2. [share.streamlit.io](https://share.streamlit.io) → Main file: **`app.py`**  
 3. Deploy  
 
-`bandabi_purple.html` 이 레포에 없으면 Streamlit에서 빈 화면/에러가 납니다.
-
-## 백엔드 연결 (추후 — HTML 수정 없이)
-
-현재 단계에서는 **HTML 파일을 변경하지 않습니다.**  
-모델·SendGrid 연동은 다음 중 하나로 진행하는 것을 권장합니다.
-
-| 방식 | 설명 |
-|------|------|
-| HTML 사본 + adapter JS | `bandabi_purple.adapter.html` 등 **별도 파일**에서 fetch만 추가 |
-| FastAPI 백엔드 | `backend/` 폴더에 API 두고, adapter에서 `POST /route-analysis` 등 호출 |
-| SendGrid | **브라우저/ HTML에 키 금지** → `POST /send-email` 은 서버 env만 |
-
-`app.py`는 지금처럼 **렌더링만** 담당합니다. `BACKEND_API_URL` 주입·HTML 치환은 하지 않습니다.
-
-### 추후 FastAPI 예시 구조
-
-```
-backend/
-├── main.py
-├── requirements.txt
-└── .env          # SENDGRID_API_KEY 등 (gitignore)
-```
-
----
-
-## 화면 차이가 날 수 있는 이유 (점검 메모)
-
-| 원인 | 직접 열기 | Streamlit iframe |
-|------|-----------|------------------|
-| 스크롤 | 문서 전체(body) 스크롤 | iframe 높이(3000px) + `scrolling=True` 이중 스크롤 가능 |
-| 뷰포트 | 브라우저 전체 너비 | iframe 너비 100% (거의 동일) |
-| Streamlit 크롬 | 없음 | `#MainMenu`, header, footer 숨김 처리 |
-| CDN (Tailwind, FA, Chart.js) | 네트워크 필요 | iframe 내부에서도 동일 CDN 로드 |
-| `file://` vs `http://localhost` | 일부 브라우저 보안 차이 | Streamlit은 localhost 서빙 |
-
-iframe 높이가 부족하면 하단 탭이 잘릴 수 있습니다 → `app.py`의 `height=3000` 을 키우세요.
-
----
-
 ## 보안
 
 - API Key·SendGrid Key는 HTML/JS에 넣지 않음  
 - `.streamlit/secrets.toml` 은 git에 커밋하지 않음  
+- 비밀번호는 프로토타입용이며, 실제 배포 보안 인증으로 간주하지 않음  
 
 ## 레거시
 
-이전 Streamlit 위젯+엔진 버전: `app_engine_tabs.py`, `modules/` (이 HTML 렌더 방식과 무관)
+- `backend/` — FastAPI 인증 샘플 (현재 Streamlit 단독 배포 경로에서는 미사용)  
+- `app_engine_tabs.py`, `modules/` — 이전 Streamlit 위젯+엔진 버전  
