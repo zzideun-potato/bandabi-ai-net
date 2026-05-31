@@ -85,6 +85,45 @@ RAG_SAMPLE_QUERIES = [
     "교통약자 이동지원",
 ]
 
+ROUTE_CACHE_SPECS: list[tuple[str, str, str]] = [
+    ("김포 구래역 1번 출구", "김포 반다비체육센터", "physical"),
+    ("김포 구래역 1번 출구", "김포 반다비체육센터", "visual"),
+    ("김포 구래역 1번 출구", "김포 반다비체육센터", "developmental"),
+    ("김포 구래역 1번 출구", "김포 반다비체육센터", "senior"),
+    ("성남역", "김포 반다비체육센터", "physical"),
+]
+
+
+def _resolve_api_base() -> str:
+    """Public FastAPI URL from Streamlit secrets / env (empty on Cloud if not deployed)."""
+    try:
+        from modules.config import get_secret
+
+        raw = str(get_secret("BACKEND_API_URL", "") or "").strip().rstrip("/")
+        return raw
+    except Exception:
+        return ""
+
+
+def _build_route_analysis_cache() -> dict[str, Any]:
+    """Precompute Python route analysis for Streamlit Cloud (no browser → localhost)."""
+    cache: dict[str, Any] = {}
+    try:
+        from components.route_engine import analyze_route_for_api
+
+        for origin, destination, disability in ROUTE_CACHE_SPECS:
+            key = f"{disability}|{origin}|{destination}"
+            result, _ = _safe_call(
+                f"route_analysis:{key}",
+                lambda o=origin, d=destination, dis=disability: analyze_route_for_api(o, d, dis),
+                {"ok": False},
+            )
+            if isinstance(result, dict):
+                cache[key] = result
+    except Exception:
+        logger.warning("route_analysis_cache build failed:\n%s", traceback.format_exc())
+    return cache
+
 
 def _label(status: str) -> str:
     return STATUS_LABELS.get(str(status), str(status))
@@ -229,9 +268,18 @@ def _build_public_api_cards(
     vision: dict[str, Any],
     email: dict[str, Any],
     csv_inventory: list[dict[str, Any]],
+    *,
+    route_cache_ok: int = 0,
+    api_base: str = "",
 ) -> list[dict[str, str]]:
     csv_loaded = sum(1 for row in csv_inventory if row.get("status") == "real_csv")
     csv_display = f"CSV {csv_loaded}/{len(csv_inventory)} 로드" if csv_inventory else "CSV 없음"
+    if route_cache_ok:
+        route_display = f"Python 엔진 · 서버 캐시 {route_cache_ok}건 (경로 분석 버튼)"
+    elif api_base:
+        route_display = f"FastAPI 연동 · {api_base}"
+    else:
+        route_display = "클라이언트 mock fallback"
     return [
         {"label": "VWorld 주소검색", "status": vworld.get("data_status", "missing"), "display": _label(vworld.get("data_status", "missing"))},
         {"label": "data.go.kr 공공데이터", "status": data_go.get("data_status", "missing"), "display": _label(data_go.get("data_status", "missing"))},
@@ -239,9 +287,9 @@ def _build_public_api_cards(
         {"label": "RAG 문서검색", "status": rag.get("status", "fallback"), "display": rag.get("display", _label("fallback"))},
         {"label": "Vision 모델", "status": vision.get("data_status", "missing_key"), "display": _label(vision.get("data_status", "missing_key"))},
         {"label": "SendGrid", "status": email.get("data_status", "disabled"), "display": _label(email.get("data_status", "disabled"))},
-        {"label": "버스 노선 정보", "status": "mock_fallback", "display": "앱 로드시 실시간 호출 없음 · mock fallback"},
-        {"label": "버스 도착 정보", "status": "no_data", "display": "앱 로드시 실시간 호출 없음 · no_data fallback"},
-        {"label": "기상 단기예보", "status": "mock_fallback", "display": "앱 로드시 실시간 호출 없음 · mock fallback"},
+        {"label": "경로 분석 엔진", "status": "ready" if route_cache_ok else "fallback", "display": route_display},
+        {"label": "버스 도착 정보", "status": "no_data", "display": "실시간 도착 · no_data fallback"},
+        {"label": "기상 단기예보", "status": vworld.get("data_status", "missing"), "display": _label(vworld.get("data_status", "missing"))},
         {"label": "접근성 제보", "status": "configured", "display": "프론트 세션 저장"},
     ]
 
@@ -302,6 +350,10 @@ def build_server_data() -> dict[str, Any]:
     )
     import_status["build_official_draft"] = draft_call
 
+    route_analysis_cache = _build_route_analysis_cache()
+    route_cache_ok = sum(1 for row in route_analysis_cache.values() if isinstance(row, dict) and row.get("ok"))
+    api_base = _resolve_api_base()
+
     public_api_cards = _build_public_api_cards(
         vworld or {},
         data_go or {},
@@ -309,6 +361,8 @@ def build_server_data() -> dict[str, Any]:
         vision_status_data or {},
         email_status_data or {},
         csv_inventory,
+        route_cache_ok=route_cache_ok,
+        api_base=api_base,
     )
 
     payload = {
@@ -317,8 +371,12 @@ def build_server_data() -> dict[str, Any]:
             "modules_ok": modules_ok,
             "modules_failed": modules_failed,
             "import_status": import_status,
-            "note": "버튼 클릭 시 실시간 API 호출이 필요하면 FastAPI 또는 Streamlit custom component bridge가 필요합니다.",
+            "api_base": api_base,
+            "route_engine": "server_cache" if route_cache_ok else "client_fallback",
+            "route_cache_entries": route_cache_ok,
+            "note": "Streamlit Cloud: 경로 분석은 서버 캐시 우선. BACKEND_API_URL 설정 시 FastAPI 실시간 호출.",
         },
+        "route_analysis_cache": route_analysis_cache,
         "api_status": {
             "vworld": vworld or {"data_status": "missing"},
             "data_go_kr": data_go or {"data_status": "missing"},

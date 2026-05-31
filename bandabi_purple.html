@@ -942,7 +942,52 @@
     }
     function getApiBase(){
       var meta = getServerData().meta || {};
-      return meta.api_base || 'http://127.0.0.1:8000';
+      if(meta.api_base) return String(meta.api_base).replace(/\/$/, '');
+      try {
+        var host = window.location.hostname;
+        if(host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:8000';
+      } catch(_) {}
+      return '';
+    }
+    function findServerRouteAnalysis(originText, destLabel, disability){
+      var cache = getServerData().route_analysis_cache;
+      if(!cache) return null;
+      var exactKey = disability + '|' + originText + '|' + destLabel;
+      if(cache[exactKey] && cache[exactKey].ok) return cache[exactKey];
+      var originNorm = (originText || '').replace(/\s+/g, '').trim();
+      var destNorm = (destLabel || '').replace(/\s+/g, '').trim();
+      var match = null;
+      Object.keys(cache).forEach(function(key){
+        if(match) return;
+        var parts = key.split('|');
+        if(parts.length < 3 || parts[0] !== disability) return;
+        var entry = cache[key];
+        if(!entry || !entry.ok) return;
+        var cachedDest = parts[2].replace(/\s+/g, '');
+        if(destNorm.indexOf('반다비') < 0 && cachedDest.indexOf('반다비') < 0) return;
+        if(destNorm.slice(0, 4) !== cachedDest.slice(0, 4) && destNorm.indexOf(cachedDest.slice(0, 6)) < 0) return;
+        var cachedOrigin = parts[1].replace(/\s+/g, '');
+        if(originNorm === cachedOrigin){ match = entry; return; }
+        if(/김포|구래|운양|양씨/.test(originNorm) && /김포|구래|운양|양씨/.test(cachedOrigin)){ match = entry; return; }
+        if(/성남|신흥|판교|강남/.test(originNorm) && /성남|신흥|판교|강남/.test(cachedOrigin)){ match = entry; return; }
+      });
+      return match;
+    }
+    function applyRouteAnalysisPayload(data, originText, destLabel){
+      document.getElementById('route-loading').classList.add('hidden');
+      document.getElementById('route-result').classList.remove('hidden');
+      injectRouteResults(
+        data.origin_label || originText,
+        data.dest_label || destLabel,
+        data.score,
+        data.grade,
+        data.action,
+        data.bus_route || {},
+        data.weather || {},
+        data.arrival || { status: 'no_data' }
+      );
+      flowProgress.routeAnalyzed = true;
+      saveFlowState();
     }
 
     // ── Storage keys (프로토타입용 로컬 인증 · mock 엔진) ──
@@ -1601,7 +1646,17 @@
       showFlow('route-screen');
       document.getElementById('route-loading').classList.remove('hidden');
       document.getElementById('route-result').classList.add('hidden');
-      fetch(getApiBase() + '/api/route-analysis', {
+      const serverRoute = findServerRouteAnalysis(originText, destLabel, profile.disability);
+      if(serverRoute){
+        setTimeout(function(){ applyRouteAnalysisPayload(serverRoute, originText, destLabel); }, 300);
+        return;
+      }
+      const apiBase = getApiBase();
+      if(!apiBase){
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo); }, 300);
+        return;
+      }
+      fetch(apiBase + '/api/route-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ origin: originText, destination: destLabel, disability: profile.disability }),
@@ -1609,20 +1664,7 @@
       .then(function(res){ if(!res.ok) throw new Error('api_error'); return res.json(); })
       .then(function(data){
         if(!data || !data.ok) throw new Error('analysis_failed');
-        document.getElementById('route-loading').classList.add('hidden');
-        document.getElementById('route-result').classList.remove('hidden');
-        injectRouteResults(
-          data.origin_label || originText,
-          data.dest_label || destLabel,
-          data.score,
-          data.grade,
-          data.action,
-          data.bus_route || {},
-          data.weather || {},
-          data.arrival || { status: 'no_data' }
-        );
-        flowProgress.routeAnalyzed = true;
-        saveFlowState();
+        applyRouteAnalysisPayload(data, originText, destLabel);
       })
       .catch(function(){
         setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo); }, 300);
