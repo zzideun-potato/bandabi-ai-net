@@ -695,7 +695,7 @@
               <div class="space-y-4">
                 <label class="block"><span class="text-xs font-bold text-slate-400">접근성 지원 필요 유형</span><div class="select-wrap"><select id="disability-type" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm"><option value="physical">휠체어 이용 또는 보행 보조 필요</option><option value="visual">음성 안내 또는 유도동선 필요</option><option value="developmental">보호자 동행 또는 단계별 안내 필요</option><option value="senior">일부 도움 필요 또는 저강도 안내 선호</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
                 <label class="block"><span class="text-xs font-bold text-slate-400">출발지</span><input id="origin" value="김포 구래역 1번 출구" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" /></label>
-                <label class="block"><span class="text-xs font-bold text-slate-400">목적지</span><div class="select-wrap"><select id="center-location" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" onchange="handleCenterLocationChange(this)"><option value="gimpo">김포 반다비체육센터</option><option value="gimpo2">김포 제2 반다비 체육거점</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
+                <label class="block"><span class="text-xs font-bold text-slate-400">목적지</span><div class="select-wrap"><select id="center-location" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" onchange="handleCenterLocationChange(this)"><option value="gimpo">김포 반다비체육센터</option><option value="gimpo2">김포 제2 반다비 교육거점</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
               </div>
               <div class="grid grid-cols-2 gap-3 content-start text-sm">
                 <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">보호자 알림</div>
@@ -955,6 +955,7 @@
     function getApiBase(){
       var meta = getServerData().meta || {};
       if(meta.api_base) return String(meta.api_base).replace(/\/$/, '');
+      if(BANDABI_API_BASE) return String(BANDABI_API_BASE).replace(/\/$/, '');
       try {
         var host = window.location.hostname;
         if(host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:8000';
@@ -963,6 +964,7 @@
     }
     function refreshApiBase(){
       BANDABI_API_BASE = getApiBase();
+      console.log('[Bandabi API base]', BANDABI_API_BASE);
       return BANDABI_API_BASE;
     }
     async function debugBandabiApiStatus(){
@@ -1027,6 +1029,7 @@
         data.arrival || { status: 'no_data' }
       );
       setRouteSourceStatus(sourceStatus || data.status_line || 'FastAPI · python_modules');
+      console.log('[route-analysis source]', data.status_line || data.source || 'FastAPI');
       flowProgress.routeAnalyzed = true;
       saveFlowState();
     }
@@ -1629,7 +1632,7 @@
       window.__bandabiToastTimer=setTimeout(()=>toast.classList.remove('open'), 2200);
     }
     function blockUnavailableCenter(centerName){
-      showAppToast(centerName + '은 아직 등록되지 않은 예정 시설입니다. 현재는 김포 반다비체육센터 기준으로 이용해 주세요.');
+      showAppToast('김포 제2 반다비 교육거점은 아직 등록되지 않은 예정 시설입니다. 현재는 김포 반다비체육센터 기준으로 이용해 주세요.');
       const sel = document.getElementById('center-location');
       if(sel) sel.value = 'gimpo';
       return false;

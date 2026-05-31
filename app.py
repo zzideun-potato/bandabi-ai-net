@@ -95,14 +95,19 @@ ROUTE_CACHE_SPECS: list[tuple[str, str, str]] = [
 
 
 def _resolve_api_base() -> str:
-    """Public FastAPI URL from Streamlit secrets / env (empty on Cloud if not deployed)."""
+    """Public FastAPI URL only (never API keys). secrets → env → local default."""
+    raw = ""
     try:
-        from modules.config import get_secret
-
-        raw = str(get_secret("BACKEND_API_URL", "") or "").strip().rstrip("/")
-        return raw
+        value = st.secrets.get("BACKEND_API_URL", None)
+        if value not in (None, ""):
+            raw = str(value).strip().rstrip("/")
     except Exception:
-        return ""
+        pass
+    if not raw:
+        raw = str(os.getenv("BACKEND_API_URL", "") or "").strip().rstrip("/")
+    if not raw:
+        raw = "http://127.0.0.1:8000"
+    return raw
 
 
 def _build_route_analysis_cache() -> dict[str, Any]:
@@ -374,7 +379,7 @@ def build_server_data() -> dict[str, Any]:
             "api_base": api_base,
             "route_engine": "server_cache" if route_cache_ok else "client_fallback",
             "route_cache_entries": route_cache_ok,
-            "note": "Streamlit Cloud: 경로 분석은 서버 캐시 우선. BACKEND_API_URL 설정 시 FastAPI 실시간 호출.",
+            "note": "iframe 경로분석: meta.api_base → FastAPI. Cloud는 Secrets BACKEND_API_URL(공개 HTTPS) 필요.",
         },
         "route_analysis_cache": route_analysis_cache,
         "api_status": {
@@ -426,14 +431,23 @@ def build_server_data() -> dict[str, Any]:
 def inject_server_data(html: str, server_data: dict[str, Any]) -> str:
     json_text = json.dumps(server_data, ensure_ascii=False)
     json_text = json_text.replace("<", "\\u003c").replace(">", "\\u003e")
-    script = f"<script>window.BANDABI_SERVER_DATA = {json_text};</script>"
+    api_base_js = json.dumps(str((server_data.get("meta") or {}).get("api_base", "") or ""))
+    script = f"<script>window.BANDABI_SERVER_DATA = {json_text};window.BANDABI_API_BASE = {api_base_js};</script>"
     if "</head>" in html:
         return html.replace("</head>", script + "\n</head>", 1)
     return html.replace("</body>", script + "\n</body>", 1)
 
 
+def _render_cache_key() -> tuple[float, float]:
+    html_path = ROOT / "bandabi_purple.html"
+    app_path = ROOT / "app.py"
+    html_mtime = html_path.stat().st_mtime if html_path.exists() else 0.0
+    app_mtime = app_path.stat().st_mtime if app_path.exists() else 0.0
+    return (html_mtime, app_mtime)
+
+
 @st.cache_data(show_spinner=False)
-def load_render_html() -> str:
+def load_render_html(html_mtime: float, app_mtime: float) -> str:
     html_path = ROOT / "bandabi_purple.html"
     if not html_path.exists():
         return ""
@@ -442,7 +456,11 @@ def load_render_html() -> str:
     except Exception:
         logger.error("build_server_data failed:\n%s", traceback.format_exc())
         server_data = {
-            "meta": {"generated_at": datetime.now(timezone.utc).isoformat(), "error": "build_failed"},
+            "meta": {
+                "generated_at": datetime.now(timezone.utc).isoformat(),
+                "error": "build_failed",
+                "api_base": _resolve_api_base(),
+            },
             "public_api_cards": [],
         }
     return inject_server_data(html_path.read_text(encoding="utf-8"), server_data)
@@ -487,7 +505,8 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-html = load_render_html()
+html_mtime, app_mtime = _render_cache_key()
+html = load_render_html(html_mtime, app_mtime)
 if not html:
     st.error("bandabi_purple.html 파일을 찾을 수 없습니다.")
 else:
