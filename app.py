@@ -13,26 +13,29 @@ st.set_page_config(
 st.markdown(
     """
     <style>
-    #MainMenu {visibility: hidden;}
-    header {visibility: hidden;}
-    footer {visibility: hidden;}
-
+    #MainMenu, header, footer { visibility: hidden; height: 0 !important; }
+    [data-testid="stHeader"] { display: none !important; }
+    [data-testid="stToolbar"] { display: none !important; }
+    [data-testid="stAppViewContainer"] > .main > div {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
     .stApp {
-        margin: 0;
-        padding: 0;
-        background: #e8e2f4;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: #e8e2f4;
     }
-
     .block-container {
-        padding: 0 !important;
-        margin: 0 !important;
-        max-width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
     }
-
+    div[data-testid="stVerticalBlock"] { gap: 0 !important; }
     iframe {
-        display: block;
-        width: 100% !important;
-        border: 0 !important;
+      display: block;
+      width: 100% !important;
+      border: 0 !important;
+      min-height: 100vh;
     }
     </style>
     """,
@@ -47,6 +50,6 @@ else:
     html = html_path.read_text(encoding="utf-8")
     components.html(
         html,
-        height=3000,
-        scrolling=True,
+        height=900,
+        scrolling=False,
     )
