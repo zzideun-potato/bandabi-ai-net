@@ -35,7 +35,7 @@ UNAVAILABLE_MESSAGE = (
 )
 
 SUPPORT_TYPES = [
-    "휠체어 또는 보행 보조 필요",
+    "휠체어 이용 또는 보행 보조 필요",
     "시각 정보 접근 지원 필요",
     "청각 안내 지원 필요",
     "천천히 단계별 안내 필요",
@@ -842,6 +842,168 @@ def inject_css() -> None:
             border: 1px solid rgba(80,180,120,.25) !important;
             box-shadow: none !important;
         }}
+        .user-header .brand-logo-shell {{
+            width: 48px;
+            height: 48px;
+            border-radius: 18px;
+            overflow: hidden;
+            background: #4a2d7a;
+            flex: 0 0 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .user-header .brand-logo-img {{
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }}
+        .user-header-row {{
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }}
+        .user-header-brand {{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 260px;
+        }}
+        .brand-user-tag {{
+            font-size: 14px;
+            color: #7868a0;
+            font-weight: 700;
+        }}
+        .chip-token {{
+            background: rgba(255, 244, 224, .72);
+            border-color: rgba(180, 130, 40, .18);
+            color: #6b4fa0;
+        }}
+        .chip-token-sub {{
+            font-size: 10px;
+            color: #b8acd8;
+            font-weight: 700;
+        }}
+        .start-screen {{
+            width: 100%;
+        }}
+        .st-key-start_shell {{
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 32px;
+            padding: 28px 28px 24px;
+            box-shadow:
+                0 2px 6px rgba(109,40,217,.06),
+                0 10px 28px rgba(109,40,217,.10),
+                0 1px 0 rgba(255,255,255,.92) inset;
+        }}
+        .st-key-start_shell [data-testid="stVerticalBlockBorderWrapper"] {{
+            border: none;
+            padding: 0;
+        }}
+        .start-card {{
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+            box-shadow: none;
+        }}
+        .start-kicker {{
+            color: #6b4fa0;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin: 0;
+        }}
+        .start-greeting {{
+            color: #4a2d7a;
+            font-size: clamp(28px, 3vw, 36px);
+            font-weight: 900;
+            line-height: 1.12;
+            margin: 10px 0 0;
+        }}
+        .start-lead {{
+            color: #7868a0;
+            font-size: 18px;
+            line-height: 1.45;
+            font-weight: 300;
+            margin: 14px 0 0;
+        }}
+        .start-copy {{
+            color: #b8acd8;
+            font-size: 12px;
+            line-height: 1.65;
+            font-weight: 300;
+            margin: 8px 0 0;
+        }}
+        .start-grid-shell {{
+            margin-top: 28px;
+        }}
+        .start-label {{
+            display: block;
+            color: #7868a0;
+            font-size: 12px;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }}
+        .start-fields [data-testid="stSelectbox"],
+        .start-fields [data-testid="stTextInput"] {{
+            margin-bottom: 14px;
+        }}
+        .start-fields [data-testid="stSelectbox"] label,
+        .start-fields [data-testid="stTextInput"] label {{
+            display: none;
+        }}
+        .start-fields [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        .start-fields [data-testid="stTextInput"] input {{
+            min-height: 48px;
+            border-radius: 16px;
+            border-color: rgba(119, 96, 160, .22);
+            background: #fff;
+            color: #4a2d7a;
+            font-size: 14px;
+            font-weight: 500;
+        }}
+        .start-tile-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }}
+        .start-tile {{
+            min-height: 58px;
+            border-radius: 16px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.22);
+            color: #4a2d7a;
+            font-size: 14px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 14px 10px;
+        }}
+        .start-action-wrap {{
+            margin-top: 12px;
+        }}
+        .st-key-btn_ai_start > button {{
+            min-height: 58px;
+            border-radius: 24px;
+            font-size: 18px;
+            font-weight: 900;
+            box-shadow: 0 12px 24px rgba(74,45,122,.28);
+        }}
+        .start-footnote {{
+            color: #b8acd8;
+            font-size: 11px;
+            line-height: 1.65;
+            font-weight: 300;
+            margin: 28px 0 0;
+        }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
             .section-card, .auth-card {{ padding: 20px; border-radius: 18px; }}
@@ -1190,40 +1352,71 @@ def render_auth() -> None:
 
 def render_header() -> None:
     name = st.session_state.get("user_name") or "반다비"
-    points = fmt_bt(st.session_state.get("bt_points", 3500))
-    points_html = ""
-    if st.session_state.get("role") == USER_ROLE:
-        points_html = (
-            f"<span class='chip'>반다비 포인트 {esc(points)}</span>"
-            "<span class='chip'>참여 인센티브 · 현금 환급·양도·재판매 불가</span>"
-        )
+    points_value = int(st.session_state.get("bt_points", 3500))
+    is_user = st.session_state.get("role") == USER_ROLE
 
-    st.markdown(
-        f"""
-        <div class="bandabi-header">
-            <div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;min-width:260px;">
-                    <span class="brand-mark">B</span>
-                    <div>
-                        <p class="brand-title">반다비 AI</p>
-                        <p class="brand-subtitle">{esc(role_label())} · {esc(name)}님</p>
+    if is_user:
+        icon_src = bandabi_icon_data_uri()
+        logo_html = (
+            f'<img class="brand-logo-img" src="{icon_src}" alt="반다비">'
+            if icon_src
+            else '<span class="brand-mark" style="margin:0;">B</span>'
+        )
+        st.markdown(
+            f"""
+            <div class="bandabi-header user-header">
+                <div class="user-header-row">
+                    <div class="user-header-brand">
+                        <div class="brand-logo-shell">{logo_html}</div>
+                        <div>
+                            <p class="brand-title">
+                                반다비 AI <span class="brand-user-tag">(User | {esc(name)}님)</span>
+                            </p>
+                            <div class="chip-row" style="margin-top:8px;">
+                                <span class="chip">이용자 모드</span>
+                                <span class="chip chip-token">
+                                    {points_value:,} BT
+                                    <span class="chip-token-sub">현금 환급·양도 불가</span>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="chip-row" style="justify-content:flex-end;margin-top:0;">
-                    <span class="chip">{esc(role_label())}</span>
-                    {points_html}
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+    else:
+        st.markdown(
+            f"""
+            <div class="bandabi-header">
+                <div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;min-width:260px;">
+                        <span class="brand-mark">B</span>
+                        <div>
+                            <p class="brand-title">반다비 AI</p>
+                            <p class="brand-subtitle">{esc(role_label())} · {esc(name)}님</p>
+                        </div>
+                    </div>
+                    <div class="chip-row" style="justify-content:flex-end;margin-top:0;">
+                        <span class="chip">{esc(role_label())}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    btn_cols = st.columns([1, 1, 5, 1])
+            """,
+            unsafe_allow_html=True,
+        )
+
+    btn_cols = st.columns([1, 1, 1, 4])
     with btn_cols[0]:
         if st.button("고대비", key="btn_high_contrast"):
             st.session_state.high_contrast = not bool(st.session_state.get("high_contrast"))
             st.rerun()
     with btn_cols[1]:
+        if st.button("음성", key="btn_voice"):
+            st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
+            st.rerun()
+    with btn_cols[2]:
         if st.button("로그아웃", key="btn_logout"):
             for key in ("logged_in", "authenticated"):
                 st.session_state[key] = False
@@ -1231,15 +1424,21 @@ def render_header() -> None:
             st.session_state.pending_confirm = None
             st.rerun()
 
-    st.markdown(
-        """
-        <p class="disclaimer">
-        본 서비스는 생활체육 참여와 접근성 확인을 돕는 참고용 화면입니다.
-        의료 진단, 처방, 치료 효과 판단, 법적 적합 판정 또는 행정 처분 판단을 대체하지 않습니다.
-        </p>
-        """,
-        unsafe_allow_html=True,
+    hide_disclaimer = (
+        is_user
+        and st.session_state.get("current_page") == "main"
+        and st.session_state.get("main_step") == "start"
     )
+    if not hide_disclaimer:
+        st.markdown(
+            """
+            <p class="disclaimer">
+            본 서비스는 생활체육 참여와 접근성 확인을 돕는 참고용 화면입니다.
+            의료 진단, 처방, 치료 효과 판단, 법적 적합 판정 또는 행정 처분 판단을 대체하지 않습니다.
+            </p>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def nav_button(label: str, page: str, key: str) -> None:
@@ -1260,11 +1459,11 @@ def render_nav() -> None:
         st.markdown("</div>", unsafe_allow_html=True)
         return
 
-    labels = ["AI 추천 및 이동지원 연계", "내 운동 일정 추천", "접근성 점검 보조"]
+    labels = ["AI 추천 및 이동지원 연계", "내 운동 일정 추천", "AI 기반 접근성 점검 보조"]
     page_by_label = {
         "AI 추천 및 이동지원 연계": "main",
         "내 운동 일정 추천": "schedule",
-        "접근성 점검 보조": "accessibility",
+        "AI 기반 접근성 점검 보조": "accessibility",
     }
     label_by_page = {value: key for key, value in page_by_label.items()}
     current_label = label_by_page.get(st.session_state.get("current_page", "main"), labels[0])
@@ -1465,45 +1664,72 @@ def render_pending_confirm() -> None:
 
 def render_start() -> None:
     name = st.session_state.get("user_name") or "반다비"
-    section_intro(
-        "Start",
-        f"반갑습니다, {name}님 :)",
-        "오늘 운동, 갈 수 있는 경로부터 확인해요. 필요한 정보만 입력하면 경로·동행·강습·리포트 화면이 순서대로 이어집니다.",
-        ["기본 목적지: 김포 반다비체육센터", "3500BT 시작", "mock 추천 흐름"],
-    )
+    with st.container(key="start_shell"):
+        st.markdown(
+            html_block(f"""
+                <section class="start-card">
+                    <p class="start-kicker">Start</p>
+                    <h2 class="start-greeting">반갑습니다, {esc(name)}님 :)</h2>
+                    <p class="start-lead">오늘 운동, 갈 수 있는 경로부터 확인해요.</p>
+                    <p class="start-copy">필요한 정보만 입력하면 경로·동행·강습·리포트 화면이 순서대로 이어집니다.</p>
+            """),
+            unsafe_allow_html=True,
+        )
 
-    with st.container():
+        st.markdown('<div class="start-grid-shell">', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
-            st.selectbox("접근성 지원 필요 유형", SUPPORT_TYPES, key="support_type")
-            st.text_input("출발지", key="origin")
+            st.markdown('<div class="start-fields">', unsafe_allow_html=True)
+            st.markdown('<span class="start-label">접근성 지원 필요 유형</span>', unsafe_allow_html=True)
+            st.selectbox(
+                "접근성 지원 필요 유형",
+                SUPPORT_TYPES,
+                key="support_type",
+                label_visibility="collapsed",
+            )
+            st.markdown('<span class="start-label">출발지</span>', unsafe_allow_html=True)
+            st.text_input("출발지", key="origin", label_visibility="collapsed")
+            st.markdown('<span class="start-label">목적지</span>', unsafe_allow_html=True)
             st.selectbox(
                 "목적지",
                 [DEFAULT_DESTINATION, UNAVAILABLE_DESTINATION],
                 key="destination_choice",
                 on_change=block_unavailable_destination,
+                label_visibility="collapsed",
             )
+            st.markdown("</div>", unsafe_allow_html=True)
+
         with col2:
-            st.markdown("<div class='notice-box'>선택 옵션</div>", unsafe_allow_html=True)
-            st.checkbox("보호자 알림", key="guardian_notify")
-            st.checkbox("버디 매칭", key="buddy_matching")
-            st.checkbox("강습 추천", key="class_recommendation")
-            st.checkbox("리포트 수신", key="report_receive")
+            st.markdown(
+                html_block("""
+                <div class="start-tile-grid">
+                    <div class="start-tile">보호자 알림</div>
+                    <div class="start-tile">버디 매칭</div>
+                    <div class="start-tile">강습 추천</div>
+                    <div class="start-tile">리포트 수신</div>
+                </div>
+                """),
+                unsafe_allow_html=True,
+            )
+            st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
+            if st.button("⚡ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+                start_analysis()
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    if st.session_state.get("selected_schedule"):
-        st.info(f"선택한 일정: {st.session_state.selected_schedule}")
+        st.markdown("</div>", unsafe_allow_html=True)
 
-    st.markdown(
-        """
-        <div class="notice-box">
-        김포 제2 반다비 교육거점은 선택지로만 표시됩니다. 선택 시 저장하지 않고 김포 반다비체육센터 기준으로 되돌립니다.
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        if st.session_state.get("selected_schedule"):
+            st.info(f"선택한 일정: {st.session_state.selected_schedule}")
 
-    if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
-        start_analysis()
+        st.markdown(
+            """
+            <p class="start-footnote">
+                본 AI 결과는 이용자 편의를 위한 추천 정보이며, 최종 이용 여부와 운영 확정은 이용자 및 운영기관이 결정합니다.
+            </p>
+            </section>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
 def render_route() -> None:
@@ -1770,6 +1996,10 @@ def render_main_page() -> None:
     render_pending_confirm()
 
     step = st.session_state.get("main_step", "start")
+    if step not in {"start", "route", "care", "class", "report", "guardian"}:
+        st.session_state.main_step = "start"
+        step = "start"
+
     if step == "start":
         render_start()
     elif step == "route":
@@ -1780,11 +2010,9 @@ def render_main_page() -> None:
         render_class()
     elif step == "report":
         render_report()
-    elif step == "guardian":
-        render_guardian_summary()
     else:
-        st.session_state.main_step = "start"
-        render_start()
+        render_guardian_summary()
+
     st.markdown("</div>", unsafe_allow_html=True)
 
 
