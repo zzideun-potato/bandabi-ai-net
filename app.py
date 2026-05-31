@@ -179,7 +179,7 @@ def render_auth_page() -> None:
 
     # Chrome 휴리스틱용 HTML form (제출은 Streamlit form이 처리)
     if st.session_state.auth_mode == "signup":
-        st.html(
+        st.markdown(
             """
             <form autocomplete="on" style="margin:0;padding:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
               <input type="text" name="name" autocomplete="name" tabindex="-1" />
@@ -188,19 +188,17 @@ def render_auth_page() -> None:
               <input type="password" name="new-password-confirm" autocomplete="new-password" tabindex="-1" />
             </form>
             """,
-            width=0,
-            height=0,
+            unsafe_allow_html=True,
         )
     else:
-        st.html(
+        st.markdown(
             """
             <form autocomplete="on" style="margin:0;padding:0;height:0;overflow:hidden;opacity:0;pointer-events:none" aria-hidden="true">
               <input type="email" name="email" autocomplete="email" tabindex="-1" />
               <input type="password" name="current-password" autocomplete="current-password" tabindex="-1" />
             </form>
             """,
-            width=0,
-            height=0,
+            unsafe_allow_html=True,
         )
 
     with st.form("bandabi_auth_form", clear_on_submit=False):
