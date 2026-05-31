@@ -604,7 +604,7 @@ def inject_css() -> None:
         .auth-form-buttons {{
             display: flex;
             gap: 10px;
-            margin-top: 16px;
+            margin-top: 20px;
         }}
         .auth-form-action {{
             box-sizing: border-box;
@@ -632,7 +632,15 @@ def inject_css() -> None:
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .auth-form-notice {{
-            margin-top: 20px;
+            margin-top: 22px;
+        }}
+        .auth-form-card .auth-notice,
+        .auth-form-card .auth-notice-title,
+        .auth-form-card .auth-footnote {{
+            color: #7868a0;
+        }}
+        .auth-form-card .auth-notice-title {{
+            color: #4a2d7a;
         }}
         @media (max-width: 640px) {{
             .auth-entry-card, .auth-form-card {{
@@ -956,6 +964,21 @@ def render_auth() -> None:
         except Exception:
             pass
         st.rerun()
+    if query_auth == "login_done":
+        st.session_state.logged_in = True
+        st.session_state.authenticated = True
+        st.session_state.auth_mode = "로그인"
+        st.session_state.user_name = "반다비"
+        st.session_state.user_email = ""
+        st.session_state.role = USER_ROLE
+        st.session_state.current_page = "main"
+        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
+        st.session_state.bt_balance = st.session_state.bt_points
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+        st.rerun()
     if query_auth in {"login", "signup"}:
         st.session_state.auth_stage = "form"
         st.session_state.auth_mode = "로그인" if query_auth == "login" else "회원가입"
@@ -1040,7 +1063,7 @@ def render_auth() -> None:
     subtitle = (
         "회원가입 후 이용자/관리자 모드를 선택하세요."
         if auth_mode == "회원가입"
-        else "기존 계정으로 서비스를 이어가세요."
+        else "로그인 후 이용자/관리자 모드를 선택하세요."
     )
     logo_html = (
         f'<img class="auth-form-logo" src="{icon_src}" alt="반다비">'
@@ -1109,53 +1132,60 @@ def render_auth() -> None:
         )
         return
 
-    left, center, right = st.columns([1, 1.18, 1])
-    with center:
-        st.markdown(
-            html_block(f"""
-            <div class="auth-form-card" style="min-height:unset;">
-                <div class="auth-form-head" style="margin-bottom:18px;">
+    st.markdown(
+        html_block(f"""
+        <div class="auth-form-page">
+            <section class="auth-form-card" aria-label="반다비 AI 로그인">
+                <div class="auth-form-head">
                     {logo_html}
                     <div class="auth-form-copy">
                         <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
-                        <p class="auth-form-sub" style="margin-top:14px !important;">{esc(subtitle)}</p>
+                        <p class="auth-form-sub">{esc(subtitle)}</p>
                     </div>
                 </div>
-            """),
-            unsafe_allow_html=True,
-        )
+                <div class="signup-panel">
+                    <div class="signup-panel-title">로그인</div>
+                    <p class="signup-panel-copy">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
 
-        name = st.text_input("이름", value=st.session_state.get("user_name") or "반다비", key="login_name")
-        email = st.text_input(
-            "이메일",
-            value=st.session_state.get("user_email") or "bandabi.user@example.com",
-            key="login_email",
-        )
-        st.text_input("비밀번호", type="password", value="", key="login_password")
-        role_choice = st.radio(
-            "이용 모드",
-            ["이용자 모드", "기관 관리자 모드"],
-            horizontal=True,
-        )
-        submitted = st.button("로그인으로 시작", type="primary", use_container_width=True)
+                    <label class="signup-field">
+                        <span class="signup-label">이름</span>
+                        <input class="signup-input" type="text" placeholder="예: 000" autocomplete="name">
+                    </label>
+                    <label class="signup-field">
+                        <span class="signup-label">이메일</span>
+                        <input class="signup-input" type="email" placeholder="user@example.com" autocomplete="email">
+                    </label>
+                    <label class="signup-field">
+                        <span class="signup-label">비밀번호</span>
+                        <input class="signup-input" type="password" placeholder="비밀번호" autocomplete="current-password">
+                    </label>
+                </div>
 
-        if submitted:
-            st.session_state.logged_in = True
-            st.session_state.authenticated = True
-            st.session_state.auth_mode = "로그인"
-            st.session_state.user_name = (name or "반다비").strip()
-            st.session_state.user_email = (email or "").strip()
-            st.session_state.role = ADMIN_ROLE if role_choice == "기관 관리자 모드" else USER_ROLE
-            st.session_state.current_page = "dashboard" if st.session_state.role == ADMIN_ROLE else "main"
-            st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
-            st.session_state.bt_balance = st.session_state.bt_points
-            st.rerun()
+                <div class="auth-form-buttons">
+                    <a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>
+                    <a class="auth-form-action next" href="?auth=login_done" target="_self">계속</a>
+                </div>
 
-        if st.button("처음 화면으로 돌아가기", key="auth_back_to_entry"):
-            st.session_state.auth_stage = "entry"
-            st.rerun()
-
-        st.markdown("</div>", unsafe_allow_html=True)
+                <div class="auth-notice auth-form-notice">
+                    <span class="auth-notice-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
+                            <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                        </svg>
+                        민감정보 고지
+                    </span>
+                    본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
+                    생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+                </div>
+                <p class="auth-footnote">
+                    * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
+                    실제 서버 인증·암호화 보안을 제공하지 않습니다.
+                </p>
+            </section>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
 
 
 def render_header() -> None:
