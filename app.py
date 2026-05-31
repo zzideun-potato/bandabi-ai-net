@@ -119,9 +119,9 @@ def init_state() -> None:
 
 def inject_css() -> None:
     high = bool(st.session_state.get("high_contrast"))
-    bg = "#101014" if high else "#211832"
-    card = "#ffffff" if high else "#fbf8ff"
-    surface = "#f2edf9" if not high else "#f4f4f4"
+    bg = "#000000" if high else "#e8e2f4"
+    card = "#000000" if high else "#ffffff"
+    surface = "#000000" if high else "#f0ecf8"
     ink = "#16121f" if high else "#2d2040"
     mid = "#4a4656" if high else "#7868a0"
 
@@ -145,54 +145,58 @@ def inject_css() -> None:
         #MainMenu, footer {{ visibility: hidden; }}
         [data-testid="stHeader"] {{ background: transparent; }}
         .stApp {{
-            background:
-                radial-gradient(circle at top left, rgba(184, 172, 216, .16), transparent 32rem),
-                var(--bandabi-bg);
+            background: var(--bandabi-bg);
             color: var(--bandabi-ink);
             font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
                 "Malgun Gothic", system-ui, sans-serif;
         }}
         .block-container {{
-            max-width: 1180px;
-            padding-top: 2.1rem;
+            max-width: 1120px;
+            padding-top: .85rem;
             padding-bottom: 5rem;
         }}
         h1, h2, h3, p, label, span, div {{
             letter-spacing: 0;
         }}
         .bandabi-header {{
-            background: rgba(255,255,255,.94);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: rgba(232,226,244,.94);
+            backdrop-filter: blur(14px);
             border: 1px solid var(--bandabi-line);
-            border-radius: 24px;
-            padding: 20px 24px;
-            box-shadow: 0 16px 44px rgba(24, 15, 45, .22);
-            margin-bottom: 18px;
+            border-radius: 16px;
+            padding: 14px 18px;
+            box-shadow: 0 8px 24px rgba(109,40,217,.08);
+            margin-bottom: 10px;
         }}
         .brand-mark {{
             display: inline-flex;
-            width: 48px;
-            height: 48px;
+            width: 46px;
+            height: 46px;
             align-items: center;
             justify-content: center;
-            border-radius: 16px;
+            border-radius: 14px;
             background: var(--bandabi-accent);
             color: #fff;
             font-weight: 900;
-            font-size: 20px;
+            font-size: 18px;
             margin-right: 12px;
+            box-shadow: 0 4px 14px rgba(109,40,217,.18);
         }}
         .brand-title {{
             color: var(--bandabi-ink);
-            font-size: 28px;
+            font-size: 18px;
             line-height: 1.1;
             font-weight: 900;
             margin: 0;
         }}
         .brand-subtitle {{
             color: var(--bandabi-mid);
-            font-size: 13px;
-            margin-top: 6px;
+            font-size: 12px;
+            margin-top: 4px;
             line-height: 1.55;
+            font-weight: 700;
         }}
         .chip-row {{
             display: flex;
@@ -208,55 +212,56 @@ def inject_css() -> None:
             background: var(--bandabi-surface);
             border: 1px solid var(--bandabi-line);
             color: var(--bandabi-accent);
-            padding: 7px 12px;
-            font-size: 12px;
+            padding: 5px 11px;
+            font-size: 11px;
             font-weight: 800;
         }}
         .section-card, .metric-card, .soft-card, .auth-card {{
             background: var(--bandabi-card);
             border: 1px solid var(--bandabi-line);
-            border-radius: 24px;
+            border-radius: 18px;
             box-shadow:
                 0 2px 6px rgba(109,40,217,.06),
-                0 16px 44px rgba(22, 12, 42, .16),
-                0 1px 0 rgba(255,255,255,.88) inset;
+                0 8px 24px rgba(109,40,217,.09),
+                0 1px 0 rgba(255,255,255,.90) inset;
         }}
         .section-card {{
-            padding: 28px;
-            margin: 14px 0 22px;
+            padding: 24px;
+            margin: 12px 0 14px;
         }}
         .soft-card {{
-            padding: 22px;
-            min-height: 145px;
+            padding: 18px;
+            min-height: 122px;
             transition: transform .15s ease, box-shadow .15s ease;
         }}
         .soft-card:hover {{
-            transform: translateY(-2px);
-            box-shadow: 0 18px 42px rgba(24, 15, 45, .18);
+            transform: translateY(-3px);
+            box-shadow: 0 16px 40px rgba(109,40,217,.14);
         }}
         .metric-card {{
-            padding: 18px;
-            min-height: 126px;
+            padding: 16px;
+            min-height: 112px;
         }}
         .tiny-label {{
             color: var(--bandabi-accent-2);
-            font-size: 12px;
-            font-weight: 900;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .12em;
             text-transform: uppercase;
             margin: 0 0 8px;
         }}
         .section-title {{
             color: var(--bandabi-ink);
             font-weight: 900;
-            font-size: clamp(28px, 4vw, 42px);
+            font-size: clamp(24px, 2.4vw, 30px);
             line-height: 1.12;
             margin: 0;
         }}
         .section-copy {{
             color: var(--bandabi-mid);
-            font-size: 16px;
-            line-height: 1.75;
-            margin: 12px 0 0;
+            font-size: 13px;
+            line-height: 1.65;
+            margin: 10px 0 0;
         }}
         .metric-label {{
             color: var(--bandabi-mid);
@@ -266,7 +271,7 @@ def inject_css() -> None:
         }}
         .metric-value {{
             color: var(--bandabi-ink);
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 900;
             line-height: 1.08;
         }}
@@ -285,11 +290,11 @@ def inject_css() -> None:
         .flow-step {{
             border-radius: 14px;
             border: 1px solid var(--bandabi-line);
-            background: rgba(255,255,255,.82);
+            background: var(--bandabi-surface);
             color: var(--bandabi-mid);
-            padding: 9px 13px;
+            padding: 10px 12px;
             font-size: 12px;
-            font-weight: 900;
+            font-weight: 800;
         }}
         .flow-step.active {{
             background: var(--bandabi-accent);
@@ -306,7 +311,7 @@ def inject_css() -> None:
             border: 1px solid var(--bandabi-line);
             color: var(--bandabi-mid);
             padding: 15px 16px;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.7;
         }}
         .auth-card {{
@@ -314,13 +319,13 @@ def inject_css() -> None:
             margin-top: 7vh;
         }}
         .stButton > button {{
-            min-height: 46px;
-            border-radius: 15px;
+            min-height: 42px;
+            border-radius: 12px;
             border: 1px solid rgba(74,45,122,.22);
             background: #ffffff;
-            color: var(--bandabi-accent);
-            font-weight: 900;
-            box-shadow: 0 8px 20px rgba(24, 15, 45, .12);
+            color: var(--bandabi-ink);
+            font-weight: 800;
+            box-shadow: none;
             white-space: normal;
             line-height: 1.25;
         }}
@@ -333,6 +338,7 @@ def inject_css() -> None:
             background: var(--bandabi-accent);
             color: #fff;
             border-color: var(--bandabi-accent);
+            box-shadow: 0 4px 14px rgba(109,40,217,.24);
         }}
         .stButton > button[kind="primary"]:hover {{
             background: var(--bandabi-accent-2);
@@ -356,16 +362,122 @@ def inject_css() -> None:
             border-radius: 18px;
         }}
         .disclaimer {{
-            color: rgba(255,255,255,.76);
-            font-size: 12px;
+            color: var(--bandabi-mid);
+            font-size: 11px;
             line-height: 1.7;
-            margin: 4px 0 16px;
+            margin: 2px 0 12px;
+        }}
+        .journey-shell {{
+            max-width: 860px;
+            margin: 0 auto;
+        }}
+        .tab-shell {{
+            background: var(--bandabi-surface);
+            border: 1px solid var(--bandabi-line);
+            border-radius: 14px;
+            padding: 4px;
+            margin: 0 0 14px;
+            box-shadow: 0 1px 4px rgba(109,40,217,.05);
+        }}
+        .tab-shell [data-testid="stRadio"] {{
+            margin: 0;
+        }}
+        .tab-shell [data-testid="stRadio"] > div {{
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 4px;
+            overflow-x: auto;
+        }}
+        .tab-shell [data-testid="stRadio"] label {{
+            min-width: max-content;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 0;
+            border: 1px solid transparent;
+            color: var(--bandabi-mid) !important;
+            font-weight: 800 !important;
+        }}
+        .tab-shell [data-testid="stRadio"] label:has(input:checked) {{
+            background: var(--bandabi-accent);
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(109,40,217,.22);
+        }}
+        .tab-shell [data-testid="stRadio"] label:has(input:checked) * {{
+            color: #fff !important;
+        }}
+        .tab-shell [data-testid="stRadio"] label > div:first-child {{
+            display: none;
+        }}
+        .st-key-nav_radio {{
+            background: var(--bandabi-surface);
+            border: 1px solid var(--bandabi-line);
+            border-radius: 14px;
+            padding: 4px;
+            box-shadow: 0 1px 4px rgba(109,40,217,.05);
+            margin-bottom: 14px;
+        }}
+        .st-key-nav_radio [data-testid="stRadio"] > div:last-child {{
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 4px;
+            overflow-x: auto;
+        }}
+        .st-key-nav_radio label[data-baseweb="radio"] {{
+            min-width: max-content;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 0;
+            border: 1px solid transparent;
+            color: var(--bandabi-mid) !important;
+            font-weight: 800 !important;
+        }}
+        .st-key-nav_radio label[data-baseweb="radio"] > div:first-child {{
+            display: none;
+        }}
+        .st-key-nav_radio label[data-baseweb="radio"]:has(input:checked) {{
+            background: var(--bandabi-accent);
+            color: #fff !important;
+            box-shadow: 0 4px 14px rgba(109,40,217,.22);
+        }}
+        .st-key-nav_radio label[data-baseweb="radio"]:has(input:checked) * {{
+            color: #fff !important;
+        }}
+        .tab-shell .stButton > button {{
+            min-height: 40px;
+            border-radius: 10px;
+            border-color: transparent;
+            background: transparent;
+            color: var(--bandabi-mid);
+            box-shadow: none;
+            font-size: 13px;
+            font-weight: 800;
+        }}
+        .route-map {{
+            border-radius: 18px;
+            background: var(--bandabi-surface);
+            border: 1px solid var(--bandabi-line);
+            padding: 10px;
+            margin-top: 14px;
+        }}
+        .route-line {{
+            stroke-dasharray: 14 10;
+            animation: routeDash 1.3s linear infinite;
+        }}
+        @keyframes routeDash {{
+            to {{ stroke-dashoffset: -48; }}
+        }}
+        .confirm-action .stButton > button,
+        .confirm-action .stButton > button[kind="primary"] {{
+            background: #a8e6c4 !important;
+            color: #1a5c38 !important;
+            border: 1px solid rgba(80,180,120,.25) !important;
+            box-shadow: none !important;
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
-            .section-card, .auth-card {{ padding: 22px; border-radius: 20px; }}
-            .brand-title {{ font-size: 23px; }}
-            .section-title {{ font-size: 29px; }}
+            .section-card, .auth-card {{ padding: 20px; border-radius: 18px; }}
+            .brand-title {{ font-size: 17px; }}
+            .section-title {{ font-size: 25px; }}
             .metric-value {{ font-size: 24px; }}
         }}
         </style>
@@ -580,21 +692,35 @@ def nav_button(label: str, page: str, key: str) -> None:
 
 
 def render_nav() -> None:
+    st.markdown('<div class="tab-shell">', unsafe_allow_html=True)
     if st.session_state.get("role") == ADMIN_ROLE:
-        nav_button("기관용 대시보드", "dashboard", "tab_dashboard")
+        st.radio("탭", ["기관용 대시보드"], index=0, horizontal=True, label_visibility="collapsed")
+        st.session_state.current_page = "dashboard"
+        st.markdown("</div>", unsafe_allow_html=True)
         return
 
-    cols = st.columns(3)
-    with cols[0]:
-        nav_button("AI 추천 및 이동지원 연계", "main", "tab_main")
-    with cols[1]:
-        nav_button("내 운동 일정 추천", "schedule", "tab_schedule")
-    with cols[2]:
-        nav_button("접근성 점검 보조", "accessibility", "tab_vision")
+    labels = ["AI 추천 및 이동지원 연계", "내 운동 일정 추천", "접근성 점검 보조"]
+    page_by_label = {
+        "AI 추천 및 이동지원 연계": "main",
+        "내 운동 일정 추천": "schedule",
+        "접근성 점검 보조": "accessibility",
+    }
+    label_by_page = {value: key for key, value in page_by_label.items()}
+    current_label = label_by_page.get(st.session_state.get("current_page", "main"), labels[0])
+    selected_label = st.radio(
+        "탭",
+        labels,
+        index=labels.index(current_label),
+        horizontal=True,
+        label_visibility="collapsed",
+        key="nav_radio",
+    )
+    st.session_state.current_page = page_by_label[selected_label]
 
     if st.session_state.get("current_page") == "dashboard":
         st.session_state.notice = "기관용 대시보드는 관리자 모드에서만 접근할 수 있습니다."
         st.session_state.current_page = "main"
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_notice() -> None:
@@ -678,6 +804,39 @@ def build_route_analysis() -> dict[str, Any]:
         "bus_arrival": "저상버스 또는 이동지원 차량 시간 사전 확인",
         "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
     }
+
+
+def route_map_svg(result: dict[str, Any]) -> str:
+    """Small native SVG that echoes the original HTML route-card visual."""
+    route_note = "장거리 · 이동지원 검토" if "장거리" in result.get("alternative", "") else "센터 진입 180m"
+    time_note = result.get("total_time", "예상 시간")
+    return f"""
+    <div class="route-map">
+      <svg viewBox="0 0 860 310" style="display:block;width:100%;height:auto;" role="img" aria-label="추천 경로 도식">
+        <defs>
+          <linearGradient id="routeGradientNative" x1="0" x2="1">
+            <stop offset="0%" stop-color="#4a2d7a"/>
+            <stop offset="100%" stop-color="#b8acd8"/>
+          </linearGradient>
+        </defs>
+        <path d="M100 205 C205 205, 235 125, 345 125 S 520 195, 625 180 S 730 105, 790 105"
+          fill="none" stroke="#dcd4ec" stroke-width="28" stroke-linecap="round"/>
+        <path class="route-line" d="M100 205 C205 205, 235 125, 345 125 S 520 195, 625 180 S 730 105, 790 105"
+          fill="none" stroke="url(#routeGradientNative)" stroke-width="10" stroke-linecap="round"/>
+        <circle cx="90" cy="205" r="27" fill="#dcfce7"/>
+        <circle cx="340" cy="125" r="27" fill="#e0f2fe"/>
+        <circle cx="625" cy="180" r="27" fill="#f3e8ff"/>
+        <circle cx="790" cy="105" r="27" fill="#fef3c7"/>
+        <text x="90" y="211" text-anchor="middle" fill="#166534" font-size="13" font-weight="900">출발</text>
+        <text x="340" y="131" text-anchor="middle" fill="#0e7490" font-size="13" font-weight="900">환승</text>
+        <text x="625" y="186" text-anchor="middle" fill="#6d28d9" font-size="13" font-weight="900">하차</text>
+        <text x="790" y="111" text-anchor="middle" fill="#92400e" font-size="13" font-weight="900">센터</text>
+        <text x="250" y="96" fill="#7868a0" font-size="14">{esc(time_note)}</text>
+        <text x="560" y="224" fill="#7868a0" font-size="14">{esc(route_note)}</text>
+        <text x="410" y="164" fill="#6b4fa0" font-size="13" font-weight="800">주의 지점 확인</text>
+      </svg>
+    </div>
+    """
 
 
 def start_analysis() -> None:
@@ -802,8 +961,9 @@ def render_route() -> None:
         f"""
         <div class="section-card">
             <p class="tiny-label">추천 경로</p>
-            <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;line-height:1.25;">{esc(result["recommended_route"])}</h2>
+            <h2 style="margin:0;color:var(--bandabi-ink);font-size:24px;font-weight:900;line-height:1.28;">{esc(result["recommended_route"])}</h2>
             <p class="section-copy">{esc(result["opinion"])}</p>
+            {route_map_svg(result)}
         </div>
         """,
         unsafe_allow_html=True,
@@ -844,6 +1004,7 @@ def render_route() -> None:
             st.session_state.main_step = "start"
             st.rerun()
     with cols[1]:
+        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
         if st.button("확정하기", key="route_confirm", type="primary"):
             open_confirm(
                 "운영 확정 요청이 등록되었습니다.",
@@ -855,6 +1016,7 @@ def render_route() -> None:
                 toast="경로가 확정되었습니다. 버디 추천 화면으로 이동합니다.",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def buddy_for_support() -> dict[str, str]:
@@ -902,6 +1064,7 @@ def render_buddy() -> None:
             st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
             st.rerun()
     with cols[1]:
+        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
         if st.button("확정하기", key="care_confirm", type="primary"):
             open_confirm(
                 "버디 매칭 확정 요청이 등록되었습니다.",
@@ -912,6 +1075,7 @@ def render_buddy() -> None:
                 toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def current_instructor() -> dict[str, str]:
@@ -932,7 +1096,7 @@ def render_class() -> None:
         f"""
         <div class="section-card">
             <p class="tiny-label">추천 지도자</p>
-            <h2 style="margin:0;color:var(--bandabi-ink);font-size:36px;font-weight:900;">{esc(instructor["name"])} 지도자</h2>
+            <h2 style="margin:0;color:var(--bandabi-ink);font-size:30px;font-weight:900;">{esc(instructor["name"])} 지도자</h2>
             <p class="section-copy">{esc(instructor["summary"])}</p>
             <div class="chip-row">
                 <span class="chip">{esc(instructor["time"])}</span>
@@ -950,6 +1114,7 @@ def render_class() -> None:
             st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
             st.rerun()
     with cols[1]:
+        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
         if st.button("확정하기", key="class_confirm", type="primary"):
             open_confirm(
                 "강습·지도자 추천이 확정되었습니다.",
@@ -960,6 +1125,7 @@ def render_class() -> None:
                 toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def guardian_summary_text() -> str:
@@ -1038,6 +1204,7 @@ def render_guardian_summary() -> None:
 
 
 def render_main_page() -> None:
+    st.markdown('<div class="journey-shell">', unsafe_allow_html=True)
     render_flow_steps()
     render_pending_confirm()
 
@@ -1057,6 +1224,7 @@ def render_main_page() -> None:
     else:
         st.session_state.main_step = "start"
         render_start()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict[str, str]]:
