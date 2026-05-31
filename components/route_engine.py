@@ -215,6 +215,93 @@ def run_route_analysis(inputs: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+DISPLAY_GRADE_MAP = {
+    "이동 가능": "원활",
+    "주의": "주의",
+    "지원 필요": "지원 권장",
+    "확인 불가": "대체 경로 권장",
+}
+
+
+def _is_long_distance_cross_city(origin: str, destination: str) -> bool:
+    cross_markers = ("성남", "신흥", "판교", "강남", "서울")
+    dest_markers = ("김포", "반다비")
+    return any(marker in origin for marker in cross_markers) and any(marker in destination for marker in dest_markers)
+
+
+def _is_local_gimpo_route(origin: str, destination: str) -> bool:
+    return any(marker in origin for marker in ("김포", "구래", "운양", "양씨")) and any(
+        marker in destination for marker in ("김포", "반다비")
+    )
+
+
+def format_duration_for_ui(origin: str, destination: str, result: dict[str, Any], travel_metrics: dict[str, Any]) -> str:
+    if travel_metrics.get("precise") and "실API" in str(travel_metrics.get("badge", "")):
+        return s(travel_metrics["total_time"])
+    if _is_long_distance_cross_city(origin, destination):
+        return "90분+ · 장거리 · 이동지원 검토"
+    if _is_local_gimpo_route(origin, destination):
+        origin_coord = result["origin_coord"]
+        destination_coord = result["destination_coord"]
+        km = _haversine_km(origin_coord["lat"], origin_coord["lon"], destination_coord["lat"], destination_coord["lon"])
+        minutes = max(10, min(30, int(round(km * 3.5 + 8))))
+        return s(f"약 {minutes}분 · 참고")
+    return s(travel_metrics.get("total_time", "이동시간 확인 필요"))
+
+
+def analyze_route_for_api(origin: str, destination: str, disability: str = "physical") -> dict[str, Any]:
+    """Return UI-safe route analysis payload for POST /api/route-analysis."""
+    support = DISABILITY_MAP.get(disability, "일반")
+    inputs = {
+        "origin": origin.strip(),
+        "destination": destination.strip(),
+        "accessibility_support_type": support,
+        "mobility_support_needed": disability in ("physical", "developmental", "senior"),
+        "companion_needed": disability in ("visual", "developmental"),
+        "public_transport_available": True,
+    }
+    result = run_route_analysis(inputs)
+    score_result = result["score_result"]
+    travel = result["travel_metrics"]
+    mobility_level = str(score_result.get("mobility_level", grade_score(int(score_result.get("score", 0)))))
+    display_grade = DISPLAY_GRADE_MAP.get(mobility_level, mobility_level)
+    duration = format_duration_for_ui(origin, destination, result, travel)
+    weather_result = result["weather_result"]
+    weather_status = weather_result.get("status", "fallback")
+    weather_text = result["weather_text"]
+    arrival = result["bus_arrival"]
+    arrival_status = arrival.get("status", "fallback")
+
+    return {
+        "ok": True,
+        "origin_label": s(result["origin_coord"].get("label", origin)),
+        "dest_label": s(result["destination_coord"].get("label", destination)),
+        "score": int(score_result.get("score", 0)),
+        "grade": display_grade,
+        "action": result["explanation"],
+        "bus_route": {
+            "routeId": "API-ROUTE",
+            "duration": duration,
+            "walk": s(travel.get("walk", "확인 필요")),
+            "transfer": s(travel.get("transfer", "확인 필요")),
+            "mode": s("저상버스 · 참고" if _is_local_gimpo_route(origin, destination) else "대중교통 · 참고"),
+        },
+        "weather": {
+            "wind": "강풍 주의" if "강풍" in weather_text else "없음",
+            "rain": "없음",
+            "temp": "보통",
+            "summary": weather_text,
+            "data_status": weather_status,
+        },
+        "arrival": {
+            "status": "no_data" if arrival_status not in {"real_api"} else "ok",
+            "eta": None,
+            "message": s(arrival.get("message", "실시간 도착 정보 없음")),
+        },
+        "source": "python_modules",
+    }
+
+
 def data_status_badge(status: str) -> tuple[str, str]:
     if status == "real_api":
         return ("실API", "ok")

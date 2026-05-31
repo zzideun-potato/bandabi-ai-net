@@ -34,3 +34,9 @@ class AuthResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserPublic
+
+
+class RouteAnalysisRequest(BaseModel):
+    origin: str = Field(min_length=1, max_length=200)
+    destination: str = Field(min_length=1, max_length=200)
+    disability: str = Field(default="physical", max_length=40)

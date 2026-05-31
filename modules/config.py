@@ -3,8 +3,22 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
 from typing import Any
 
+
+def _load_dotenv_once() -> None:
+    """Load project-root .env into os.environ (values are never logged here)."""
+    try:
+        from dotenv import load_dotenv
+
+        root = Path(__file__).resolve().parents[1]
+        load_dotenv(root / ".env", override=False)
+    except Exception:
+        pass
+
+
+_load_dotenv_once()
 
 CONFIG_STATUS_KEYS = (
     "OPENROUTER_API_KEY",

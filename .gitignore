@@ -31,6 +31,13 @@ faiss_index/
 _extracted/
 *.zip
 
+# Local dev scripts / extracted JS (do not commit)
+backup/
+_apply_mock_integration.py
+_apply_patch.py
+_extracted_script.js
+_patch_mock_engines.js
+
 # Local SQLite auth DB
 backend/data/
 *.db

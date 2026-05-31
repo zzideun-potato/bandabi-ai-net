@@ -940,6 +940,10 @@
     function getServerData(){
       return window.BANDABI_SERVER_DATA || {};
     }
+    function getApiBase(){
+      var meta = getServerData().meta || {};
+      return meta.api_base || 'http://127.0.0.1:8000';
+    }
 
     // ── Storage keys (프로토타입용 로컬 인증 · mock 엔진) ──
     // Chrome 비밀번호 추천 UI는 브라우저 판단 기능 — 코드로 강제 표시 불가.
@@ -1034,7 +1038,15 @@
     }
 
     function fetchBusRoute(origin, destination){
-      return { routeId: 'GIMPO-31', routeName: '김포 31번', boarding: origin.label || origin, alighting: destination.label || destination, duration: '18분', mode: '저상버스' };
+      const o = String(origin.label || origin || '');
+      const d = String(destination.label || destination || '');
+      if(/성남|신흥/.test(o) && /김포|반다비/.test(d)){
+        return { routeId: 'LONG-DIST', routeName: '장거리', boarding: o, alighting: d, duration: '90분+ · 장거리', mode: '이동지원·대체 경로 검토', walk: '장거리 구간', transfer: '다회 가능' };
+      }
+      if(/김포|구래/.test(o) && /김포|반다비/.test(d)){
+        return { routeId: 'GIMPO-31', routeName: '김포 31번', boarding: o, alighting: d, duration: '22분', mode: '저상버스', walk: '230m', transfer: '1회' };
+      }
+      return { routeId: 'GIMPO-31', routeName: '참고', boarding: o, alighting: d, duration: '35분', mode: '대중교통', walk: '300m', transfer: '1회' };
     }
     function fetchBusArrival(routeId){
       return { status: 'no_data', message: '실시간 도착 정보가 없어 배차 정보 확인이 필요합니다.' };
@@ -1373,11 +1385,11 @@
       riskEl.className = 'mt-1 text-3xl font-black ' + gradeClass(score);
       document.getElementById('route-action').textContent = action;
       document.getElementById('route-total').textContent = busRoute.duration || '35분';
-      document.getElementById('route-walk').textContent = score >= 88 ? '230m' : '300m';
-      document.getElementById('route-transfer').textContent = '1회';
+      document.getElementById('route-walk').textContent = busRoute.walk || (score >= 88 ? '230m' : '300m');
+      document.getElementById('route-transfer').textContent = busRoute.transfer || '1회';
       document.getElementById('route-reserve').textContent = Math.max(60, score - 12) + '%';
       const weatherEl = document.getElementById('route-weather');
-      if(weatherEl) weatherEl.textContent = summarizeWeatherItems(weather);
+      if(weatherEl) weatherEl.textContent = weather.summary || summarizeWeatherItems(weather);
       const arrivalEl = document.getElementById('route-bus-arrival');
       if(arrivalEl) arrivalEl.textContent = arrival.status === 'no_data' ? '실시간 도착 정보 없음' : (arrival.eta || '확인 중');
     }
@@ -1549,6 +1561,33 @@
     }
     function toggleHighContrast(){ document.getElementById('main-body').classList.toggle('high-contrast-active'); }
     function voiceDemo(){ const el=document.getElementById('voice-status'); el.textContent='인식 중'; setTimeout(function(){ const cmd=classifyVoiceCommand('경로 추천해줘'); el.textContent='완료'; if(cmd==='route'){ document.getElementById('disability-type').value='visual'; switchTab('main-tab', document.getElementById('tab-main-btn')); triggerAiEngine(); } else if(cmd==='schedule'){ switchTab('schedule-tab', document.getElementById('tab-schedule-btn')); } else if(cmd==='vision'){ switchTab('vision-tab', document.getElementById('tab-vision-btn')); } },900); }
+    function runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo){
+      const weather = fetchWeatherShortForecast();
+      const busRoute = fetchBusRoute(originGeo, destGeo);
+      const arrival = fetchBusArrival(busRoute.routeId);
+      const payload = {
+        disability: profile.disability,
+        weatherRisk: weather.wind && weather.wind.indexOf('강풍') >= 0 ? 'wind' : 'normal',
+        walkDistance: profile.disability === 'developmental' ? 140 : 300,
+        reserveMobility: profile.disability === 'senior' ? 69 : 74,
+      };
+      const serverScore = getServerData().scoring && getServerData().scoring.by_disability && getServerData().scoring.by_disability[profile.disability];
+      let score, grade, action;
+      if(serverScore && typeof serverScore.score === 'number'){
+        score = serverScore.score;
+        grade = serverScore.display_grade || gradeScore(score);
+        action = serverScore.explanation || explainScore(score, payload);
+      } else {
+        score = calculateViablePathScore(payload);
+        grade = gradeScore(score);
+        action = explainScore(score, payload);
+      }
+      document.getElementById('route-loading').classList.add('hidden');
+      document.getElementById('route-result').classList.remove('hidden');
+      injectRouteResults(originGeo.label || originText, destLabel, score, grade, action, busRoute, weather, arrival);
+      flowProgress.routeAnalyzed = true;
+      saveFlowState();
+    }
     function triggerAiEngine(){
       const profile = getUserProfile();
       const originText = profile.origin || '김포 구래역 1번 출구';
@@ -1558,33 +1597,32 @@
       showFlow('route-screen');
       document.getElementById('route-loading').classList.remove('hidden');
       document.getElementById('route-result').classList.add('hidden');
-      setTimeout(function(){
-        const weather = fetchWeatherShortForecast();
-        const busRoute = fetchBusRoute(originGeo, destGeo);
-        const arrival = fetchBusArrival(busRoute.routeId);
-        const payload = {
-          disability: profile.disability,
-          weatherRisk: weather.wind && weather.wind.indexOf('강풍') >= 0 ? 'wind' : 'normal',
-          walkDistance: profile.disability === 'developmental' ? 140 : 300,
-          reserveMobility: profile.disability === 'senior' ? 69 : 74,
-        };
-        const serverScore = getServerData().scoring && getServerData().scoring.by_disability && getServerData().scoring.by_disability[profile.disability];
-        let score, grade, action;
-        if(serverScore && typeof serverScore.score === 'number'){
-          score = serverScore.score;
-          grade = serverScore.display_grade || gradeScore(score);
-          action = serverScore.explanation || explainScore(score, payload);
-        } else {
-          score = calculateViablePathScore(payload);
-          grade = gradeScore(score);
-          action = explainScore(score, payload);
-        }
+      fetch(getApiBase() + '/api/route-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origin: originText, destination: destLabel, disability: profile.disability }),
+      })
+      .then(function(res){ if(!res.ok) throw new Error('api_error'); return res.json(); })
+      .then(function(data){
+        if(!data || !data.ok) throw new Error('analysis_failed');
         document.getElementById('route-loading').classList.add('hidden');
         document.getElementById('route-result').classList.remove('hidden');
-        injectRouteResults(originGeo.label || originText, destLabel, score, grade, action, busRoute, weather, arrival);
+        injectRouteResults(
+          data.origin_label || originText,
+          data.dest_label || destLabel,
+          data.score,
+          data.grade,
+          data.action,
+          data.bus_route || {},
+          data.weather || {},
+          data.arrival || { status: 'no_data' }
+        );
         flowProgress.routeAnalyzed = true;
         saveFlowState();
-      }, 900);
+      })
+      .catch(function(){
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo); }, 300);
+      });
     }
     function simulateDispatch(){ triggerAiEngine(); showAppToast('경로를 다시 계산했습니다.'); }
     function restartRouteAnalysis(){

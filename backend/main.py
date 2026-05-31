@@ -8,7 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from backend.database import get_connection, init_db
-from backend.schemas import AuthResponse, LoginRequest, SelectRoleRequest, SignupRequest, UserPublic
+from backend.schemas import (
+    AuthResponse,
+    LoginRequest,
+    RouteAnalysisRequest,
+    SelectRoleRequest,
+    SignupRequest,
+    UserPublic,
+)
 from backend.security import create_access_token, decode_access_token, hash_password, verify_password
 
 app = FastAPI(title="Bandabi Auth API", version="1.0.0")
@@ -77,6 +84,62 @@ def get_current_user(
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/api/status")
+def api_status() -> dict[str, object]:
+    """Safe API configuration and public-data probe status (no secret values)."""
+    try:
+        from modules.api_clients import (
+            data_go_kr_status,
+            fetch_weather_short_forecast,
+            test_vworld_geocode_connection,
+            vworld_status,
+        )
+        from modules.config import list_config_status
+        from modules.emailer import email_status
+        from modules.vision import vision_status
+
+        vworld = vworld_status()
+        data_go = data_go_kr_status()
+        email = email_status()
+        vision = vision_status()
+        weather = fetch_weather_short_forecast()
+        vworld_sample = test_vworld_geocode_connection("김포 구래역")
+
+        return {
+            "status": "ok",
+            "vworld": {
+                "data_status": vworld.get("data_status", "missing"),
+                "configured": bool(vworld.get("configured")),
+            },
+            "data_go_kr": {
+                "data_status": data_go.get("data_status", "missing"),
+                "configured": bool(data_go.get("configured")),
+            },
+            "weather": {"data_status": weather.get("status", "fallback")},
+            "bus_route": {"data_status": "via_route_analysis"},
+            "email": {"data_status": email.get("data_status", "disabled")},
+            "vision": {"data_status": vision.get("data_status", "missing_key")},
+            "config": list_config_status(),
+            "vworld_sample": {
+                "ok": bool(vworld_sample.get("ok")),
+                "status": vworld_sample.get("status", "mock_fallback"),
+            },
+        }
+    except Exception:
+        return {"status": "degraded", "message": "status_check_failed"}
+
+
+@app.post("/api/route-analysis")
+def route_analysis(body: RouteAnalysisRequest) -> dict[str, object]:
+    """Run Python route modules; returns UI-safe JSON without secrets."""
+    try:
+        from components.route_engine import analyze_route_for_api
+
+        return analyze_route_for_api(body.origin, body.destination, body.disability)
+    except Exception:
+        return {"ok": False, "error": "analysis_failed"}
 
 
 @app.post("/auth/signup", response_model=AuthResponse)
