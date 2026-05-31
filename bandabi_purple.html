@@ -884,24 +884,6 @@
   </div>
 
   <script>
-    // ── Backend API base URL (replaced by Streamlit app.py) ──
-    // SECURITY: Never embed SendGrid/OpenRouter/API keys in HTML or JS.
-    // Email send flow: HTML payload → POST /send-email on backend → SendGrid server-side only.
-    window.BACKEND_API_URL = "__BACKEND_API_URL__";
-
-    /**
-     * Future shared fetch helper (example — not active until backend is deployed):
-     * async function callBackend(path, payload) {
-     *   const response = await fetch(`${window.BACKEND_API_URL}${path}`, {
-     *     method: "POST",
-     *     headers: { "Content-Type": "application/json" },
-     *     body: JSON.stringify(payload),
-     *   });
-     *   if (!response.ok) throw new Error("backend_request_failed");
-     *   return response.json();
-     * }
-     */
-
     let currentRole = null;
     let userTokens = 3500;
     let chart1 = null;
@@ -1020,12 +1002,6 @@
     function toggleHighContrast(){ document.getElementById('main-body').classList.toggle('high-contrast-active'); }
     function voiceDemo(){ const el=document.getElementById('voice-status'); el.textContent='인식 중'; setTimeout(()=>{ document.getElementById('disability-type').value='visual'; el.textContent='완료'; triggerAiEngine(); },900); }
     function routeInfo(disability){ const base={ physical:{score:'이동 가능성 86점 · 주의',risk:'주의',riskClass:'text-amber-300',total:'35분',walk:'300m',transfer:'1회',reserve:'74%',mode:'저상버스 18분',issue:'보도턱 1개 · 경사로 확인',action:'강습 85~90분 전 출발하고, 이동지원 연계를 함께 준비하세요.'}, visual:{score:'이동 가능성 91점 · 원활',risk:'원활',riskClass:'text-emerald-300',total:'29분',walk:'230m',transfer:'1회',reserve:'81%',mode:'버스 16분',issue:'유도블록 연속성 양호',action:'센터 입구에서 첫 방문 버디 안내를 연결하면 충분합니다.'}, developmental:{score:'이동 가능성 83점 · 지원 권장',risk:'지원 권장',riskClass:'text-blue-300',total:'28분',walk:'140m',transfer:'0회',reserve:'88%',mode:'이동지원 차량 22분',issue:'환승 없는 단순 경로',action:'이동지원 차량과 센터 도우미를 함께 연결해 첫 방문 불안을 줄이세요.'}, senior:{score:'이동 가능성 79점 · 주의',risk:'주의',riskClass:'text-purple-300',total:'32분',walk:'260m',transfer:'1회',reserve:'69%',mode:'마을버스 12분',issue:'휴식 지점 1곳 포함',action:'우천 시 이동지원 연계를 권장하고, 센터 진입 전 휴식 지점을 안내합니다.'} }; return base[disability] || base.physical; }
-    /**
-     * [BACKEND HOOK] triggerAiEngine()
-     * Future: POST `${BACKEND_API_URL}/route-analysis`
-     * Payload: { disability, origin, center }
-     * Replace routeInfo() mock + setTimeout with API JSON mapped to #route-* elements.
-     */
     function triggerAiEngine(){ const disability=document.getElementById('disability-type').value; const origin=document.getElementById('origin').value||'김포 구래역 1번 출구'; const center=document.getElementById('center-location').value==='gimpo2'?'김포 제2 반다비 체육거점':'김포 반다비체육센터'; const info=routeInfo(disability); showFlow('route-screen'); document.getElementById('route-loading').classList.remove('hidden'); document.getElementById('route-result').classList.add('hidden'); setTimeout(()=>{ document.getElementById('route-loading').classList.add('hidden'); document.getElementById('route-result').classList.remove('hidden'); document.getElementById('route-title').textContent=`${origin} → ${center}`; document.getElementById('route-risk').textContent=info.risk; document.getElementById('route-risk').className='mt-1 text-3xl font-black '+info.riskClass; document.getElementById('route-action').textContent=info.action; document.getElementById('route-total').textContent=info.total; document.getElementById('route-walk').textContent=info.walk; document.getElementById('route-transfer').textContent=info.transfer; document.getElementById('route-reserve').textContent=info.reserve; },900); }
     function simulateDispatch(){ const msg=document.getElementById('route-action'); if(msg) msg.textContent='재계산 완료: 현재 권장 출발 시간은 강습 85분 전입니다.'; }
     function restartRouteAnalysis(){
@@ -1110,12 +1086,6 @@
       const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
       return y + ' / ' + m + ' / ' + d + ' / ' + days[date.getDay()];
     }
-    /**
-     * [BACKEND HOOK] runScheduleOptimize()
-     * Future: POST `${BACKEND_API_URL}/schedule-optimize`
-     * Payload: preferred day/time + mobility/buddy flags from #schedule-* inputs.
-     * Map response slots to #after-schedule cards (replace setTimeout mock).
-     */
     function runScheduleOptimize(){
       const container = document.getElementById('after-schedule');
       const badge = document.getElementById('optimize-badge');
@@ -1197,12 +1167,6 @@
       showFlow('route-screen');
       showAppToast('선택한 시간 기준으로 예약 흐름을 이어갑니다.');
     }
-    /**
-     * [BACKEND HOOK] startVisionScan()
-     * Future: POST `${BACKEND_API_URL}/vision-analyze` (multipart or base64 image)
-     * Payload: { report_type, location, description, image }
-     * Map risk cards to #vision-result — keep “보조자료/공식 판정 아님” disclaimers in UI.
-     */
     function startVisionScan(){ document.getElementById('scan-line').classList.remove('hidden'); document.getElementById('scan-line').classList.add('scan-line'); document.getElementById('bbox-vision').classList.add('hidden'); document.getElementById('vision-result').innerHTML='<i class="fa-solid fa-spinner spinner text-blue-300 mr-2"></i>사진 속 접근성 위험 요소를 분석 중입니다.'; setTimeout(()=>{ document.getElementById('scan-line').classList.add('hidden'); document.getElementById('bbox-vision').classList.remove('hidden'); document.getElementById('vision-result').innerHTML='<div class="flex items-start gap-3"><div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div><div><p class="font-black text-red-200">개선 필요 · AI 탐지 참고값 96.8%</p><p class="text-sm text-slate-400 mt-1">점자블록 단절이 의심됩니다. 기관 확인 후 공문 초안 생성이 가능합니다.</p></div></div>'; },1200); }
     function processReward(){ userTokens+=200; updateToken(); alert('접근성 제보 참여 인센티브 200BT가 적립되었습니다.'); }
     function buildSendGridPayload(){
@@ -1218,11 +1182,6 @@
         content: [{ type: 'text/plain', value: body }]
       };
     }
-    /**
-     * [BACKEND HOOK] refreshSendGridPayload()
-     * Builds SendGrid-shaped JSON for preview only. No API key here.
-     * Future: optional POST `${BACKEND_API_URL}/email/preview` to validate payload server-side.
-     */
     function refreshSendGridPayload(){
       latestSendGridPayload = buildSendGridPayload();
       const preview = document.getElementById('sendgrid-payload-preview');
@@ -1236,11 +1195,6 @@
       setTimeout(refreshSendGridPayload, 0);
     }
     function closeGovModal(){ document.getElementById('gov-modal').classList.add('hidden'); document.getElementById('gov-modal').classList.remove('flex'); }
-    /**
-     * [BACKEND HOOK] prepareSendGridEmail()
-     * Prepares payload only. Actual send: POST `${BACKEND_API_URL}/send-email` on backend (SendGrid key in env).
-     * Do NOT call SendGrid directly from the browser.
-     */
     function prepareSendGridEmail(){
       refreshSendGridPayload();
       showAppToast('SendGrid 발송용 payload가 준비되었습니다. 실제 발송 API는 추후 연결하면 됩니다.');

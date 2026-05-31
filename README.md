@@ -1,23 +1,17 @@
-# 반다비 AI — HTML 프로토타입 (Streamlit 배포)
+# 반다비 AI — HTML 프로토타입 (Streamlit 렌더링)
 
-김포 반다비 AI 서비스 **완성형 HTML 프론트**(`bandabi_purple.html`)를 Streamlit Community Cloud에서 그대로 보여 주는 진입점입니다.  
-UI·화면 전환·로그인/회원가입 흐름은 HTML/JS mock을 유지하며, **AI·SendGrid 등 실 API는 아직 연결하지 않습니다.**
+완성형 프론트 **`bandabi_purple.html`** 을 Streamlit에서 **수정 없이** iframe으로 보여 줍니다.  
+HTML·CSS·JS는 **건드리지 않습니다.** 백엔드/API 연결은 추후 별도 작업입니다.
 
-## 프로젝트 구조
+## 구조
 
 ```
 project/
-├── app.py                 # Streamlit 진입 — st.components.v1.html() 로 HTML 렌더
-├── bandabi_purple.html    # 완성형 UI (Downloads 시안과 동일)
-├── requirements.txt       # streamlit
-├── README.md
-└── .streamlit/
-    └── secrets.toml.example
+├── app.py
+├── bandabi_purple.html   ← 원본 그대로 (수정 금지)
+├── requirements.txt
+└── README.md
 ```
-
-**레거시 (선택):** 이전 Streamlit 위젯+엔진 버전은 `app_engine_tabs.py`, `modules/`, `components/` 에 보관되어 있습니다.
-
----
 
 ## 로컬 실행
 
@@ -26,105 +20,64 @@ pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-브라우저에서 HTML 프로토타입 전체(로그인 모달 → 탭 전환 → AI mock)가 iframe 안에 표시됩니다.
+## 원본과 동일하게 보기
 
----
+1. **브라우저에서 HTML 직접 열기:** `bandabi_purple.html` 더블클릭 또는 `file://` 로 열기  
+2. **Streamlit:** `python -m streamlit run app.py`
 
-## Streamlit Community Cloud 배포
+두 화면을 나란히 비교합니다. Streamlit 쪽은 `app.py`가 여백·헤더만 제거하고 `components.html(..., height=3000, scrolling=True)` 로 렌더링합니다.
 
-1. GitHub에 이 폴더 push ( **`bandabi_purple.html` 반드시 포함** )
-2. [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. **Main file path:** `app.py`
-4. (선택) **Secrets** — 백엔드 URL만 미리 넣을 수 있음:
+## Streamlit Cloud 배포
 
-```toml
-BACKEND_API_URL = "https://your-api.example.com"
-```
+1. GitHub에 `app.py` + `bandabi_purple.html` + `requirements.txt` push  
+2. [share.streamlit.io](https://share.streamlit.io) → Main file: **`app.py`**  
+3. Deploy  
 
-5. **Deploy**
+`bandabi_purple.html` 이 레포에 없으면 Streamlit에서 빈 화면/에러가 납니다.
 
-> SendGrid·OpenRouter 등 **API Key는 HTML/JS에 넣지 마세요.** Streamlit Secrets 또는 백엔드 환경변수만 사용합니다.
+## 백엔드 연결 (추후 — HTML 수정 없이)
 
----
+현재 단계에서는 **HTML 파일을 변경하지 않습니다.**  
+모델·SendGrid 연동은 다음 중 하나로 진행하는 것을 권장합니다.
 
-## 백엔드 API 연결 (추후)
-
-모델링이 끝난 **FastAPI(또는 별도) 백엔드**를 붙일 때 권장 구조:
-
-```
-project/
-├── app.py
-├── bandabi_purple.html
-├── requirements.txt
-└── backend/              # 추후 생성
-    ├── main.py           # FastAPI
-    ├── requirements.txt
-    └── .env              # SENDGRID_API_KEY 등 (gitignore)
-```
-
-### 데이터 흐름
-
-| 기능 | 프론트 (HTML) | 백엔드 | 비고 |
-|------|---------------|--------|------|
-| 경로 분석 | `triggerAiEngine()` | `POST /route-analysis` | mock → API JSON |
-| 일정 추천 | `runScheduleOptimize()` | `POST /schedule-optimize` | |
-| 비전 점검 | `startVisionScan()` | `POST /vision-analyze` | 이미지 multipart/base64 |
-| 이메일 미리보기 | `refreshSendGridPayload()` | `POST /email/preview` | payload 검증만 |
-| **실제 발송** | `prepareSendGridEmail()` | **`POST /send-email`** | **SendGrid는 백엔드에서만** |
-
-HTML `bandabi_purple.html` 스크립트 상단에 `window.BACKEND_API_URL` 이 주입됩니다 (`app.py`가 `__BACKEND_API_URL__` 치환).
-
-### JS 연결 예시 (나중에 mock 교체)
-
-```javascript
-async function callRouteAnalysis(payload) {
-  const response = await fetch(`${window.BACKEND_API_URL}/route-analysis`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return response.json();
-}
-```
-
-`triggerAiEngine()` 안에서 `routeInfo()` + `setTimeout` 대신 위 API 결과를 `#route-title`, `#route-risk` 등에 매핑하면 됩니다.
-
-### SendGrid 보안
-
-```
-HTML (payload만 생성)
-  → POST /send-email (백엔드)
-    → SendGrid API (서버 env의 SENDGRID_API_KEY)
-```
-
-브라우저에서 SendGrid를 직접 호출하면 API Key가 노출됩니다.
-
----
-
-## HTML에 표시된 [BACKEND HOOK] 함수
-
-`bandabi_purple.html` 내 주석으로 표시된 후보:
-
-- `triggerAiEngine()` — 경로 분석
-- `runScheduleOptimize()` — 일정 최적화
-- `startVisionScan()` — 비전 분석
-- `refreshSendGridPayload()` — 발송 payload 미리보기
-- `prepareSendGridEmail()` — 발송 준비 (실발송은 `/send-email`)
-
----
-
-## 문제 해결
-
-| 증상 | 조치 |
+| 방식 | 설명 |
 |------|------|
-| `HTML 파일을 찾을 수 없습니다` | `bandabi_purple.html`을 `app.py`와 같은 폴더에 배치 |
-| iframe 높이 부족 | `app.py`의 `components.html(..., height=2400)` 값 조정 |
-| CDN 차단 | Tailwind/Font Awesome CDN 네트워크 확인 |
+| HTML 사본 + adapter JS | `bandabi_purple.adapter.html` 등 **별도 파일**에서 fetch만 추가 |
+| FastAPI 백엔드 | `backend/` 폴더에 API 두고, adapter에서 `POST /route-analysis` 등 호출 |
+| SendGrid | **브라우저/ HTML에 키 금지** → `POST /send-email` 은 서버 env만 |
+
+`app.py`는 지금처럼 **렌더링만** 담당합니다. `BACKEND_API_URL` 주입·HTML 치환은 하지 않습니다.
+
+### 추후 FastAPI 예시 구조
+
+```
+backend/
+├── main.py
+├── requirements.txt
+└── .env          # SENDGRID_API_KEY 등 (gitignore)
+```
 
 ---
 
-## 보안 체크리스트
+## 화면 차이가 날 수 있는 이유 (점검 메모)
 
-- [ ] `.streamlit/secrets.toml` / `.env` 는 git에 커밋하지 않음
-- [ ] HTML·JS에 API Key 문자열 없음
-- [ ] SendGrid 발송은 백엔드 전용
+| 원인 | 직접 열기 | Streamlit iframe |
+|------|-----------|------------------|
+| 스크롤 | 문서 전체(body) 스크롤 | iframe 높이(3000px) + `scrolling=True` 이중 스크롤 가능 |
+| 뷰포트 | 브라우저 전체 너비 | iframe 너비 100% (거의 동일) |
+| Streamlit 크롬 | 없음 | `#MainMenu`, header, footer 숨김 처리 |
+| CDN (Tailwind, FA, Chart.js) | 네트워크 필요 | iframe 내부에서도 동일 CDN 로드 |
+| `file://` vs `http://localhost` | 일부 브라우저 보안 차이 | Streamlit은 localhost 서빙 |
+
+iframe 높이가 부족하면 하단 탭이 잘릴 수 있습니다 → `app.py`의 `height=3000` 을 키우세요.
+
+---
+
+## 보안
+
+- API Key·SendGrid Key는 HTML/JS에 넣지 않음  
+- `.streamlit/secrets.toml` 은 git에 커밋하지 않음  
+
+## 레거시
+
+이전 Streamlit 위젯+엔진 버전: `app_engine_tabs.py`, `modules/` (이 HTML 렌더 방식과 무관)
