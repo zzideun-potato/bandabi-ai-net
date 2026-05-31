@@ -47,6 +47,6 @@ else:
     html = html_path.read_text(encoding="utf-8")
     components.html(
         html,
-        height=3000,
+        height=950,
         scrolling=True,
     )
