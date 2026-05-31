@@ -9,7 +9,10 @@ from __future__ import annotations
 
 import html
 from datetime import datetime, timedelta
+from pathlib import Path
+from textwrap import dedent
 from typing import Any
+from urllib.parse import quote
 
 import streamlit as st
 
@@ -68,10 +71,25 @@ def fmt_bt(value: int | float) -> str:
     return f"{int(value):,}BT"
 
 
+def bandabi_icon_data_uri() -> str:
+    svg_path = Path(__file__).resolve().parent / "assets" / "img" / "icon.svg"
+    try:
+        svg = svg_path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    svg = svg.replace("#7770FF", "#4a2d7a").replace("#DAD8FF", "#d9d3ef")
+    return "data:image/svg+xml;charset=utf-8," + quote(svg)
+
+
+def html_block(markup: str) -> str:
+    return " ".join(line.strip() for line in dedent(markup).splitlines() if line.strip())
+
+
 def init_state() -> None:
     defaults: dict[str, Any] = {
         "logged_in": False,
         "authenticated": False,
+        "auth_stage": "entry",
         "auth_mode": "로그인",
         "user_name": "",
         "user_email": "",
@@ -128,6 +146,7 @@ def inject_css() -> None:
     st.markdown(
         f"""
         <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
         :root {{
             --bandabi-bg: {bg};
             --bandabi-card: {card};
@@ -315,8 +334,177 @@ def inject_css() -> None:
             line-height: 1.7;
         }}
         .auth-card {{
-            padding: 30px;
-            margin-top: 7vh;
+            padding: 0;
+            margin-top: 0;
+        }}
+        .auth-entry-page {{
+            min-height: calc(100vh - 1.7rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }}
+        .auth-entry-card {{
+            width: min(540px, calc(100vw - 36px));
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.18);
+            border-radius: 20px;
+            padding: 34px 34px 31px;
+            box-shadow: 0 22px 58px rgba(74,45,122,.11);
+        }}
+        .auth-entry-head {{
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 34px;
+        }}
+        .auth-entry-logo {{
+            width: 96px;
+            height: 96px;
+            flex: 0 0 96px;
+            display: block;
+            border-radius: 22px;
+        }}
+        .auth-entry-title {{
+            margin: 0;
+            color: #241936;
+            font-size: 30px;
+            line-height: 1.1;
+            font-weight: 900;
+        }}
+        .auth-entry-sub {{
+            margin: 17px 0 0;
+            color: #6f5f96;
+            font-size: 14px;
+            line-height: 1.65;
+            font-weight: 300;
+        }}
+        .auth-choice {{
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            min-height: 96px;
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-decoration: none !important;
+            transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+        }}
+        .auth-choice + .auth-choice {{
+            margin-top: 16px;
+        }}
+        .auth-choice:hover {{
+            transform: translateY(-2px);
+        }}
+        .auth-choice.primary {{
+            background: #4a2d7a;
+            color: #fff !important;
+            border: 1px solid #4a2d7a;
+            box-shadow: 0 12px 26px rgba(74,45,122,.30);
+        }}
+        .auth-choice.secondary {{
+            background: #fff;
+            border: 1px solid rgba(184,172,216,.26);
+            color: #241936 !important;
+            box-shadow: 0 10px 24px rgba(109,40,217,.08);
+        }}
+        .auth-choice-icon {{
+            width: 58px;
+            height: 58px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 58px;
+        }}
+        .auth-choice.primary .auth-choice-icon {{
+            background: rgba(255,255,255,.15);
+            color: #ffffff;
+        }}
+        .auth-choice.secondary .auth-choice-icon {{
+            background: #f0e3ff;
+            color: #4a2d7a;
+        }}
+        .auth-choice-title {{
+            display: block;
+            font-size: 21px;
+            line-height: 1.2;
+            font-weight: 900;
+            color: inherit;
+        }}
+        .auth-choice-desc {{
+            display: block;
+            margin-top: 5px;
+            font-size: 14px;
+            line-height: 1.35;
+            font-weight: 300;
+            color: inherit;
+        }}
+        .auth-choice.secondary .auth-choice-desc {{
+            color: #7a6aa0;
+        }}
+        .auth-notice {{
+            margin-top: 26px;
+            border-radius: 14px;
+            border: 1px solid rgba(184,172,216,.32);
+            background: #f0ecf8;
+            color: #6f5f96;
+            padding: 15px 17px 16px;
+            font-size: 12px;
+            line-height: 1.75;
+            font-weight: 300;
+        }}
+        .auth-notice-title {{
+            display: block;
+            color: #4a2d7a;
+            font-size: 13px;
+            line-height: 1.35;
+            font-weight: 900;
+            margin-bottom: 6px;
+        }}
+        .auth-footnote {{
+            margin: 14px auto 0;
+            width: 80%;
+            color: #7a6aa0;
+            text-align: center;
+            font-size: 11px;
+            line-height: 1.65;
+            font-weight: 200;
+        }}
+        .auth-form-card {{
+            width: min(540px, calc(100vw - 36px));
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.18);
+            border-radius: 20px;
+            padding: 30px 34px;
+            box-shadow: 0 22px 58px rgba(74,45,122,.11);
+        }}
+        @media (max-width: 640px) {{
+            .auth-entry-card, .auth-form-card {{
+                padding: 26px 18px 24px;
+            }}
+            .auth-entry-head {{
+                gap: 16px;
+                margin-bottom: 26px;
+            }}
+            .auth-entry-logo {{
+                width: 76px;
+                height: 76px;
+                flex-basis: 76px;
+            }}
+            .auth-entry-title {{
+                font-size: 24px;
+            }}
+            .auth-entry-sub {{
+                margin-top: 10px;
+                font-size: 13px;
+            }}
+            .auth-choice {{
+                min-height: 88px;
+                padding: 16px;
+            }}
+            .auth-footnote {{
+                width: 94%;
+            }}
         }}
         .stButton > button {{
             min-height: 42px;
@@ -572,22 +760,100 @@ def section_intro(kicker: str, title: str, copy: str, chips: list[str] | None = 
 
 
 def render_auth() -> None:
+    query_auth = st.query_params.get("auth")
+    if query_auth in {"login", "signup"}:
+        st.session_state.auth_stage = "form"
+        st.session_state.auth_mode = "로그인" if query_auth == "login" else "회원가입"
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+
+    if st.session_state.get("auth_stage", "entry") == "entry":
+        icon_src = bandabi_icon_data_uri()
+        logo_html = (
+            f'<img class="auth-entry-logo" src="{icon_src}" alt="반다비">'
+            if icon_src
+            else '<span class="auth-entry-logo" style="background:#4a2d7a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:30px;">B</span>'
+        )
+        st.markdown(
+            html_block(f"""
+            <div class="auth-entry-page">
+                <section class="auth-entry-card" aria-label="반다비 AI 시작">
+                    <div class="auth-entry-head">
+                        {logo_html}
+                        <div>
+                            <h1 class="auth-entry-title">반다비 AI</h1>
+                            <p class="auth-entry-sub">서비스 이용을 위해 로그인하거나<br>회원가입을 진행하세요.</p>
+                        </div>
+                    </div>
+
+                    <a class="auth-choice primary" href="?auth=login" target="_self" aria-label="로그인">
+                        <span class="auth-choice-icon" aria-hidden="true">
+                            <svg width="29" height="29" viewBox="0 0 24 24" fill="none">
+                                <path d="M15 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10 17l5-5-5-5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M15 12H3" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <span class="auth-choice-title">로그인</span>
+                            <span class="auth-choice-desc">기존 계정으로 서비스 이어가기</span>
+                        </span>
+                    </a>
+
+                    <a class="auth-choice secondary" href="?auth=signup" target="_self" aria-label="회원가입">
+                        <span class="auth-choice-icon" aria-hidden="true">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                                <path d="M15 19a6 6 0 0 0-12 0" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" fill="currentColor"/>
+                                <path d="M19 8v6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M22 11h-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span>
+                            <span class="auth-choice-title">회원가입</span>
+                            <span class="auth-choice-desc">접근성 지원 유형과 알림 설정을 시작</span>
+                        </span>
+                    </a>
+
+                    <div class="auth-notice">
+                        <span class="auth-notice-title">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
+                                <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                            </svg>
+                            민감정보 고지
+                        </span>
+                        본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
+                        생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+                    </div>
+
+                    <p class="auth-footnote">
+                        * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
+                        실제 서버 인증·암호화 보안을 제공하지 않습니다.
+                    </p>
+                </section>
+            </div>
+            """),
+            unsafe_allow_html=True,
+        )
+        return
+
     left, center, right = st.columns([1, 1.18, 1])
     with center:
+        mode_index = 0 if st.session_state.get("auth_mode") != "회원가입" else 1
         st.markdown(
-            """
-            <div class="auth-card">
-                <div style="display:flex;align-items:center;margin-bottom:18px;">
-                    <span class="brand-mark">B</span>
+            html_block(f"""
+            <div class="auth-form-card">
+                <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
+                    <img src="{bandabi_icon_data_uri()}" alt="반다비" style="width:72px;height:72px;border-radius:18px;">
                     <div>
-                        <p class="brand-title">반다비 AI</p>
-                        <p class="brand-subtitle">김포 생활체육 참여지원 native Streamlit UI</p>
+                        <p class="brand-title" style="font-size:25px;">반다비 AI</p>
+                        <p class="brand-subtitle" style="font-weight:300;">{esc(st.session_state.get("auth_mode", "로그인"))} 정보를 입력하세요.</p>
                     </div>
                 </div>
-                <div class="notice-box">
-                    실제 인증 없이 화면 흐름을 확인하는 프로토타입입니다. 입력한 이름과 역할만 세션에 반영됩니다.
-                </div>
-            """,
+            """),
             unsafe_allow_html=True,
         )
 
@@ -596,6 +862,7 @@ def render_auth() -> None:
             ["로그인", "회원가입"],
             horizontal=True,
             key="auth_mode_select",
+            index=mode_index,
             label_visibility="collapsed",
         )
         with st.form("auth_form", clear_on_submit=False):
@@ -622,6 +889,10 @@ def render_auth() -> None:
             st.session_state.current_page = "dashboard" if st.session_state.role == ADMIN_ROLE else "main"
             st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
             st.session_state.bt_balance = st.session_state.bt_points
+            st.rerun()
+
+        if st.button("처음 화면으로 돌아가기", key="auth_back_to_entry"):
+            st.session_state.auth_stage = "entry"
             st.rerun()
 
         st.markdown("</div>", unsafe_allow_html=True)
