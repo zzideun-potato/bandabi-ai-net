@@ -485,7 +485,7 @@ def inject_css() -> None:
             margin: 0 auto !important;
             padding-top: 14px;
             width: 100%;
-            color: #7a6aa0;
+            color: #7868a0;
             text-align: center;
             font-size: 11px !important;
             line-height: 1.65 !important;
@@ -529,7 +529,7 @@ def inject_css() -> None:
         }}
         .auth-form-title {{
             margin: 0;
-            color: #2d2040;
+            color: #4a2d7a;
             font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 30px;
             line-height: 1.05;
@@ -545,13 +545,13 @@ def inject_css() -> None:
         }}
         .signup-panel-title {{
             margin: 0;
-            color: #2d2040;
+            color: #4a2d7a;
             font-size: 20px;
             line-height: 1.25;
             font-weight: 900;
         }}
         .signup-panel-copy {{
-            margin: 8px 0 20px !important;
+            margin: 10px 0 26px !important;
             color: #7868a0;
             font-size: 13px !important;
             line-height: 1.55 !important;
@@ -564,18 +564,19 @@ def inject_css() -> None:
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.34);
             border-radius: 16px;
-            padding: 22px 20px 20px;
+            padding: 24px 20px 22px;
         }}
         .signup-field {{
-            margin-top: 18px;
+            display: block;
+            margin-top: 22px;
         }}
         .signup-panel .signup-field:first-of-type {{
             margin-top: 0;
         }}
         .signup-label {{
             display: block;
-            margin: 0 0 10px;
-            color: #6f5f96;
+            margin: 0 0 14px;
+            color: #7868a0;
             font-size: 13px;
             line-height: 1.25;
             font-weight: 900;
@@ -588,7 +589,7 @@ def inject_css() -> None:
             border-radius: 12px;
             background: #ffffff;
             padding: 0 20px;
-            color: #2d2040;
+            color: #4a2d7a;
             font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 16px;
             font-weight: 300;
