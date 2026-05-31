@@ -168,6 +168,9 @@ def inject_css() -> None:
             color: var(--bandabi-ink);
             font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
                 "Malgun Gothic", system-ui, sans-serif;
+            font-optical-sizing: auto;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: geometricPrecision;
         }}
         .block-container {{
             max-width: 1120px;
@@ -338,18 +341,20 @@ def inject_css() -> None:
             margin-top: 0;
         }}
         .auth-entry-page {{
-            min-height: calc(100vh - 1.7rem);
+            min-height: calc(100vh - 28px);
             display: flex;
             align-items: center;
             justify-content: center;
         }}
         .auth-entry-card {{
+            box-sizing: border-box;
             width: min(540px, calc(100vw - 36px));
+            min-height: 598px;
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.18);
             border-radius: 20px;
             padding: 34px 34px 31px;
-            box-shadow: 0 22px 58px rgba(74,45,122,.11);
+            box-shadow: 0 24px 60px rgba(74,45,122,.115);
         }}
         .auth-entry-head {{
             display: flex;
@@ -357,33 +362,41 @@ def inject_css() -> None:
             gap: 24px;
             margin-bottom: 34px;
         }}
+        .auth-entry-copy {{
+            padding-top: 2px;
+            word-break: keep-all;
+        }}
         .auth-entry-logo {{
             width: 96px;
             height: 96px;
             flex: 0 0 96px;
             display: block;
-            border-radius: 22px;
+            border-radius: 21px;
         }}
         .auth-entry-title {{
             margin: 0;
             color: #241936;
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
             font-size: 30px;
-            line-height: 1.1;
+            line-height: 1.05;
             font-weight: 900;
         }}
         .auth-entry-sub {{
-            margin: 17px 0 0;
+            margin: 17px 0 0 !important;
             color: #6f5f96;
-            font-size: 14px;
-            line-height: 1.65;
-            font-weight: 300;
+            font-size: 14px !important;
+            line-height: 1.65 !important;
+            font-weight: 300 !important;
+            word-break: keep-all;
         }}
         .auth-choice {{
             position: relative;
+            box-sizing: border-box;
             display: flex;
             align-items: center;
             gap: 18px;
             min-height: 96px;
+            width: 100%;
             border-radius: 16px;
             padding: 18px 20px;
             text-decoration: none !important;
@@ -399,13 +412,13 @@ def inject_css() -> None:
             background: #4a2d7a;
             color: #fff !important;
             border: 1px solid #4a2d7a;
-            box-shadow: 0 12px 26px rgba(74,45,122,.30);
+            box-shadow: 0 13px 27px rgba(74,45,122,.31);
         }}
         .auth-choice.secondary {{
             background: #fff;
             border: 1px solid rgba(184,172,216,.26);
             color: #241936 !important;
-            box-shadow: 0 10px 24px rgba(109,40,217,.08);
+            box-shadow: 0 10px 24px rgba(109,40,217,.075);
         }}
         .auth-choice-icon {{
             width: 58px;
@@ -424,9 +437,15 @@ def inject_css() -> None:
             background: #f0e3ff;
             color: #4a2d7a;
         }}
+        .auth-choice-text {{
+            display: block;
+            padding-top: 1px;
+            word-break: keep-all;
+        }}
         .auth-choice-title {{
             display: block;
-            font-size: 21px;
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-size: 20px;
             line-height: 1.2;
             font-weight: 900;
             color: inherit;
@@ -435,7 +454,7 @@ def inject_css() -> None:
             display: block;
             margin-top: 5px;
             font-size: 14px;
-            line-height: 1.35;
+            line-height: 1.38;
             font-weight: 300;
             color: inherit;
         }}
@@ -448,10 +467,11 @@ def inject_css() -> None:
             border: 1px solid rgba(184,172,216,.32);
             background: #f0ecf8;
             color: #6f5f96;
-            padding: 15px 17px 16px;
+            padding: 15px 17px 15px;
             font-size: 12px;
-            line-height: 1.75;
+            line-height: 1.72;
             font-weight: 300;
+            word-break: keep-all;
         }}
         .auth-notice-title {{
             display: block;
@@ -462,13 +482,16 @@ def inject_css() -> None:
             margin-bottom: 6px;
         }}
         .auth-footnote {{
-            margin: 14px auto 0;
-            width: 80%;
+            margin: 0 auto !important;
+            padding-top: 14px;
+            width: 100%;
             color: #7a6aa0;
             text-align: center;
-            font-size: 11px;
-            line-height: 1.65;
-            font-weight: 200;
+            font-size: 11px !important;
+            line-height: 1.65 !important;
+            font-weight: 200 !important;
+            word-break: keep-all;
+            white-space: nowrap !important;
         }}
         .auth-form-card {{
             width: min(540px, calc(100vw - 36px));
@@ -504,6 +527,7 @@ def inject_css() -> None:
             }}
             .auth-footnote {{
                 width: 94%;
+                white-space: normal;
             }}
         }}
         .stButton > button {{
@@ -782,8 +806,8 @@ def render_auth() -> None:
                 <section class="auth-entry-card" aria-label="반다비 AI 시작">
                     <div class="auth-entry-head">
                         {logo_html}
-                        <div>
-                            <h1 class="auth-entry-title">반다비 AI</h1>
+                        <div class="auth-entry-copy">
+                            <div class="auth-entry-title" role="heading" aria-level="1">반다비 AI</div>
                             <p class="auth-entry-sub">서비스 이용을 위해 로그인하거나<br>회원가입을 진행하세요.</p>
                         </div>
                     </div>
@@ -796,7 +820,7 @@ def render_auth() -> None:
                                 <path d="M15 12H3" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                         </span>
-                        <span>
+                        <span class="auth-choice-text">
                             <span class="auth-choice-title">로그인</span>
                             <span class="auth-choice-desc">기존 계정으로 서비스 이어가기</span>
                         </span>
@@ -811,7 +835,7 @@ def render_auth() -> None:
                                 <path d="M22 11h-6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
                             </svg>
                         </span>
-                        <span>
+                        <span class="auth-choice-text">
                             <span class="auth-choice-title">회원가입</span>
                             <span class="auth-choice-desc">접근성 지원 유형과 알림 설정을 시작</span>
                         </span>
