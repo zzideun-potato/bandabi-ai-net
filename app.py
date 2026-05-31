@@ -494,12 +494,141 @@ def inject_css() -> None:
             white-space: nowrap !important;
         }}
         .auth-form-card {{
+            box-sizing: border-box;
             width: min(540px, calc(100vw - 36px));
+            min-height: 986px;
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.18);
             border-radius: 20px;
-            padding: 30px 34px;
-            box-shadow: 0 22px 58px rgba(74,45,122,.11);
+            padding: 34px 34px 31px;
+            box-shadow: 0 24px 60px rgba(74,45,122,.115);
+        }}
+        .auth-form-page {{
+            min-height: calc(100vh - 28px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: translateY(-20px);
+        }}
+        .auth-form-head {{
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            margin-bottom: 34px;
+        }}
+        .auth-form-logo {{
+            width: 96px;
+            height: 96px;
+            flex: 0 0 96px;
+            display: block;
+            border-radius: 21px;
+        }}
+        .auth-form-copy {{
+            padding-top: 3px;
+            word-break: keep-all;
+        }}
+        .auth-form-title {{
+            margin: 0;
+            color: #241936;
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-size: 30px;
+            line-height: 1.05;
+            font-weight: 900;
+        }}
+        .auth-form-sub {{
+            margin: 42px 0 0 !important;
+            color: #6f5f96;
+            font-size: 14px !important;
+            line-height: 1.65 !important;
+            font-weight: 300 !important;
+            word-break: keep-all;
+        }}
+        .signup-panel-title {{
+            margin: 0;
+            color: #241936;
+            font-size: 20px;
+            line-height: 1.25;
+            font-weight: 900;
+        }}
+        .signup-panel-copy {{
+            margin: 8px 0 25px !important;
+            color: #7a6aa0;
+            font-size: 13px !important;
+            line-height: 1.55 !important;
+            font-weight: 300 !important;
+            word-break: keep-all;
+        }}
+        .signup-panel {{
+            box-sizing: border-box;
+            width: 100%;
+            min-height: 526px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.34);
+            border-radius: 16px;
+            padding: 20px 19px 18px;
+        }}
+        .signup-field {{
+            margin-top: 22px;
+        }}
+        .signup-label {{
+            display: block;
+            margin: 0 0 14px;
+            color: #6f5f96;
+            font-size: 13px;
+            line-height: 1.25;
+            font-weight: 900;
+        }}
+        .signup-input {{
+            box-sizing: border-box;
+            width: 100%;
+            height: 54px;
+            border: 0;
+            border-radius: 12px;
+            background: #ffffff;
+            padding: 0 20px;
+            color: #241936;
+            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+            outline: none;
+            box-shadow: none;
+        }}
+        .signup-input::placeholder {{
+            color: #b8acd8;
+            opacity: 1;
+            font-weight: 300;
+        }}
+        .auth-form-buttons {{
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+        }}
+        .auth-form-action {{
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 0;
+            height: 55px;
+            border-radius: 12px;
+            text-decoration: none !important;
+            font-size: 16px;
+            font-weight: 900;
+        }}
+        .auth-form-action.back {{
+            background: #f0ecf8;
+            color: #241936;
+            border: 1px solid rgba(184,172,216,.34);
+            box-shadow: none;
+        }}
+        .auth-form-action.next {{
+            background: #4a2d7a;
+            color: #ffffff;
+            border: 1px solid #4a2d7a;
+            box-shadow: 0 12px 24px rgba(74,45,122,.28);
+        }}
+        .auth-form-notice {{
+            margin-top: 24px;
         }}
         @media (max-width: 640px) {{
             .auth-entry-card, .auth-form-card {{
@@ -516,6 +645,22 @@ def inject_css() -> None:
             }}
             .auth-entry-title {{
                 font-size: 24px;
+            }}
+            .auth-form-head {{
+                gap: 16px;
+                margin-bottom: 26px;
+            }}
+            .auth-form-logo {{
+                width: 76px;
+                height: 76px;
+                flex-basis: 76px;
+            }}
+            .auth-form-title {{
+                font-size: 24px;
+            }}
+            .auth-form-sub {{
+                margin-top: 18px !important;
+                font-size: 13px !important;
             }}
             .auth-entry-sub {{
                 margin-top: 10px;
@@ -785,6 +930,28 @@ def section_intro(kicker: str, title: str, copy: str, chips: list[str] | None = 
 
 def render_auth() -> None:
     query_auth = st.query_params.get("auth")
+    if query_auth == "entry":
+        st.session_state.auth_stage = "entry"
+        st.session_state.auth_mode = "로그인"
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+    if query_auth == "signup_done":
+        st.session_state.logged_in = True
+        st.session_state.authenticated = True
+        st.session_state.auth_mode = "회원가입"
+        st.session_state.user_name = "반다비"
+        st.session_state.user_email = ""
+        st.session_state.role = USER_ROLE
+        st.session_state.current_page = "main"
+        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
+        st.session_state.bt_balance = st.session_state.bt_points
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+        st.rerun()
     if query_auth in {"login", "signup"}:
         st.session_state.auth_stage = "form"
         st.session_state.auth_mode = "로그인" if query_auth == "login" else "회원가입"
@@ -864,49 +1031,114 @@ def render_auth() -> None:
         )
         return
 
-    left, center, right = st.columns([1, 1.18, 1])
-    with center:
-        mode_index = 0 if st.session_state.get("auth_mode") != "회원가입" else 1
+    icon_src = bandabi_icon_data_uri()
+    auth_mode = st.session_state.get("auth_mode", "로그인")
+    subtitle = (
+        "회원가입 후 이용자/관리자 모드를 선택하세요."
+        if auth_mode == "회원가입"
+        else "기존 계정으로 서비스를 이어가세요."
+    )
+    logo_html = (
+        f'<img class="auth-form-logo" src="{icon_src}" alt="반다비">'
+        if icon_src
+        else '<span class="auth-form-logo" style="background:#4a2d7a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:30px;">B</span>'
+    )
+
+    if auth_mode == "회원가입":
         st.markdown(
             html_block(f"""
-            <div class="auth-form-card">
-                <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px;">
-                    <img src="{bandabi_icon_data_uri()}" alt="반다비" style="width:72px;height:72px;border-radius:18px;">
-                    <div>
-                        <p class="brand-title" style="font-size:25px;">반다비 AI</p>
-                        <p class="brand-subtitle" style="font-weight:300;">{esc(st.session_state.get("auth_mode", "로그인"))} 정보를 입력하세요.</p>
+            <div class="auth-form-page">
+                <section class="auth-form-card" aria-label="반다비 AI 회원가입">
+                    <div class="auth-form-head">
+                        {logo_html}
+                        <div class="auth-form-copy">
+                            <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
+                            <p class="auth-form-sub">{esc(subtitle)}</p>
+                        </div>
+                    </div>
+                    <div class="signup-panel">
+                        <div class="signup-panel-title">회원가입</div>
+                        <p class="signup-panel-copy">프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.</p>
+
+                        <label class="signup-field">
+                            <span class="signup-label">이름</span>
+                            <input class="signup-input" type="text" placeholder="예: 000" autocomplete="name">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">이메일</span>
+                            <input class="signup-input" type="email" placeholder="user@example.com" autocomplete="email">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">비밀번호</span>
+                            <input class="signup-input" type="password" placeholder="비밀번호" autocomplete="new-password">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">비밀번호 확인</span>
+                            <input class="signup-input" type="password" placeholder="비밀번호 확인" autocomplete="new-password">
+                        </label>
+                    </div>
+
+                    <div class="auth-form-buttons">
+                        <a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>
+                        <a class="auth-form-action next" href="?auth=signup_done" target="_self">계속</a>
+                    </div>
+
+                    <div class="auth-notice auth-form-notice">
+                        <span class="auth-notice-title">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
+                                <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                            </svg>
+                            민감정보 고지
+                        </span>
+                        본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
+                        생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+                    </div>
+                    <p class="auth-footnote">
+                        * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
+                        실제 서버 인증·암호화 보안을 제공하지 않습니다.
+                    </p>
+                </section>
+            </div>
+            """),
+            unsafe_allow_html=True,
+        )
+        return
+
+    left, center, right = st.columns([1, 1.18, 1])
+    with center:
+        st.markdown(
+            html_block(f"""
+            <div class="auth-form-card" style="min-height:unset;">
+                <div class="auth-form-head" style="margin-bottom:18px;">
+                    {logo_html}
+                    <div class="auth-form-copy">
+                        <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
+                        <p class="auth-form-sub" style="margin-top:14px !important;">{esc(subtitle)}</p>
                     </div>
                 </div>
             """),
             unsafe_allow_html=True,
         )
 
-        auth_mode = st.radio(
-            "진입 방식",
-            ["로그인", "회원가입"],
-            horizontal=True,
-            key="auth_mode_select",
-            index=mode_index,
-            label_visibility="collapsed",
+        name = st.text_input("이름", value=st.session_state.get("user_name") or "반다비", key="login_name")
+        email = st.text_input(
+            "이메일",
+            value=st.session_state.get("user_email") or "bandabi.user@example.com",
+            key="login_email",
         )
-        with st.form("auth_form", clear_on_submit=False):
-            name = st.text_input("이름", value=st.session_state.get("user_name") or "반다비")
-            email = st.text_input(
-                "이메일",
-                value=st.session_state.get("user_email") or "bandabi.user@example.com",
-            )
-            st.text_input("비밀번호", type="password", value="")
-            role_choice = st.radio(
-                "이용 모드",
-                ["이용자 모드", "기관 관리자 모드"],
-                horizontal=True,
-            )
-            submitted = st.form_submit_button(f"{auth_mode}으로 시작", type="primary")
+        st.text_input("비밀번호", type="password", value="", key="login_password")
+        role_choice = st.radio(
+            "이용 모드",
+            ["이용자 모드", "기관 관리자 모드"],
+            horizontal=True,
+        )
+        submitted = st.button("로그인으로 시작", type="primary", use_container_width=True)
 
         if submitted:
             st.session_state.logged_in = True
             st.session_state.authenticated = True
-            st.session_state.auth_mode = auth_mode
+            st.session_state.auth_mode = "로그인"
             st.session_state.user_name = (name or "반다비").strip()
             st.session_state.user_email = (email or "").strip()
             st.session_state.role = ADMIN_ROLE if role_choice == "기관 관리자 모드" else USER_ROLE
