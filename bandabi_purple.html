@@ -936,6 +936,11 @@
     let authMode = 'login';
     let latestSendGridPayload = null;
 
+    // Server data injected by app.py (Streamlit). Real-time button API calls need FastAPI/component bridge.
+    function getServerData(){
+      return window.BANDABI_SERVER_DATA || {};
+    }
+
     // ── Storage keys (프로토타입용 로컬 인증 · mock 엔진) ──
     // Chrome 비밀번호 추천 UI는 브라우저 판단 기능 — 코드로 강제 표시 불가.
     // Streamlit iframe 내부에서는 Chrome 비밀번호 저장/추천이 제한될 수 있음.
@@ -1118,8 +1123,10 @@
       }
     }
 
-    // RAG 연결 예정: rag_bm25.answer_with_rag
+    // RAG: server modules/rag_bm25.py 우선, 없으면 mock fallback
     function answerNextExerciseGuide(profile){
+      const guides = getServerData().rag && getServerData().rag.exercise_guides;
+      if(guides && guides[profile.disability]) return guides[profile.disability];
       if(profile.disability === 'physical') return '수중 저항 운동을 유지하고, 준비운동 시간을 10분으로 늘리는 것을 권장합니다.';
       if(profile.disability === 'visual') return '음성 안내가 가능한 소규모 프로그램을 우선 추천합니다.';
       if(profile.disability === 'developmental') return '단계별 안내와 보호자·버디 동행이 가능한 소그룹 강습을 추천합니다.';
@@ -1145,6 +1152,16 @@
     }
 
     function analyzeAccessibilityImage(file){
+      const demo = getServerData().vision && getServerData().vision.demo_fallback;
+      if(demo && demo.detected_items && demo.detected_items.length){
+        const item = demo.detected_items[0];
+        return {
+          label: '개선 필요 가능성 · AI 점검 보조(참고)',
+          summary: item + ' · ' + (demo.recommended_next_step || '관리자 확인·검토 요청이 가능합니다.'),
+          confidenceNote: 'AI 탐지 참고값 · ' + (demo.source || 'server'),
+          bboxLabel: '검토 후보 · 참고',
+        };
+      }
       return {
         label: '개선 필요 가능성 · AI 점검 보조(참고)',
         summary: '접근성 확인 후보가 감지되었습니다. 관리자 확인·검토 요청이 가능합니다.',
@@ -1154,15 +1171,31 @@
     }
 
     function loadDashboardData(){
-      return {
+      const base = {
         kpis: { attendance: '94.2%', mobility: '88.7%', buddy: '76.4%', instructor: '24%' },
         disabilityChart: { labels:['보행 보조','음성 안내','단계별 안내','기타'], data:[48,18,22,12] },
         trafficChart: { labels:['09시','11시','13시','15시','17시','19시'], booking:[35,68,42,95,50,20], delay:[5,18,8,28,12,2] },
       };
+      const dash = getServerData().dashboard;
+      if(!dash) return base;
+      return Object.assign({}, base, {
+        csv_inventory: dash.csv_inventory || [],
+        csv_summary: dash.csv_summary || '',
+        mobility_rows: dash.mobility_rows,
+        protected_zone_rows: dash.protected_zone_rows,
+        low_floor_bus_rows: dash.low_floor_bus_rows,
+      });
     }
     function renderPublicApiStatus(){
       const list = document.getElementById('public-api-status-list');
       if(!list) return;
+      const cards = getServerData().public_api_cards;
+      if(cards && cards.length){
+        list.innerHTML = cards.map(function(c){
+          return '<div class="soft rounded-xl p-3"><span class="text-accent font-bold">'+c.label+'</span><br/>'+c.display+'</div>';
+        }).join('');
+        return;
+      }
       const items = [
         ['VWorld 주소검색', '연결 예정 (mock geocode_vworld)'],
         ['버스 노선 정보', 'mock 사용 중 (fetchBusRoute)'],
@@ -1176,6 +1209,13 @@
     }
 
     function buildOfficialDraft(visionResult){
+      const draft = getServerData().email && getServerData().email.official_draft;
+      if(draft && draft.body){
+        return {
+          subject: draft.subject || '김포 반다비체육센터 접근성 개선 검토 요청',
+          body: draft.body + '\n\n- AI 점검 보조 결과: ' + (visionResult?.label || '개선 필요 가능성'),
+        };
+      }
       return {
         subject: '김포 반다비체육센터 접근성 개선 검토 요청',
         body: '안녕하세요. 김포 반다비 AI 운영팀입니다.\n\n첨부·제보 사진 기준으로 접근성 개선 검토가 필요할 가능성이 확인되었습니다.\n\n- AI 점검 보조 결과: '+(visionResult?.label || '개선 필요 가능성')+'\n- 본 문서는 행정 검토용 참고 초안이며 법적 판정을 대체하지 않습니다.\n\n검토 후 회신 부탁드립니다.',
@@ -1528,9 +1568,17 @@
           walkDistance: profile.disability === 'developmental' ? 140 : 300,
           reserveMobility: profile.disability === 'senior' ? 69 : 74,
         };
-        const score = calculateViablePathScore(payload);
-        const grade = gradeScore(score);
-        const action = explainScore(score, payload);
+        const serverScore = getServerData().scoring && getServerData().scoring.by_disability && getServerData().scoring.by_disability[profile.disability];
+        let score, grade, action;
+        if(serverScore && typeof serverScore.score === 'number'){
+          score = serverScore.score;
+          grade = serverScore.display_grade || gradeScore(score);
+          action = serverScore.explanation || explainScore(score, payload);
+        } else {
+          score = calculateViablePathScore(payload);
+          grade = gradeScore(score);
+          action = explainScore(score, payload);
+        }
         document.getElementById('route-loading').classList.add('hidden');
         document.getElementById('route-result').classList.remove('hidden');
         injectRouteResults(originGeo.label || originText, destLabel, score, grade, action, busRoute, weather, arrival);
