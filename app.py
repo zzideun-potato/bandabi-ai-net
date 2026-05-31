@@ -607,6 +607,31 @@ def inject_css() -> None:
             opacity: 1;
             font-weight: 300;
         }}
+        .signup-role-links {{
+            display: flex;
+            gap: 8px;
+        }}
+        .signup-role-link {{
+            box-sizing: border-box;
+            flex: 1 1 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            border-radius: 12px;
+            border: 1px solid rgba(184,172,216,.34);
+            background: #ffffff;
+            color: #7868a0 !important;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none !important;
+        }}
+        .signup-role-link.active {{
+            background: #4a2d7a;
+            color: #ffffff !important;
+            border-color: #4a2d7a;
+            box-shadow: 0 8px 18px rgba(74,45,122,.22);
+        }}
         .auth-form-buttons {{
             display: flex;
             gap: 10px;
@@ -1334,163 +1359,11 @@ def section_intro(kicker: str, title: str, copy: str, chips: list[str] | None = 
     )
 
 
-def auth_notice_footer() -> str:
-    return """
-        <div class="auth-notice auth-form-notice">
-            <span class="auth-notice-title">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
-                    <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
-                    <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
-                </svg>
-                민감정보 고지
-            </span>
-            본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
-            생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
-        </div>
-        <p class="auth-footnote">
-            * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
-            실제 서버 인증·암호화 보안을 제공하지 않습니다.
-        </p>
-    """
-
-
 def signup_role_from_choice() -> str:
     choice = st.session_state.get("signup_role_choice", "이용자 (User)")
     return ADMIN_ROLE if "Admin" in str(choice) else USER_ROLE
 
 
-def finalize_auth(mode: str, role: str | None = None) -> None:
-    name = (st.session_state.get("auth_name") or "").strip() or "반다비"
-    email = (st.session_state.get("auth_email") or "").strip()
-    chosen_role = role or USER_ROLE
-    st.session_state.user_name = name
-    st.session_state.user_email = email
-    st.session_state.role = chosen_role
-    st.session_state.logged_in = True
-    st.session_state.authenticated = True
-    st.session_state.auth_mode = mode
-    st.session_state.current_page = "dashboard" if chosen_role == ADMIN_ROLE else "main"
-    st.session_state.main_step = "start"
-    st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
-    st.session_state.bt_balance = st.session_state.bt_points
-    st.session_state.pending_confirm = None
-    st.rerun()
-
-
-def render_signup_auth_form(subtitle: str, logo_html: str) -> None:
-    st.markdown(
-        html_block(f"""
-        <div class="auth-form-page">
-            <section class="auth-form-card" aria-label="반다비 AI 회원가입">
-                <div class="auth-form-head">
-                    {logo_html}
-                    <div class="auth-form-copy">
-                        <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
-                        <p class="auth-form-sub">{esc(subtitle)}</p>
-                    </div>
-                </div>
-        """),
-        unsafe_allow_html=True,
-    )
-
-    st.markdown('<div class="signup-panel-stream">', unsafe_allow_html=True)
-    st.markdown(
-        html_block("""
-            <div class="signup-panel-title">회원가입</div>
-            <p class="signup-panel-copy">프로토타입에서는 기본 정보와 회원 유형을 선택한 뒤 바로 서비스로 이동합니다.</p>
-        """),
-        unsafe_allow_html=True,
-    )
-    st.markdown('<span class="signup-label">이름</span>', unsafe_allow_html=True)
-    st.text_input("이름", key="auth_name", placeholder="예: 안소연", label_visibility="collapsed")
-    st.markdown('<span class="signup-label">이메일</span>', unsafe_allow_html=True)
-    st.text_input("이메일", key="auth_email", placeholder="user@example.com", label_visibility="collapsed")
-    st.markdown('<span class="signup-label">비밀번호</span>', unsafe_allow_html=True)
-    st.text_input("비밀번호", type="password", key="auth_password", placeholder="비밀번호", label_visibility="collapsed")
-    st.markdown('<span class="signup-label">비밀번호 확인</span>', unsafe_allow_html=True)
-    st.text_input(
-        "비밀번호 확인",
-        type="password",
-        key="auth_password_confirm",
-        placeholder="비밀번호 확인",
-        label_visibility="collapsed",
-    )
-    st.markdown('<span class="signup-label">회원 유형</span>', unsafe_allow_html=True)
-    st.markdown('<div class="signup-role-radio">', unsafe_allow_html=True)
-    st.radio(
-        "회원 유형",
-        ["이용자 (User)", "기관 관리자 (Admin)"],
-        horizontal=True,
-        label_visibility="collapsed",
-        key="signup_role_choice",
-    )
-    st.markdown("</div></div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="auth-form-btn-row">', unsafe_allow_html=True)
-    back_col, next_col = st.columns(2)
-    with back_col:
-        st.markdown(
-            '<a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>',
-            unsafe_allow_html=True,
-        )
-    with next_col:
-        if st.button("계속", key="auth_signup_continue", type="primary", use_container_width=True):
-            if not (st.session_state.get("auth_name") or "").strip():
-                st.session_state.notice = "이름을 입력해 주세요."
-            elif st.session_state.get("auth_password") != st.session_state.get("auth_password_confirm"):
-                st.session_state.notice = "비밀번호 확인이 일치하지 않습니다."
-            else:
-                finalize_auth("회원가입", signup_role_from_choice())
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown(auth_notice_footer() + "</section></div>", unsafe_allow_html=True)
-
-
-def render_login_auth_form(subtitle: str, logo_html: str) -> None:
-    st.markdown(
-        html_block(f"""
-        <div class="auth-form-page">
-            <section class="auth-form-card" aria-label="반다비 AI 로그인">
-                <div class="auth-form-head">
-                    {logo_html}
-                    <div class="auth-form-copy">
-                        <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
-                        <p class="auth-form-sub">{esc(subtitle)}</p>
-                    </div>
-                </div>
-        """),
-        unsafe_allow_html=True,
-    )
-
-    st.markdown('<div class="signup-panel-stream">', unsafe_allow_html=True)
-    st.markdown(
-        html_block("""
-            <div class="signup-panel-title">로그인</div>
-            <p class="signup-panel-copy">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
-        """),
-        unsafe_allow_html=True,
-    )
-    st.markdown('<span class="signup-label">이름</span>', unsafe_allow_html=True)
-    st.text_input("이름", key="auth_name", placeholder="예: 안소연", label_visibility="collapsed")
-    st.markdown('<span class="signup-label">이메일</span>', unsafe_allow_html=True)
-    st.text_input("이메일", key="auth_email", placeholder="user@example.com", label_visibility="collapsed")
-    st.markdown('<span class="signup-label">비밀번호</span>', unsafe_allow_html=True)
-    st.text_input("비밀번호", type="password", key="auth_password", placeholder="비밀번호", label_visibility="collapsed")
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="auth-form-btn-row">', unsafe_allow_html=True)
-    back_col, next_col = st.columns(2)
-    with back_col:
-        st.markdown(
-            '<a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>',
-            unsafe_allow_html=True,
-        )
-    with next_col:
-        if st.button("계속", key="auth_login_continue", type="primary", use_container_width=True):
-            finalize_auth("로그인", USER_ROLE)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown(auth_notice_footer() + "</section></div>", unsafe_allow_html=True)
 
 
 def render_auth() -> None:
@@ -1502,11 +1375,51 @@ def render_auth() -> None:
             del st.query_params["auth"]
         except Exception:
             pass
+    if query_auth == "signup_done":
+        st.session_state.logged_in = True
+        st.session_state.authenticated = True
+        st.session_state.auth_mode = "회원가입"
+        st.session_state.user_name = (st.session_state.get("auth_name") or "").strip() or "반다비"
+        st.session_state.user_email = (st.session_state.get("auth_email") or "").strip()
+        st.session_state.role = signup_role_from_choice()
+        st.session_state.current_page = "dashboard" if st.session_state.role == ADMIN_ROLE else "main"
+        st.session_state.main_step = "start"
+        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
+        st.session_state.bt_balance = st.session_state.bt_points
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+        st.rerun()
+    if query_auth == "login_done":
+        st.session_state.logged_in = True
+        st.session_state.authenticated = True
+        st.session_state.auth_mode = "로그인"
+        st.session_state.user_name = (st.session_state.get("auth_name") or "").strip() or "반다비"
+        st.session_state.user_email = (st.session_state.get("auth_email") or "").strip()
+        st.session_state.role = USER_ROLE
+        st.session_state.current_page = "main"
+        st.session_state.main_step = "start"
+        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
+        st.session_state.bt_balance = st.session_state.bt_points
+        try:
+            del st.query_params["auth"]
+        except Exception:
+            pass
+        st.rerun()
     if query_auth in {"login", "signup"}:
         st.session_state.auth_stage = "form"
         st.session_state.auth_mode = "로그인" if query_auth == "login" else "회원가입"
+        if query_auth == "signup":
+            role_qp = st.query_params.get("role")
+            if role_qp == "admin":
+                st.session_state.signup_role_choice = "기관 관리자 (Admin)"
+            elif role_qp == "user":
+                st.session_state.signup_role_choice = "이용자 (User)"
         try:
             del st.query_params["auth"]
+            if "role" in st.query_params:
+                del st.query_params["role"]
         except Exception:
             pass
 
@@ -1595,10 +1508,130 @@ def render_auth() -> None:
     )
 
     if auth_mode == "회원가입":
-        render_signup_auth_form(subtitle, logo_html)
+        role_choice = st.session_state.get("signup_role_choice", "이용자 (User)")
+        user_role_active = " active" if "User" in str(role_choice) else ""
+        admin_role_active = " active" if "Admin" in str(role_choice) else ""
+        st.markdown(
+            html_block(f"""
+            <div class="auth-form-page">
+                <section class="auth-form-card" aria-label="반다비 AI 회원가입">
+                    <div class="auth-form-head">
+                        {logo_html}
+                        <div class="auth-form-copy">
+                            <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
+                            <p class="auth-form-sub">{esc(subtitle)}</p>
+                        </div>
+                    </div>
+                    <div class="signup-panel">
+                        <div class="signup-panel-title">회원가입</div>
+                        <p class="signup-panel-copy">프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.</p>
+
+                        <label class="signup-field">
+                            <span class="signup-label">이름</span>
+                            <input class="signup-input" type="text" placeholder="예: 000" autocomplete="name">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">이메일</span>
+                            <input class="signup-input" type="email" placeholder="user@example.com" autocomplete="email">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">비밀번호</span>
+                            <input class="signup-input" type="password" placeholder="비밀번호" autocomplete="new-password">
+                        </label>
+                        <label class="signup-field">
+                            <span class="signup-label">비밀번호 확인</span>
+                            <input class="signup-input" type="password" placeholder="비밀번호 확인" autocomplete="new-password">
+                        </label>
+                        <div class="signup-field">
+                            <span class="signup-label">회원 유형</span>
+                            <div class="signup-role-links">
+                                <a class="signup-role-link{user_role_active}" href="?auth=signup&amp;role=user" target="_self">이용자 (User)</a>
+                                <a class="signup-role-link{admin_role_active}" href="?auth=signup&amp;role=admin" target="_self">기관 관리자 (Admin)</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="auth-form-buttons">
+                        <a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>
+                        <a class="auth-form-action next" href="?auth=signup_done" target="_self">계속</a>
+                    </div>
+
+                    <div class="auth-notice auth-form-notice">
+                        <span class="auth-notice-title">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
+                                <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
+                                <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                            </svg>
+                            민감정보 고지
+                        </span>
+                        본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
+                        생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+                    </div>
+                    <p class="auth-footnote">
+                        * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
+                        실제 서버 인증·암호화 보안을 제공하지 않습니다.
+                    </p>
+                </section>
+            </div>
+            """),
+            unsafe_allow_html=True,
+        )
         return
 
-    render_login_auth_form(subtitle, logo_html)
+    st.markdown(
+        html_block(f"""
+        <div class="auth-form-page">
+            <section class="auth-form-card" aria-label="반다비 AI 로그인">
+                <div class="auth-form-head">
+                    {logo_html}
+                    <div class="auth-form-copy">
+                        <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
+                        <p class="auth-form-sub">{esc(subtitle)}</p>
+                    </div>
+                </div>
+                <div class="signup-panel">
+                    <div class="signup-panel-title">로그인</div>
+                    <p class="signup-panel-copy">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
+
+                    <label class="signup-field">
+                        <span class="signup-label">이름</span>
+                        <input class="signup-input" type="text" placeholder="예: 000" autocomplete="name">
+                    </label>
+                    <label class="signup-field">
+                        <span class="signup-label">이메일</span>
+                        <input class="signup-input" type="email" placeholder="user@example.com" autocomplete="email">
+                    </label>
+                    <label class="signup-field">
+                        <span class="signup-label">비밀번호</span>
+                        <input class="signup-input" type="password" placeholder="비밀번호" autocomplete="current-password">
+                    </label>
+                </div>
+
+                <div class="auth-form-buttons">
+                    <a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>
+                    <a class="auth-form-action next" href="?auth=login_done" target="_self">계속</a>
+                </div>
+
+                <div class="auth-notice auth-form-notice">
+                    <span class="auth-notice-title">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;">
+                            <rect x="5" y="10" width="14" height="10" rx="2" fill="currentColor"/>
+                            <path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+                        </svg>
+                        민감정보 고지
+                    </span>
+                    본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고,
+                    생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+                </div>
+                <p class="auth-footnote">
+                    * 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>
+                    실제 서버 인증·암호화 보안을 제공하지 않습니다.
+                </p>
+            </section>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
 
 
 USER_TABS: list[tuple[str, str, str]] = [
