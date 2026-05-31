@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import json
+
 import streamlit as st
 
+from components.mock_ui import build_sendgrid_payload_preview, mock_vision_result
 from components.vision_ui import (
     DEMO_IMAGE_PNG,
     OFFICIAL_NOTICE,
@@ -24,10 +27,80 @@ def s(text: object) -> str:
 
 
 def _run_analysis(*, image_bytes: bytes | None, report_type: str, description: str) -> None:
-    result = analyze_accessibility_image(image_bytes, report_type, description)
+    if image_bytes is None and not description.strip():
+        result = mock_vision_result(location="", description=description)
+    else:
+        try:
+            result = analyze_accessibility_image(image_bytes, report_type, description)
+        except Exception:
+            result = mock_vision_result(location=description.split("\n")[0], description=description)
     st.session_state.vision_result = result
     st.session_state.vision_last_report_type = report_type
     st.session_state.vision_scanning = False
+
+
+def _render_gov_draft_section() -> None:
+    st.markdown('<div class="bandabi-glass" style="margin-top:16px;">', unsafe_allow_html=True)
+    st.markdown(f'<p class="bandabi-tiny">{s("Official Notice Draft")}</p>', unsafe_allow_html=True)
+    st.markdown(f"### {s('접근성 개선 검토용 공문·이메일 초안')}")
+    st.caption(s("미리보기 내용을 수정한 뒤, 추후 SendGrid API와 연결할 수 있는 형태로 저장합니다. 실제 발송은 하지 않습니다."))
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.session_state.gov_to_email = st.text_input(
+            s("수신자 이메일"), value=st.session_state.get("gov_to_email", "facility@gimpo.go.kr"), key="gov_to"
+        )
+        st.session_state.gov_from_name = st.text_input(
+            s("발신자 이름"), value=st.session_state.get("gov_from_name", "김포 반다비 AI 운영팀"), key="gov_from_name"
+        )
+    with c2:
+        st.session_state.gov_from_email = st.text_input(
+            s("발신자 이메일"), value=st.session_state.get("gov_from_email", "no-reply@bandabi-ai.kr"), key="gov_from_email"
+        )
+        st.session_state.gov_subject = st.text_input(
+            s("공문 제목"),
+            value=st.session_state.get("gov_subject", "김포 반다비체육센터 접근성 위험 요소 개선 검토 요청"),
+            key="gov_subject",
+        )
+
+    st.session_state.gov_body = st.text_area(
+        s("공문/이메일 본문"),
+        value=st.session_state.get("gov_body", ""),
+        height=220,
+        key="gov_body",
+    )
+
+    b1, b2 = st.columns(2)
+    with b1:
+        if st.button(s("Payload 미리보기 갱신"), use_container_width=True, key="gov_refresh_payload"):
+            st.session_state.sendgrid_payload_preview = build_sendgrid_payload_preview(
+                to_email=st.session_state.gov_to_email,
+                from_email=st.session_state.gov_from_email,
+                from_name=st.session_state.gov_from_name,
+                subject=st.session_state.gov_subject,
+                body=st.session_state.gov_body,
+            )
+            st.rerun()
+    with b2:
+        if st.button(s("발송 준비(미실행)"), type="primary", use_container_width=True, key="gov_prepare"):
+            st.session_state.sendgrid_payload_preview = build_sendgrid_payload_preview(
+                to_email=st.session_state.gov_to_email,
+                from_email=st.session_state.gov_from_email,
+                from_name=st.session_state.gov_from_name,
+                subject=st.session_state.gov_subject,
+                body=st.session_state.gov_body,
+            )
+            st.session_state.toast_message = s(
+                "SendGrid 발송용 payload가 준비되었습니다. 실제 발송 API는 추후 연결하면 됩니다."
+            )
+            st.rerun()
+
+    payload = st.session_state.get("sendgrid_payload_preview")
+    if payload:
+        st.markdown(f"**{s('SendGrid 연동용 payload 미리보기')}**")
+        st.code(json.dumps(payload, ensure_ascii=False, indent=2), language="json")
+    st.caption(s("※ 본 문서는 관리자 검토용 초안이며, 실제 이메일 발송은 SendGrid API 키와 인증된 발신자 설정을 연결한 뒤 가능합니다."))
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def _render_risk_card(result: dict) -> None:
@@ -208,3 +281,5 @@ def render_tab_vision() -> None:
             st.session_state.bt_balance = int(st.session_state.get("bt_balance", 3500)) + 200
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
+
+    _render_gov_draft_section()

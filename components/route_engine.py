@@ -16,9 +16,15 @@ from modules.scoring import calculate_viable_path_score, explain_score, grade_sc
 from modules.safety import sanitize_public_claims
 
 
+GIMPO2_CENTER_KEY = "gimpo2"
+GIMPO2_WARNING = (
+    "김포 제2 반다비 교육거점은 아직 등록되지 않은 예정 시설입니다. "
+    "현재는 김포 반다비체육센터 기준으로 이용해 주세요."
+)
+
 CENTER_OPTIONS = {
     "gimpo": "김포 반다비체육센터",
-    "gimpo2": "김포 제2 반다비 체육거점",
+    GIMPO2_CENTER_KEY: "김포 제2 반다비 교육거점",
 }
 
 DISABILITY_MAP = {

@@ -57,6 +57,12 @@ def auth_dialog() -> None:
         st.session_state.user_email = st.text_input(
             s("이메일"), value=st.session_state.user_email, placeholder="user@example.com"
         )
+        st.text_input(
+            s("비밀번호"),
+            type="password",
+            placeholder=s("8자 이상(프로토타입)"),
+            key="auth_password",
+        )
         c1, c2 = st.columns(2)
         with c1:
             if st.button(s("이전"), use_container_width=True):
@@ -70,10 +76,10 @@ def auth_dialog() -> None:
     elif step == "role":
         st.markdown(f'<p class="bandabi-tiny">{s("Mode Select")}</p>', unsafe_allow_html=True)
         if st.button(s("이용자 모드 — 경로 · 동행 · 강습 · 리포트"), use_container_width=True):
-            complete_role_login(ROLE_B2C, st.session_state.user_name)
+            complete_role_login(ROLE_B2C, st.session_state.user_name or "000")
             st.rerun()
         if st.button(s("기관 관리자 모드 — 스케줄 · 접근성 점검 · 대시보드"), use_container_width=True):
-            complete_role_login(ROLE_B2G, st.session_state.user_name)
+            complete_role_login(ROLE_B2G, st.session_state.user_name or "000")
             st.rerun()
         if st.button(s("로그인/회원가입으로 돌아가기"), use_container_width=True):
             st.session_state.auth_step = "entry"

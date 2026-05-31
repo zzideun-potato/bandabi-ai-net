@@ -44,6 +44,23 @@ def init_session_state() -> None:
         "vision_result": None,
         "vision_scanning": False,
         "vision_last_report_type": "",
+        "toggle_guardian": True,
+        "toggle_buddy": True,
+        "toggle_class": True,
+        "toggle_report": True,
+        "schedule_slots": [],
+        "gov_to_email": "facility@gimpo.go.kr",
+        "gov_from_name": "김포 반다비 AI 운영팀",
+        "gov_from_email": "no-reply@bandabi-ai.kr",
+        "gov_subject": "김포 반다비체육센터 접근성 위험 요소 개선 검토 요청",
+        "gov_body": (
+            "수신: 김포시 시설관리 담당부서\n\n"
+            "제목: 김포 반다비체육센터 접근성 위험 요소 개선 검토 요청\n\n"
+            "김포 반다비체육센터 1층 로비 구간에서 점자블록 단절 및 휠체어 회전 공간 부족이 의심되는 제보가 접수되었습니다.\n\n"
+            "본 내용은 AI 기반 접근성 점검 보조 결과와 이용자 제보를 바탕으로 생성된 관리자 검토용 초안입니다. "
+            "실제 시설 적합 여부와 개선 필요성은 담당자 현장 확인 후 판단해 주시기 바랍니다."
+        ),
+        "sendgrid_payload_preview": None,
     }
     for key, value in defaults.items():
         if key not in st.session_state:

@@ -7,14 +7,15 @@ import streamlit as st
 from components.confirm_dialog import open_confirm, process_pending_confirm
 from components.flow_steps import render_flow_steps
 from components.html_assets import route_map_svg
+from components.mock_ui import mock_route_analysis
 from components.route_engine import (
     CENTER_OPTIONS,
     DISABILITY_MAP,
+    GIMPO2_CENTER_KEY,
+    GIMPO2_WARNING,
     data_status_badge,
-    run_route_analysis,
     s,
 )
-from modules.rag_bm25 import answer_with_rag
 from modules.safety import get_disclaimer, sanitize_public_claims
 from modules.ui_components import render_disclaimer_box
 
@@ -47,7 +48,18 @@ def _disclaimer_sports() -> None:
     render_disclaimer_box(s(get_disclaimer("sports")))
 
 
+def _on_center_change() -> None:
+    if st.session_state.get("start_center") == GIMPO2_CENTER_KEY:
+        st.session_state.toast_message = s(GIMPO2_WARNING)
+        st.session_state.start_center = "gimpo"
+
+
 def _start_analysis(disability_key: str, origin: str, center_key: str) -> None:
+    if center_key == GIMPO2_CENTER_KEY:
+        st.session_state.toast_message = s(GIMPO2_WARNING)
+        st.session_state.start_center = "gimpo"
+        center_key = "gimpo"
+
     support = DISABILITY_MAP.get(disability_key, DISABILITY_MAP["physical"])
     destination = CENTER_OPTIONS.get(center_key, CENTER_OPTIONS["gimpo"])
     inputs = {
@@ -65,12 +77,7 @@ def _start_analysis(disability_key: str, origin: str, center_key: str) -> None:
     st.session_state.journey["support_type"] = support
     st.session_state.main_step = "route_loading"
     st.session_state.route_analyzing = True
-    try:
-        st.session_state.route_analysis_result = run_route_analysis(inputs)
-    except Exception:
-        st.session_state.route_analysis_result = run_route_analysis(
-            {**inputs, "origin": origin or "김포 구래역 1번 출구", "destination": destination}
-        )
+    st.session_state.route_analysis_result = mock_route_analysis(inputs)
     st.session_state.main_step = "route"
     st.session_state.route_analyzing = False
 
@@ -114,15 +121,28 @@ def render_start() -> None:
             options=list(CENTER_OPTIONS.keys()),
             format_func=lambda k: s(CENTER_OPTIONS[k]),
             key="start_center",
+            index=0,
+            on_change=_on_center_change,
         )
+        if center == GIMPO2_CENTER_KEY:
+            st.warning(s(GIMPO2_WARNING))
+            center = "gimpo"
     with col_cards:
-        st.markdown('<div class="bandabi-start-grid">', unsafe_allow_html=True)
-        for label in (s("보호자 알림"), s("버디 매칭"), s("강습 추천"), s("리포트 수신")):
-            st.markdown(
-                f'<div class="bandabi-soft" style="text-align:center;font-weight:700;padding:14px 8px;">{label}</div>',
-                unsafe_allow_html=True,
+        t1, t2 = st.columns(2)
+        with t1:
+            st.session_state.toggle_guardian = st.toggle(
+                s("보호자 알림"), value=bool(st.session_state.get("toggle_guardian", True)), key="tg_guardian"
             )
-        st.markdown("</div>", unsafe_allow_html=True)
+            st.session_state.toggle_buddy = st.toggle(
+                s("버디 매칭"), value=bool(st.session_state.get("toggle_buddy", True)), key="tg_buddy"
+            )
+        with t2:
+            st.session_state.toggle_class = st.toggle(
+                s("강습 추천"), value=bool(st.session_state.get("toggle_class", True)), key="tg_class"
+            )
+            st.session_state.toggle_report = st.toggle(
+                s("리포트 수신"), value=bool(st.session_state.get("toggle_report", True)), key="tg_report"
+            )
         if st.button(s("⚡ AI 추천 시작"), type="primary", use_container_width=True, key="btn_ai_start"):
             _start_analysis(disability, origin, center)
             st.rerun()
@@ -238,10 +258,26 @@ def render_route() -> None:
                 unsafe_allow_html=True,
             )
         with m4:
+            alt = metrics.get("alt_transport", s("대중교통 · 참고"))
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("대체 이동수단 가능성")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{s(alt)}</p></div>',
+                unsafe_allow_html=True,
+            )
+
+        m5, m6 = st.columns(2)
+        with m5:
             score_val = int(score.get("score", 0))
             st.markdown(
                 f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("이동 가능성")}</p>'
                 f'<p style="font-weight:900;margin:6px 0 0;">{score_val}% · {s(result["grade_label"])}</p></div>',
+                unsafe_allow_html=True,
+            )
+        with m6:
+            arrival_text = s(result.get("bus_arrival", {}).get("message", metrics.get("bus_arrival", "확인 필요")))
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("버스 도착")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{arrival_text}</p></div>',
                 unsafe_allow_html=True,
             )
 
@@ -266,13 +302,16 @@ def render_route() -> None:
         f'<div class="bandabi-soft" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;">'
         f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-shoe-prints" aria-hidden="true"></i>'
         f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("도보 위험도")}</p>'
-        f'<p style="font-weight:800;margin:0;">{s("낮음~보통")}</p></div>'
+        f'<p style="font-weight:800;margin:0;">{s(metrics["walk"])}</p></div>'
         f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-cloud-sun-rain" aria-hidden="true"></i>'
         f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("날씨 보정")}</p>'
         f'<p style="font-weight:800;margin:0;">{s(result["weather_text"])}</p></div>'
         f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-door-open" aria-hidden="true"></i>'
         f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("시설 접근성")}</p>'
         f'<p style="font-weight:800;margin:0;">{s("확인 필요")}</p></div>'
+        f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-bus" aria-hidden="true"></i>'
+        f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("버스 도착")}</p>'
+        f'<p style="font-weight:800;margin:0;">{s(result.get("bus_arrival", {}).get("message", "확인 필요"))}</p></div>'
         f'</div>',
         unsafe_allow_html=True,
     )
@@ -460,15 +499,12 @@ def render_report() -> None:
 
     support = st.session_state.journey.get("support_type", "")
     program = st.session_state.journey.get("instructor", "박강훈")
-    rag_query = s(f"다음 생활체육 참여 가이드 — 프로그램 {program}, 접근성 지원 {support}")
-    try:
-        rag = answer_with_rag(rag_query, top_k=5, docs_dir="docs")
-    except Exception:
-        rag = {"answer": s("문서 기반 가이드를 불러오지 못했습니다. 운영기관 안내를 확인해 주세요."), "data_status": "fallback", "source": "fallback"}
-
-    rag_badge = s(rag.get("data_status", "unknown"))
-    st.markdown(f"**{s('다음 생활체육 가이드')}** · `{rag_badge}` · source={s(str(rag.get('source', 'fallback')))}")
-    st.markdown(f'<div class="bandabi-soft">{s(rag.get("answer", ""))}</div>', unsafe_allow_html=True)
+    guide = s(
+        f"{program} 지도자와 {support} 지원 유형을 고려하면, 다음 회차는 저강도 워밍업 후 "
+        f"센터 안내 동선을 함께 확인하는 참여를 권장합니다(데모)."
+    )
+    st.markdown(f"**{s('다음 생활체육 가이드')}** · `{s('mock_ui')}`")
+    st.markdown(f'<div class="bandabi-soft">{guide}</div>', unsafe_allow_html=True)
 
     st.caption(s("지속참여 루프: 다음 예약 · 이동지원 연계 · 버디 동행 · 보호자 알림(모두 운영기관 검토 필요)"))
 
