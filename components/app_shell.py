@@ -6,6 +6,7 @@ import html
 
 import streamlit as st
 
+from components.html_assets import brand_logo_markup
 from components.session_state import (
     ROLE_B2G,
     ROLE_B2C,
@@ -27,10 +28,10 @@ def _esc(value: object) -> str:
 
 
 TABS = [
-    (TAB_MAIN, "AI 추천 및 이동지원 연계"),
-    (TAB_SCHEDULE, "내 운동 일정 추천"),
-    (TAB_VISION, "AI 기반 접근성 점검 보조"),
-    (TAB_DASHBOARD, "기관용 대시보드"),
+    (TAB_MAIN, "AI 추천 및 이동지원 연계", "fa-brain"),
+    (TAB_SCHEDULE, "내 운동 일정 추천", "fa-calendar-check"),
+    (TAB_VISION, "AI 기반 접근성 점검 보조", "fa-eye"),
+    (TAB_DASHBOARD, "기관용 대시보드", "fa-chart-pie"),
 ]
 
 
@@ -39,8 +40,7 @@ def render_toast() -> None:
     if not message:
         return
     st.markdown(
-        f'<div class="bandabi-glass" style="position:sticky;top:0;z-index:50;text-align:center;font-weight:700;">'
-        f'{_esc(s(message))}</div>',
+        f'<div class="bandabi-toast" role="status" aria-live="polite">{_esc(s(message))}</div>',
         unsafe_allow_html=True,
     )
     st.session_state.toast_message = ""
@@ -64,18 +64,25 @@ def render_header() -> None:
         balance = int(st.session_state.get("bt_balance", 0))
         bt_html = (
             f'<span class="bandabi-badge warn">'
-            f'🪙 {_esc(f"{balance:,}")} BT · 현금 환급·양도 불가</span>'
+            f'<i class="fa-solid fa-coins" aria-hidden="true"></i> '
+            f'{_esc(f"{balance:,}")} BT · '
+            f'<span style="font-size:10px;font-weight:600;">{s("현금 환급·양도 불가")}</span></span>'
         )
 
     st.markdown(
         f"""
-        <div class="bandabi-header">
-          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
-            <div>
-              <div style="font-size:1.15rem;font-weight:900;">반다비 AI <span class="bandabi-mid" style="font-size:.85rem;">{_esc(role_title)}</span></div>
-              <div style="margin-top:6px;">
-                <span class="bandabi-badge accent">{_esc(role_badge)}</span>
-                {bt_html}
+        <div class="bandabi-app-header">
+          <div class="bandabi-header-row">
+            <div class="bandabi-brand">
+              {brand_logo_markup(size=48)}
+              <div>
+                <div class="bandabi-brand-title">
+                  반다비 AI <span class="bandabi-brand-sub">{_esc(role_title)}</span>
+                </div>
+                <div style="margin-top:6px;">
+                  <span class="bandabi-badge accent">{_esc(role_badge)}</span>
+                  {bt_html}
+                </div>
               </div>
             </div>
           </div>
@@ -84,6 +91,7 @@ def render_header() -> None:
         unsafe_allow_html=True,
     )
 
+    st.markdown('<div class="bandabi-toolbar">', unsafe_allow_html=True)
     c1, c2, c3, c4 = st.columns([1.2, 1.2, 1.2, 1])
     with c1:
         if st.button(s("◐ 고대비"), key="btn_high_contrast", use_container_width=True):
@@ -91,7 +99,9 @@ def render_header() -> None:
             st.rerun()
     with c2:
         if st.button(s("🎤 음성"), key="btn_voice_demo", use_container_width=True):
-            st.session_state.toast_message = s("음성 데모: 접근성 지원 유형을 음성 안내로 전환한 뒤 분석을 시작할 수 있습니다.")
+            st.session_state.toast_message = s(
+                "음성 데모: 접근성 지원 유형을 음성 안내로 전환한 뒤 분석을 시작할 수 있습니다."
+            )
             st.rerun()
     with c3:
         if st.button(s("🏠 홈"), key="btn_home", use_container_width=True):
@@ -103,13 +113,15 @@ def render_header() -> None:
         if st.button(s("⏻"), key="btn_logout", use_container_width=True):
             reset_auth()
             st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_tab_nav() -> None:
     role = st.session_state.get("role")
     visible_tabs = [t for t in TABS if not (t[0] == TAB_DASHBOARD and role == ROLE_B2C)]
+    st.markdown('<div class="bandabi-tab-shell">', unsafe_allow_html=True)
     cols = st.columns(len(visible_tabs))
-    for col, (tab_id, label) in zip(cols, visible_tabs):
+    for col, (tab_id, label, _icon) in zip(cols, visible_tabs):
         active = st.session_state.active_tab == tab_id
         with col:
             if st.button(
@@ -123,6 +135,7 @@ def render_tab_nav() -> None:
                 else:
                     st.session_state.active_tab = tab_id
                 st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_tab_content() -> None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
+from components.html_assets import brand_logo_markup
 from components.session_state import ROLE_B2C, ROLE_B2G, complete_role_login
 from modules.safety import SERVICE_DISCLAIMER, sanitize_public_claims
 
@@ -19,8 +20,8 @@ def auth_dialog() -> None:
 
     st.markdown(
         f"""
-        <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:8px;">
-          <div style="width:64px;height:64px;border-radius:16px;background:var(--accent,#4a2d7a);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:22px;">B</div>
+        <div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:12px;">
+          {brand_logo_markup(size=72)}
           <div>
             <div style="font-size:1.35rem;font-weight:900;">반다비 AI</div>
             <div class="bandabi-mid" style="font-size:12px;line-height:1.6;margin-top:4px;">

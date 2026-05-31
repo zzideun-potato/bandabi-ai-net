@@ -37,9 +37,9 @@ def _render_risk_card(result: dict) -> None:
 
     st.markdown(
         f"""
-        <div class="bandabi-glass">
+        <div class="bandabi-toss-card">
           <div style="display:flex;gap:14px;align-items:flex-start;">
-            <div class="bandabi-soft" style="width:52px;height:52px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;" aria-hidden="true">{icon}</div>
+            <div class="bandabi-icon-chip {badge_cls}" aria-hidden="true">{icon}</div>
             <div style="flex:1;">
               <span class="bandabi-badge {badge_cls}">{s("등급")}: {s(grade)}</span>
               <span class="bandabi-badge warn">{source_badge}</span>
@@ -164,8 +164,9 @@ def render_tab_vision() -> None:
             )
 
     with col_map:
+        st.markdown('<div class="bandabi-glass">', unsafe_allow_html=True)
         st.markdown(f'<p class="bandabi-tiny">{s("Accessibility Map")}</p>', unsafe_allow_html=True)
-        st.markdown(f"### {s('접근성 제보 지도 (데모)')}")
+        st.markdown(f'<div class="bandabi-hero-title" style="font-size:1.5rem;">{s("접근성 제보 지도 (데모)")}</div>')
 
         scanning = bool(st.session_state.get("vision_scanning"))
         has_result = bool(st.session_state.get("vision_result"))
@@ -180,13 +181,15 @@ def render_tab_vision() -> None:
             (s("접근 가능한 화장실 개선 완료"), s("2층 · 조치 완료 · 운영기관 확인"), "ok"),
         ]
         for title, sub, cls in demo_cards:
+            icon = "fa-triangle-exclamation" if cls == "warn" else "fa-circle-check"
             st.markdown(
                 f"""
-                <div class="bandabi-soft" style="margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;">
-                  <span class="bandabi-badge {cls}">{s("참고")}</span>
+                <div class="bandabi-toss-card" style="margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;">
+                  <div class="bandabi-icon-chip {cls}"><i class="fa-solid {icon}" aria-hidden="true"></i></div>
                   <div>
                     <div style="font-weight:800;">{title}</div>
                     <div class="bandabi-mid" style="font-size:12px;margin-top:4px;">{sub}</div>
+                    <span class="bandabi-badge {cls}">{s("참고")}</span>
                   </div>
                 </div>
                 """,
@@ -204,3 +207,4 @@ def render_tab_vision() -> None:
             )
             st.session_state.bt_balance = int(st.session_state.get("bt_balance", 3500)) + 200
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)

@@ -42,9 +42,21 @@ def apply_pending_confirm(pending: dict) -> None:
 
 def _render_confirm_panel(pending: dict) -> bool:
     """Inline confirm panel (AppTest-friendly). Returns True if confirmed this run."""
-    st.markdown(f"### {s(pending['title'])}")
-    st.caption(s(pending["subtitle"]))
-    st.markdown(f'<div class="bandabi-soft">{s(pending["message"])}</div>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div class="bandabi-reward-modal">
+          <div style="display:flex;gap:14px;align-items:flex-start;">
+            <div class="bandabi-reward-icon" aria-hidden="true"><i class="fa-solid fa-circle-check"></i></div>
+            <div>
+              <div style="font-size:1.15rem;font-weight:900;">{s(pending["title"])}</div>
+              <div class="bandabi-mid" style="font-size:13px;margin-top:6px;">{s(pending["subtitle"])}</div>
+            </div>
+          </div>
+          <div class="bandabi-soft" style="margin-top:16px;line-height:1.75;">{s(pending["message"])}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     bt_delta = int(pending.get("bt_delta") or 0)
     if bt_delta:
         st.markdown(
@@ -61,7 +73,10 @@ def _render_confirm_panel(pending: dict) -> bool:
             st.session_state.pending_confirm = None
             st.rerun()
     with c2:
-        if st.button(s("확인"), type="primary", key="pending_confirm_ok", use_container_width=True):
+        st.markdown('<div class="bandabi-btn-confirm">', unsafe_allow_html=True)
+        confirmed_btn = st.button(s("확인"), type="primary", key="pending_confirm_ok", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
+        if confirmed_btn:
             return True
     return False
 

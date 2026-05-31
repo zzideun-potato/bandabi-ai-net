@@ -6,6 +6,7 @@ import streamlit as st
 
 from components.confirm_dialog import open_confirm, process_pending_confirm
 from components.flow_steps import render_flow_steps
+from components.html_assets import route_map_svg
 from components.route_engine import (
     CENTER_OPTIONS,
     DISABILITY_MAP,
@@ -77,9 +78,20 @@ def _start_analysis(disability_key: str, origin: str, center_key: str) -> None:
 def render_start() -> None:
     _disclaimer_mobility()
     name = st.session_state.get("user_name") or "000"
+    st.markdown('<div class="bandabi-glass">', unsafe_allow_html=True)
     st.markdown(f'<p class="bandabi-tiny">{s("Start")}</p>', unsafe_allow_html=True)
-    st.markdown(f"## {s(f'반갑습니다, {name}님 :)')}")
-    st.markdown(f'<p class="bandabi-mid">{s("오늘 운동, 갈 수 있는 경로부터 확인해요.")}</p>', unsafe_allow_html=True)
+    st.markdown(
+        f'<div class="bandabi-hero-title">{s(f"반갑습니다, {name}님 :)")}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:1.05rem;margin-top:8px;">{s("오늘 운동, 갈 수 있는 경로부터 확인해요.")}</p>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:12px;margin-top:6px;">{s("필요한 정보만 입력하면 경로·동행·강습·리포트 화면이 순서대로 이어집니다.")}</p>',
+        unsafe_allow_html=True,
+    )
 
     col_form, col_cards = st.columns([1.2, 1])
     with col_form:
@@ -104,18 +116,22 @@ def render_start() -> None:
             key="start_center",
         )
     with col_cards:
+        st.markdown('<div class="bandabi-start-grid">', unsafe_allow_html=True)
         for label in (s("보호자 알림"), s("버디 매칭"), s("강습 추천"), s("리포트 수신")):
-            st.markdown(f'<div class="bandabi-soft" style="text-align:center;font-weight:700;margin-bottom:8px;">{label}</div>', unsafe_allow_html=True)
+            st.markdown(
+                f'<div class="bandabi-soft" style="text-align:center;font-weight:700;padding:14px 8px;">{label}</div>',
+                unsafe_allow_html=True,
+            )
+        st.markdown("</div>", unsafe_allow_html=True)
         if st.button(s("⚡ AI 추천 시작"), type="primary", use_container_width=True, key="btn_ai_start"):
             _start_analysis(disability, origin, center)
             st.rerun()
 
-    st.caption(
-        s(
-            "본 AI 결과는 이용자 편의를 위한 추천 정보이며, "
-            "최종 이용 여부와 운영 확정은 이용자 및 운영기관이 결정합니다."
-        )
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:11px;margin-top:16px;line-height:1.6;">{s("본 AI 결과는 이용자 편의를 위한 추천 정보이며, 최종 이용 여부와 운영 확정은 이용자 및 운영기관이 결정합니다.")}</p>',
+        unsafe_allow_html=True,
     )
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_route() -> None:
@@ -132,70 +148,114 @@ def render_route() -> None:
         with st.spinner(s("이동 가능성을 계산하고 있어요")):
             pass
 
+    st.markdown('<div class="bandabi-glass" style="position:relative;overflow:hidden;">', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="position:absolute;right:24px;top:16px;font-size:5rem;opacity:.06;color:var(--accent);" aria-hidden="true">'
+        '<i class="fa-solid fa-location-dot"></i></div>',
+        unsafe_allow_html=True,
+    )
     st.markdown(f'<p class="bandabi-tiny">{s("MAIN 01")}</p>', unsafe_allow_html=True)
-    st.markdown(f"## {s('AI 기반 도착 가능성 — 경로분석')}")
-    st.caption(s("공공데이터와 입력 정보를 기반으로 한 예측값이며, 실제 교통상황·시설 운영상황에 따라 달라질 수 있습니다."))
+    st.markdown(
+        f'<div class="bandabi-hero-title" style="font-size:1.75rem;">{s("AI 기반 도착 가능성 — 경로분석")}</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:13px;margin-top:8px;">{s("공공데이터와 입력 정보를 기반으로 한 예측값이며, 실제 교통상황·시설 운영상황에 따라 달라질 수 있습니다.")}</p>',
+        unsafe_allow_html=True,
+    )
 
     inputs = result["inputs"]
     score = result["score_result"]
     metrics = result["travel_metrics"]
     origin = result["origin_coord"]
     dest = result["destination_coord"]
+    route_title = s(f'{inputs["origin"]} → {inputs["destination"]}')
 
-    st.markdown(
-        f"**{s(f'{inputs['origin']} → {inputs['destination']}')}**"
-    )
-
-    for label, coord in ((s("출발지 좌표"), origin), (s("목적지 좌표"), dest)):
-        badge_text, badge_cls = data_status_badge(coord.get("data_status", "fallback"))
+    map_col, side_col = st.columns([1.6, 1])
+    with map_col:
         st.markdown(
-            f'{label}: <span class="bandabi-badge {badge_cls}">{badge_text}</span>',
+            f'<div class="bandabi-soft" style="padding:12px;">'
+            f'<p class="bandabi-mid" style="font-size:11px;margin:0 0 6px 0;">{s("추천 경로")}</p>'
+            f'<div style="font-size:1.1rem;font-weight:900;margin-bottom:8px;">{route_title}</div>'
+            f'{route_map_svg(title=route_title)}'
+            f'</div>',
             unsafe_allow_html=True,
         )
+        badge_bits = []
+        for label, coord in ((s("출발지 좌표"), origin), (s("목적지 좌표"), dest)):
+            badge_text, badge_cls = data_status_badge(coord.get("data_status", "fallback"))
+            badge_bits.append(f'{label}: <span class="bandabi-badge {badge_cls}">{badge_text}</span>')
+        route_badge, route_cls = data_status_badge(metrics["route_status"])
+        arrival_badge, arrival_cls = data_status_badge(metrics["arrival_status"])
+        badge_bits.append(
+            f'{s("버스 노선")}: <span class="bandabi-badge {route_cls}">{route_badge}</span> '
+            f'{s("버스 도착")}: <span class="bandabi-badge {arrival_cls}">{arrival_badge}</span>'
+        )
+        weather_status = result["weather_result"].get("status", "fallback")
+        w_badge, w_cls = data_status_badge(weather_status)
+        badge_bits.append(
+            f'{s("날씨 보정")}: <span class="bandabi-badge {w_cls}">{w_badge}</span> · {s(result["weather_text"])}'
+        )
+        st.markdown(" · ".join(badge_bits), unsafe_allow_html=True)
+        if metrics["arrival_status"] == "real_api_no_data":
+            st.markdown(
+                f'<span class="bandabi-badge no-data">{s("no_data")}</span>',
+                unsafe_allow_html=True,
+            )
 
-    route_badge, route_cls = data_status_badge(metrics["route_status"])
-    arrival_badge, arrival_cls = data_status_badge(metrics["arrival_status"])
-    st.markdown(
-        f'{s("버스 노선")}: <span class="bandabi-badge {route_cls}">{route_badge}</span> '
-        f'{s("버스 도착")}: <span class="bandabi-badge {arrival_cls}">{arrival_badge}</span>',
-        unsafe_allow_html=True,
-    )
-    if metrics["arrival_status"] == "real_api_no_data":
+    with side_col:
+        metric_badge = s(metrics.get("badge", "예상(참고용)"))
         st.markdown(
-            f'<span class="bandabi-badge no-data">{s("no_data")}</span>',
+            f"""
+            <div class="bandabi-toss-card">
+              <p class="bandabi-mid" style="font-size:11px;margin:0;">{s("AI 종합 소견")}</p>
+              <p class="bandabi-risk-grade">{s(result["grade_label"])}</p>
+              <p class="bandabi-mid" style="font-size:13px;line-height:1.6;margin-top:8px;">{s(result["explanation"])}</p>
+              <span class="bandabi-badge warn">{metric_badge}</span>
+            </div>
+            """,
             unsafe_allow_html=True,
         )
+        precise = metrics.get("precise", False)
+        m1, m2 = st.columns(2)
+        with m1:
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("총 시간")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{s(metrics["total_time"])}</p></div>',
+                unsafe_allow_html=True,
+            )
+        with m2:
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("도보")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{s(metrics["walk"])}</p></div>',
+                unsafe_allow_html=True,
+            )
+        m3, m4 = st.columns(2)
+        with m3:
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("환승")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{s(metrics["transfer"])}</p></div>',
+                unsafe_allow_html=True,
+            )
+        with m4:
+            score_val = int(score.get("score", 0))
+            st.markdown(
+                f'<div class="bandabi-soft"><p class="bandabi-mid" style="font-size:11px;">{s("이동 가능성")}</p>'
+                f'<p style="font-weight:900;margin:6px 0 0;">{score_val}% · {s(result["grade_label"])}</p></div>',
+                unsafe_allow_html=True,
+            )
 
-    weather_status = result["weather_result"].get("status", "fallback")
-    w_badge, w_cls = data_status_badge(weather_status)
-    st.markdown(
-        f'{s("날씨 보정")}: <span class="bandabi-badge {w_cls}">{w_badge}</span> · {s(result["weather_text"])}',
-        unsafe_allow_html=True,
-    )
-
-    c1, c2, c3, c4 = st.columns(4)
-    precise = metrics.get("precise", False)
-    metric_badge = s(metrics.get("badge", "예상(참고용)"))
-    with c1:
-        st.markdown(f'<div class="bandabi-soft"><div class="bandabi-mid" style="font-size:11px;">{s("총 시간")}</div><div style="font-weight:800;">{s(metrics["total_time"])}</div><span class="bandabi-badge warn">{metric_badge}</span></div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown(f'<div class="bandabi-soft"><div class="bandabi-mid" style="font-size:11px;">{s("도보")}</div><div style="font-weight:800;">{s(metrics["walk"])}</div></div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown(f'<div class="bandabi-soft"><div class="bandabi-mid" style="font-size:11px;">{s("환승")}</div><div style="font-weight:800;">{s(metrics["transfer"])}</div></div>', unsafe_allow_html=True)
-    with c4:
-        score_val = int(score.get("score", 0))
-        st.markdown(
-            f'<div class="bandabi-soft"><div class="bandabi-mid" style="font-size:11px;">{s("이동 가능성")}</div>'
-            f'<div style="font-weight:800;">{score_val}% · {s(result["grade_label"])}</div></div>',
-            unsafe_allow_html=True,
-        )
     if not precise:
-        st.caption(s("총시간·도보·환승은 실API 수치가 없어 정성 표현 또는 확인 필요로 표시합니다."))
+        st.markdown(
+            f'<p class="bandabi-mid" style="font-size:12px;margin-top:10px;">{s("총시간·도보·환승은 실API 수치가 없어 정성 표현 또는 확인 필요로 표시합니다.")}</p>',
+            unsafe_allow_html=True,
+        )
 
-    st.markdown(f"**{s('AI 종합 소견')}**: {s(result['grade_label'])}")
-    st.write(s(result["explanation"]))
     if score.get("recommended_actions"):
-        st.markdown(f"- {s(score['recommended_actions'][0])}")
+        st.markdown(
+            f'<div class="bandabi-soft" style="margin-top:10px;">• {s(score["recommended_actions"][0])}</div>',
+            unsafe_allow_html=True,
+        )
 
     bus_route = result.get("bus_route", {})
     if bus_route.get("items"):
@@ -203,24 +263,41 @@ def render_route() -> None:
             st.json(bus_route.get("items")[:3])
 
     st.markdown(
-        f'<div class="bandabi-glass"><b>{s("예약·이동·동행 플랜이 준비됐어요")}</b><br/>'
-        f'<span class="bandabi-mid">{s("확정하면 버디 후보와 강습 추천으로 이어집니다. 실제 예약·배차는 운영기관 검토 후 진행됩니다.")}</span></div>',
+        f'<div class="bandabi-soft" style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;">'
+        f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-shoe-prints" aria-hidden="true"></i>'
+        f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("도보 위험도")}</p>'
+        f'<p style="font-weight:800;margin:0;">{s("낮음~보통")}</p></div>'
+        f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-cloud-sun-rain" aria-hidden="true"></i>'
+        f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("날씨 보정")}</p>'
+        f'<p style="font-weight:800;margin:0;">{s(result["weather_text"])}</p></div>'
+        f'<div class="bandabi-soft" style="flex:1;min-width:140px;"><i class="fa-solid fa-door-open" aria-hidden="true"></i>'
+        f'<p class="bandabi-mid" style="font-size:11px;margin:8px 0 4px;">{s("시설 접근성")}</p>'
+        f'<p style="font-weight:800;margin:0;">{s("확인 필요")}</p></div>'
+        f'</div>',
         unsafe_allow_html=True,
     )
 
-    b1, b2, b3 = st.columns(3)
+    st.markdown(
+        f'<div class="bandabi-soft" style="margin-top:14px;padding:16px;">'
+        f'<b>{s("예약·이동·동행 플랜이 준비됐어요")}</b><br/>'
+        f'<span class="bandabi-mid">{s("확정하면 버디 후보와 강습 추천으로 이어집니다. 실제 예약·배차는 운영기관 검토 후 진행됩니다.")}</span></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+    b1, b2 = st.columns(2)
     with b1:
         if st.button(s("다시하기"), key="route_restart"):
             st.session_state.main_step = "start"
             st.session_state.route_analysis_result = None
             st.rerun()
-    with b2:
         if st.button(s("재계산"), key="route_recalc"):
             _start_analysis(inputs.get("disability_key", "physical"), inputs["origin"], "gimpo")
             st.session_state.toast_message = s("경로 참고 분석을 다시 실행했습니다.")
             st.rerun()
-    with b3:
-        if st.button(s("확정하기"), type="primary", key="route_confirm"):
+    with b2:
+        st.markdown('<div class="bandabi-btn-confirm">', unsafe_allow_html=True)
+        if st.button(s("확정하기"), type="primary", key="route_confirm", use_container_width=True):
             open_confirm(
                 title=s("운영 확정 요청이 등록되었습니다."),
                 subtitle=s("예약·이동·동행 플랜이 다음 단계로 연결됩니다."),
@@ -233,26 +310,38 @@ def render_route() -> None:
                 on_confirm_key="route",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_care() -> None:
     _disclaimer_mobility()
+    st.markdown('<div class="bandabi-glass" style="position:relative;overflow:hidden;">', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="position:absolute;right:24px;top:8px;font-size:5rem;opacity:.06;color:var(--accent);" aria-hidden="true">'
+        '<i class="fa-solid fa-people-arrows"></i></div>',
+        unsafe_allow_html=True,
+    )
     st.markdown(f'<p class="bandabi-tiny">{s("MAIN 02")}</p>', unsafe_allow_html=True)
-    st.markdown(f"## {s('인증 기반 — 버디 후보 추천')}")
-    st.caption(s("혼자 이동하는 부담을 줄이고, 버디와 함께 체육 시설을 이용합니다."))
+    st.markdown(f'<div class="bandabi-hero-title" style="font-size:1.75rem;">{s("인증 기반 — 버디 후보 추천")}</div>')
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:13px;margin-top:8px;">{s("혼자 이동하는 부담을 줄이고, 버디와 함께 체육 시설을 이용합니다.")}</p>',
+        unsafe_allow_html=True,
+    )
 
     cols = st.columns(3)
     cards = [
-        (s("첫 방문 버디"), s("김지오 회원"), s("같은 시간대, 같은 센터 이용")),
-        (s("센터 도우미"), s("500m 전"), s("대기(참고)")),
-        (s("보호자 모드"), s("출석 알림 공유"), s("확정 전 연락처 비공개")),
+        (s("첫 방문 버디"), s("김지오"), s("회원"), s("같은 시간대, 같은 센터 이용"), "warn"),
+        (s("센터 도우미"), s("500m 전"), s(""), s("대기(참고)"), "accent"),
+        (s("보호자 모드"), s("출석 알림 공유"), s(""), s("확정 전 연락처 비공개"), "ok"),
     ]
-    for col, (title, main, sub) in zip(cols, cards):
+    for col, (title, main, suffix, sub, tone) in zip(cols, cards):
         with col:
+            suffix_html = f' <span class="bandabi-mid" style="font-size:1rem;">{suffix}</span>' if suffix else ""
             st.markdown(
-                f'<div class="bandabi-glass"><div class="bandabi-tiny">{title}</div>'
-                f'<div style="font-size:1.4rem;font-weight:900;margin:12px 0;">{main}</div>'
-                f'<div class="bandabi-mid" style="font-size:12px;">{sub}</div></div>',
+                f'<div class="bandabi-toss-card">'
+                f'<p class="bandabi-tiny">{title}</p>'
+                f'<p style="font-size:1.6rem;font-weight:900;margin:14px 0 6px;">{main}{suffix_html}</p>'
+                f'<p class="bandabi-mid" style="font-size:12px;">{sub}</p></div>',
                 unsafe_allow_html=True,
             )
 
@@ -269,7 +358,8 @@ def render_care() -> None:
             st.session_state.main_step = "class"
             st.rerun()
     with c2:
-        if st.button(s("확정하기"), type="primary", key="care_confirm"):
+        st.markdown('<div class="bandabi-btn-confirm">', unsafe_allow_html=True)
+        if st.button(s("확정하기"), type="primary", key="care_confirm", use_container_width=True):
             open_confirm(
                 title=s("버디 매칭 확정 요청이 등록되었습니다."),
                 subtitle=s("상호 동의와 관리자 확인 후 연결됩니다."),
@@ -282,6 +372,8 @@ def render_care() -> None:
                 on_confirm_key="buddy",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_class() -> None:
@@ -290,20 +382,33 @@ def render_class() -> None:
     data = INSTRUCTORS[idx]
     support = st.session_state.journey.get("support_type", DISABILITY_MAP["physical"])
 
+    st.markdown('<div class="bandabi-glass" style="position:relative;overflow:hidden;">', unsafe_allow_html=True)
+    st.markdown(
+        '<div style="position:absolute;right:24px;top:8px;font-size:5rem;opacity:.06;color:var(--accent);" aria-hidden="true">'
+        '<i class="fa-solid fa-dumbbell"></i></div>',
+        unsafe_allow_html=True,
+    )
     st.markdown(f'<p class="bandabi-tiny">{s("Program AI")}</p>', unsafe_allow_html=True)
-    st.markdown(f"## {s('인증 기반 — 강습·지도자 추천')}")
-    st.caption(s("접근성 지원 필요 유형, 운동 목적, 시간, 지도자 전문성을 함께 고려합니다."))
+    st.markdown(f'<div class="bandabi-hero-title" style="font-size:1.75rem;">{s("인증 기반 — 강습·지도자 추천")}</div>')
+    st.markdown(
+        f'<p class="bandabi-mid" style="font-size:13px;margin-top:8px;">{s("접근성 지원 필요 유형, 운동 목적, 시간, 지도자 전문성을 함께 고려합니다.")}</p>',
+        unsafe_allow_html=True,
+    )
 
     tags = "".join(f'<span class="bandabi-badge">{s(t)}</span>' for t in data["tags"])
     st.markdown(
-        f'<div class="bandabi-glass" style="max-width:420px;margin:0 auto;">'
-        f'<div class="bandabi-tiny">{s("추천 지도자")}</div>'
-        f'<div style="font-size:2rem;font-weight:900;margin:16px 0;">{s(data["name"])} <span class="bandabi-mid" style="font-size:1rem;">{s("지도자")}</span></div>'
-        f'<div class="bandabi-mid">{s(data["meta"])} · {s(support)}</div>'
+        f'<div class="bandabi-toss-card" style="max-width:420px;margin:24px auto;">'
+        f'<p class="bandabi-tiny">{s("추천 지도자")}</p>'
+        f'<p style="font-size:2rem;font-weight:900;margin:16px 0;">{s(data["name"])} '
+        f'<span class="bandabi-mid" style="font-size:1rem;">{s("지도자")}</span></p>'
+        f'<p class="bandabi-mid">{s(data["meta"])} · {s(support)}</p>'
         f'<div style="margin-top:16px;">{tags}</div></div>',
         unsafe_allow_html=True,
     )
-    st.caption(s("본 추천은 생활체육 참여 지원을 위한 참고자료이며, 최종 참여 여부는 이용자와 운영기관이 결정합니다."))
+    st.markdown(
+        f'<p class="bandabi-mid" style="text-align:center;font-size:13px;margin-top:12px;">{s("본 추천은 생활체육 참여 지원을 위한 참고자료이며, 최종 참여 여부는 이용자와 운영기관이 결정합니다.")}</p>',
+        unsafe_allow_html=True,
+    )
 
     c1, c2 = st.columns(2)
     with c1:
@@ -311,7 +416,8 @@ def render_class() -> None:
             st.session_state.instructor_index = idx + 1
             st.rerun()
     with c2:
-        if st.button(s("확정하기"), type="primary", key="class_confirm"):
+        st.markdown('<div class="bandabi-btn-confirm">', unsafe_allow_html=True)
+        if st.button(s("확정하기"), type="primary", key="class_confirm", use_container_width=True):
             st.session_state.journey["instructor"] = s(data["name"])
             open_confirm(
                 title=s("강습·지도자 추천이 확정되었습니다."),
@@ -325,6 +431,8 @@ def render_class() -> None:
                 on_confirm_key="class",
             )
             st.rerun()
+        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_report() -> None:
