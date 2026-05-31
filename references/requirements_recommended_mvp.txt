@@ -1,0 +1,26 @@
+# Recommended MVP requirements for Gimpo Vandabi Streamlit
+# Keep this lighter than the old Google Drive RAG stack.
+
+streamlit>=1.36
+pandas
+numpy
+requests
+rank_bm25
+python-dotenv
+pymupdf
+openai
+plotly
+folium
+streamlit-folium
+streamlit-mic-recorder
+sendgrid
+
+# Optional only. Add later if needed.
+# langchain-core
+# langchain-community
+# langchain-openai
+# langchain-text-splitters
+# langgraph
+# faiss-cpu
+# tiktoken
+# sentence-transformers

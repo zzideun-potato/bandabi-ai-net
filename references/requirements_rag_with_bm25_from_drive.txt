@@ -1,0 +1,15 @@
+pandas
+numpy
+streamlit
+openai
+typing
+requests
+langchain_openai
+langchain_core
+langchain_community
+langchain-text-splitters
+langgraph
+rank_bm25
+faiss-cpu
+pymupdf
+tiktoken

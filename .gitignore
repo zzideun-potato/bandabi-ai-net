@@ -1,0 +1,38 @@
+# Local secrets
+api_key*
+api_key.txt
+api_key.local.txt
+api_key_append_datagokr_vworld*
+api_key_full_template*
+config.local.js
+.env
+.env.local
+.env.*
+!.env.example
+*.local
+.local
+
+# Streamlit secrets
+.streamlit/secrets.toml
+!.streamlit/secrets.toml.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Vector index / cache
+faiss_index/
+.cache/
+.streamlit/cache/
+
+# Local bundles / extracted copies (배포·커밋 불필요)
+_extracted/
+*.zip
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

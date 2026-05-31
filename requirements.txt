@@ -1,0 +1,5 @@
+# Streamlit Community Cloud — app.py + modules/ (탭1·탭3 기준 실제 import)
+streamlit>=1.36
+requests
+rank_bm25
+openai

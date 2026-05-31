@@ -1,0 +1,225 @@
+"""Route analysis orchestration — wraps modules/ without modifying them."""
+
+from __future__ import annotations
+
+import math
+from typing import Any
+
+from modules.api_clients import (
+    fetch_bus_arrival,
+    fetch_bus_route,
+    fetch_weather_short_forecast,
+    geocode_vworld,
+    mock_coordinate,
+)
+from modules.scoring import calculate_viable_path_score, explain_score, grade_score
+from modules.safety import sanitize_public_claims
+
+
+CENTER_OPTIONS = {
+    "gimpo": "김포 반다비체육센터",
+    "gimpo2": "김포 제2 반다비 체육거점",
+}
+
+DISABILITY_MAP = {
+    "physical": "휠체어 또는 보행 보조 필요",
+    "visual": "음성 안내 또는 유도 동선 필요",
+    "developmental": "단계별 안내 또는 보호자·동행 지원 필요",
+    "senior": "일반",
+}
+
+
+def s(text: object) -> str:
+    return sanitize_public_claims(str(text))
+
+
+def resolve_coordinate(address: str, fallback_kind: str) -> dict[str, Any]:
+    geocode, meta = geocode_vworld(address)
+    if geocode:
+        try:
+            return {
+                "lat": float(geocode["y"]),
+                "lon": float(geocode["x"]),
+                "label": address,
+                "data_status": meta.get("data_status", "real_api"),
+                "source": meta.get("source", ""),
+                "display_message": meta.get("display_message", ""),
+            }
+        except Exception:
+            pass
+
+    mock = mock_coordinate(fallback_kind)
+    return {
+        "lat": float(mock["lat"]),
+        "lon": float(mock["lon"]),
+        "label": address or mock["label"],
+        "data_status": meta.get("data_status", "mock_fallback"),
+        "source": meta.get("source", "fallback"),
+        "display_message": meta.get(
+            "display_message",
+            "VWorld 실응답을 확인하지 못해 시연용 대체 좌표를 사용했습니다.",
+        ),
+    }
+
+
+def _first_item_value(items: list[Any], keys: tuple[str, ...]) -> str | None:
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        lower = {str(k).lower(): v for k, v in item.items()}
+        for key in keys:
+            value = lower.get(key.lower())
+            if value not in (None, ""):
+                return str(value)
+    return None
+
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    r = 6371.0
+    p1, p2 = math.radians(lat1), math.radians(lat2)
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dlon / 2) ** 2
+    return 2 * r * math.asin(math.sqrt(a))
+
+
+def _qualitative_walk(support_type: str) -> str:
+    if "휠체어" in support_type or "보행" in support_type:
+        return "도보 부담 가능성 있음 · 현장 확인 필요"
+    if "음성" in support_type:
+        return "도보 동선 안내 확인 필요"
+    return "도보 보통 · 현장 확인 권장"
+
+
+def _qualitative_transfer(public_transport: bool) -> str:
+    if public_transport:
+        return "환승 있을 수 있음 · 확인 필요"
+    return "환승 정보 없음 · 확인 필요"
+
+
+def _qualitative_time() -> str:
+    return "이동시간 확인 필요"
+
+
+def build_travel_metrics(
+    *,
+    bus_route: dict[str, Any],
+    bus_arrival: dict[str, Any],
+    origin_coord: dict[str, Any],
+    destination_coord: dict[str, Any],
+    support_type: str,
+    public_transport_available: bool,
+) -> dict[str, Any]:
+    """Return display metrics; precise numbers only when real_api fields exist."""
+    route_real = bus_route.get("status") == "real_api"
+    arrival_real = bus_arrival.get("status") == "real_api"
+    precise = False
+
+    total_time_text = _qualitative_time()
+    walk_text = _qualitative_walk(support_type)
+    transfer_text = _qualitative_transfer(public_transport_available)
+    badge = "예상(참고용)"
+
+    if route_real:
+        items = bus_route.get("items") or []
+        route_name = _first_item_value(items, ("routeno", "routeNo", "route_no"))
+        route_time = _first_item_value(items, ("routetp", "routeTp"))
+        if route_name:
+            total_time_text = s(f"노선 {route_name} · 상세 시간은 정류소 기준 확인")
+            if route_time:
+                total_time_text = s(f"노선 {route_name} ({route_time}) · 도착 API와 함께 확인")
+            badge = "실API(노선)"
+
+    if arrival_real:
+        items = bus_arrival.get("items") or []
+        arr_sec = _first_item_value(items, ("arrprevstationcnt", "arrprevstationnum"))
+        arr_time = _first_item_value(
+            items,
+            ("arrtime", "arrTime", "arrprevstationtime", "predicttime1", "predictTime1"),
+        )
+        if arr_time and arr_time.isdigit():
+            minutes = max(1, int(int(arr_time) / 60)) if int(arr_time) > 120 else int(arr_time)
+            total_time_text = s(f"버스 도착 약 {minutes}분 (실API)")
+            precise = True
+            badge = "실API(도착)"
+        elif arr_sec:
+            transfer_text = s(f"남은 정류소 {arr_sec}개 (실API)")
+            precise = True
+
+    if route_real and origin_coord.get("data_status") == "real_api" and destination_coord.get("data_status") == "real_api":
+        km = _haversine_km(origin_coord["lat"], origin_coord["lon"], destination_coord["lat"], destination_coord["lon"])
+        if km > 0:
+            walk_m = int(min(km * 1000 * 0.15, 800))
+            if walk_m >= 50:
+                walk_text = s(f"도보 약 {walk_m}m (좌표 기준 참고)")
+                precise = True
+
+    if not precise:
+        total_time_text = s(total_time_text)
+        walk_text = s(walk_text)
+        transfer_text = s(transfer_text)
+
+    return {
+        "total_time": total_time_text,
+        "walk": walk_text,
+        "transfer": transfer_text,
+        "precise": precise,
+        "badge": badge,
+        "route_status": bus_route.get("status", "fallback"),
+        "arrival_status": bus_arrival.get("status", "fallback"),
+    }
+
+
+def run_route_analysis(inputs: dict[str, Any]) -> dict[str, Any]:
+    origin_coord = resolve_coordinate(inputs["origin"], "default_origin")
+    destination_coord = resolve_coordinate(inputs["destination"], "default_destination")
+    weather_result = fetch_weather_short_forecast()
+    bus_route = fetch_bus_route()
+    bus_arrival = fetch_bus_arrival()
+
+    score_inputs = {
+        **inputs,
+        "origin_geocode_status": origin_coord["data_status"],
+        "destination_geocode_status": destination_coord["data_status"],
+        "weather_enabled": True,
+        "weather_api_status": weather_result.get("status", "fallback"),
+    }
+    score_result = calculate_viable_path_score(score_inputs)
+    travel_metrics = build_travel_metrics(
+        bus_route=bus_route,
+        bus_arrival=bus_arrival,
+        origin_coord=origin_coord,
+        destination_coord=destination_coord,
+        support_type=inputs.get("accessibility_support_type", "일반"),
+        public_transport_available=bool(inputs.get("public_transport_available", True)),
+    )
+
+    weather_summary = weather_result.get("summary", {})
+    if isinstance(weather_summary, dict):
+        weather_text = s(weather_summary.get("weather_summary", weather_result.get("message", "확인 필요")))
+    else:
+        weather_text = s(str(weather_summary or "확인 필요"))
+
+    return {
+        "inputs": inputs,
+        "origin_coord": origin_coord,
+        "destination_coord": destination_coord,
+        "weather_result": weather_result,
+        "bus_route": bus_route,
+        "bus_arrival": bus_arrival,
+        "score_result": score_result,
+        "travel_metrics": travel_metrics,
+        "weather_text": weather_text,
+        "grade_label": s(score_result.get("mobility_level", grade_score(int(score_result.get("score", 0))))),
+        "explanation": s(explain_score(score_result)),
+    }
+
+
+def data_status_badge(status: str) -> tuple[str, str]:
+    if status == "real_api":
+        return ("실API", "ok")
+    if status == "real_api_no_data":
+        return ("no_data", "no-data")
+    if status == "missing_key":
+        return ("대체 데이터", "warn")
+    return ("대체 데이터", "warn")
