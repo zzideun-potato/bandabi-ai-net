@@ -68,7 +68,7 @@ def inject_auth_css() -> None:
         #MainMenu, footer, header[data-testid="stHeader"] { visibility: hidden; height: 0 !important; min-height: 0 !important; }
         [data-testid="stToolbar"], [data-testid="stDecoration"] { display: none !important; }
         .stApp {
-            background: #e8e2f4;
+            background: radial-gradient(1200px 680px at 50% -10%, #2f2448 0%, #1a1428 48%, #120e1a 100%);
             color: #2d2040;
             font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
         }
@@ -232,8 +232,16 @@ def inject_auth_css() -> None:
             font-size: 16px;
             font-weight: 900;
             border: 1px solid rgba(184,172,216,.34);
-            background: #f0ecf8;
-            color: #241936;
+            background: #2a2238;
+            color: #e8e2f4;
+        }
+        .st-key-btn_auth_back div[data-testid="stButton"] > button,
+        .st-key-btn_role_back div[data-testid="stButton"] > button,
+        .st-key-btn_logout div[data-testid="stButton"] > button {
+            background: #241c34 !important;
+            color: #d8d0ea !important;
+            border: 1px solid rgba(184,172,216,.22) !important;
+            box-shadow: none !important;
         }
         .st-key-btn_auth_login div[data-testid="stButton"] > button,
         .st-key-btn_auth_signup div[data-testid="stButton"] > button {
