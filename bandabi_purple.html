@@ -530,10 +530,10 @@
       <form id="auth-form-panel" class="hidden mt-7 space-y-4" autocomplete="on" onsubmit="event.preventDefault(); completeAuth();">
         <div class="rounded-3xl bg-surface border border-lav-line p-4">
           <p id="auth-form-title" class="font-black">로그인</p>
-          <p id="auth-form-help" class="mt-1 text-xs text-slate-400">프로토타입용 로컬 계정으로 로그인합니다.</p>
+          <p id="auth-form-help" class="mt-1 text-xs text-slate-400">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
           <p id="auth-form-error" class="hidden mt-3 rounded-2xl bg-surface border border-lav-line px-3 py-2 text-xs text-accent font-bold"></p>
           <div class="mt-4 space-y-3">
-            <label id="auth-name-wrap" class="hidden block">
+            <label id="auth-name-wrap" class="block">
               <span class="text-xs font-bold text-slate-400">이름</span>
               <input id="auth-user-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
             </label>
@@ -1347,23 +1347,20 @@
       const title = document.getElementById('auth-form-title');
       const help = document.getElementById('auth-form-help');
       const subtitle = document.getElementById('login-modal-subtitle');
-      const nameWrap = document.getElementById('auth-name-wrap');
       const loginPw = document.getElementById('auth-login-password-wrap');
       const signupPw = document.getElementById('auth-signup-password-wrap');
       const confirmWrap = document.getElementById('auth-password-confirm-wrap');
       if(mode === 'signup'){
         title.textContent = '회원가입';
-        help.textContent = '이름, 이메일, 비밀번호를 입력하면 로컬 계정이 생성됩니다. (프로토타입용)';
+        help.textContent = '프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.';
         subtitle.textContent = '회원가입 후 이용자/관리자 모드를 선택하세요.';
-        if(nameWrap) nameWrap.classList.remove('hidden');
         if(loginPw) loginPw.classList.add('hidden');
         if(signupPw) signupPw.classList.remove('hidden');
         if(confirmWrap) confirmWrap.classList.remove('hidden');
       } else {
         title.textContent = '로그인';
-        help.textContent = '가입한 이메일과 비밀번호로 로그인합니다. (프로토타입용 로컬 인증)';
+        help.textContent = '프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.';
         subtitle.textContent = '로그인 후 이용자/관리자 모드를 선택하세요.';
-        if(nameWrap) nameWrap.classList.add('hidden');
         if(loginPw) loginPw.classList.remove('hidden');
         if(signupPw) signupPw.classList.add('hidden');
         if(confirmWrap) confirmWrap.classList.add('hidden');
@@ -1416,10 +1413,6 @@
       showAppToast(role === 'B2G' ? '기관 관리자 모드로 접속했습니다.' : '이용자 모드로 접속했습니다.');
     }
     function logout(){
-      if(window.BANDABI_STREAMLIT_AUTH){
-        showAppToast('화면 상단의 로그아웃 버튼을 이용해 주세요.');
-        return;
-      }
       saveSession(null);
       resetFlowProgress();
       currentRole = null;
@@ -1433,18 +1426,9 @@
       showFlow('start-screen');
       showAppToast('로그아웃되었습니다.');
     }
-    function bootstrapFromStreamlit(){
-      const boot = window.BANDABI_BOOTSTRAP;
-      if(!boot || !boot.email || !boot.role) return false;
-      saveSession({ email: boot.email, name: boot.name, role: boot.role });
-      applyUserToForm({ email: boot.email, name: boot.name });
-      enterAppWithRole(boot.role, boot.name);
-      return true;
-    }
     function tryRestoreSession(){
       loadTokensFromSession();
       loadFlowState();
-      if(bootstrapFromStreamlit()) return;
       const session = loadSession();
       if(!session || !session.email) return;
       applyUserToForm(session);
