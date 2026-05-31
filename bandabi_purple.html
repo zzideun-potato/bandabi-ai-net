@@ -528,36 +528,60 @@
       </div>
 
       <div id="auth-form-panel" class="hidden mt-7 space-y-4">
-        <div class="rounded-3xl bg-surface border border-lav-line p-4">
-          <p id="auth-form-title" class="font-black">로그인</p>
-          <p id="auth-form-help" class="mt-1 text-xs text-slate-400">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
-          <div class="mt-4 space-y-3">
-            <label class="block">
-              <span class="text-xs font-bold text-slate-400">이름</span>
-              <input id="auth-user-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
-            </label>
-            <label class="block">
-              <span class="text-xs font-bold text-slate-400">이메일</span>
-              <input id="auth-user-email" name="email" type="email" value="" autocomplete="email" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
-            </label>
-            <label id="auth-login-password-wrap" class="block">
-              <span class="text-xs font-bold text-slate-400">비밀번호</span>
-              <input id="login-password" name="current-password" type="password" autocomplete="current-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
-            </label>
-            <label id="auth-signup-password-wrap" class="hidden block">
-              <span class="text-xs font-bold text-slate-400">비밀번호</span>
-              <input id="signup-password" name="new-password" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
-            </label>
-            <label id="auth-password-confirm-wrap" class="hidden block">
-              <span class="text-xs font-bold text-slate-400">비밀번호 확인</span>
-              <input id="signup-password-confirm" name="new-password-confirm" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호 확인" />
-            </label>
+        <!-- Chrome password manager UI is controlled by the browser. -->
+        <!-- In Streamlit iframe rendering, password suggestions may still be limited. -->
+        <form id="login-form" autocomplete="on" onsubmit="return false;" class="space-y-4">
+          <div class="rounded-3xl bg-surface border border-lav-line p-4">
+            <p class="auth-form-title font-black">로그인</p>
+            <p class="auth-form-help mt-1 text-xs text-slate-400">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이름</span>
+                <input id="login-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이메일</span>
+                <input id="login-email" name="email" type="email" autocomplete="email" inputmode="email" value="" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호</span>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
+              </label>
+            </div>
           </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
-          <button onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
-        </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
+            <button type="button" onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
+          </div>
+        </form>
+        <form id="signup-form" autocomplete="on" onsubmit="return false;" class="hidden space-y-4">
+          <div class="rounded-3xl bg-surface border border-lav-line p-4">
+            <p class="auth-form-title font-black">회원가입</p>
+            <p class="auth-form-help mt-1 text-xs text-slate-400">프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.</p>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이름</span>
+                <input id="signup-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이메일</span>
+                <input id="signup-email" name="email" type="email" autocomplete="email" inputmode="email" value="" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호</span>
+                <input id="signup-password" name="new-password" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호 확인</span>
+                <input id="signup-password-confirm" name="new-password-confirm" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호 확인" />
+              </label>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
+            <button type="button" onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
+          </div>
+        </form>
       </div>
 
       <div id="role-select-panel" class="hidden mt-7 space-y-3">
@@ -961,7 +985,7 @@
         center: document.getElementById('center-location')?.value || 'gimpo',
         centerLabel: document.getElementById('center-location')?.value === 'gimpo2' ? '김포 제2 반다비 체육거점' : '김포 반다비체육센터',
         name: getUserDisplayName(),
-        email: (document.getElementById('auth-user-email')?.value || '').trim(),
+        email: (document.getElementById('login-email')?.value || document.getElementById('signup-email')?.value || loadSession()?.email || '').trim(),
         schedule: sessionStorage.getItem(SCHEDULE_SESSION_KEY) || '',
       };
     }
@@ -1319,11 +1343,13 @@
     }
 
     function applyUserToForm(user){
+      // Chrome password manager UI is controlled by the browser.
+      // In Streamlit iframe rendering, password suggestions may still be limited.
       if(!user) return;
-      const nameInput = document.getElementById('auth-user-name');
-      const emailInput = document.getElementById('auth-user-email');
-      if(nameInput && user.name) nameInput.value = user.name;
-      if(emailInput && user.email) emailInput.value = user.email;
+      const nameInputs = [document.getElementById('login-name'), document.getElementById('signup-name')];
+      const emailInputs = [document.getElementById('login-email'), document.getElementById('signup-email')];
+      nameInputs.forEach(function(el){ if(el && user.name) el.value = user.name; });
+      emailInputs.forEach(function(el){ if(el && user.email) el.value = user.email; });
       updateUserGreeting(user.name || getUserDisplayName());
     }
     function showRoleSelectPanel(){
@@ -1337,27 +1363,18 @@
       document.getElementById('auth-entry-panel').classList.add('hidden');
       document.getElementById('role-select-panel').classList.add('hidden');
       document.getElementById('auth-form-panel').classList.remove('hidden');
-      const title = document.getElementById('auth-form-title');
-      const help = document.getElementById('auth-form-help');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const titleText = mode === 'signup' ? '회원가입' : '로그인';
+      const helpText = mode === 'signup'
+        ? '프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.'
+        : '프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.';
       const subtitle = document.getElementById('login-modal-subtitle');
-      const loginPw = document.getElementById('auth-login-password-wrap');
-      const signupPw = document.getElementById('auth-signup-password-wrap');
-      const confirmWrap = document.getElementById('auth-password-confirm-wrap');
-      if(mode === 'signup'){
-        title.textContent = '회원가입';
-        help.textContent = '프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.';
-        subtitle.textContent = '회원가입 후 이용자/관리자 모드를 선택하세요.';
-        if(loginPw) loginPw.classList.add('hidden');
-        if(signupPw) signupPw.classList.remove('hidden');
-        if(confirmWrap) confirmWrap.classList.remove('hidden');
-      } else {
-        title.textContent = '로그인';
-        help.textContent = '프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.';
-        subtitle.textContent = '로그인 후 이용자/관리자 모드를 선택하세요.';
-        if(loginPw) loginPw.classList.remove('hidden');
-        if(signupPw) signupPw.classList.add('hidden');
-        if(confirmWrap) confirmWrap.classList.add('hidden');
-      }
+      if(loginForm) loginForm.classList.toggle('hidden', mode !== 'login');
+      if(signupForm) signupForm.classList.toggle('hidden', mode !== 'signup');
+      document.querySelectorAll('.auth-form-title').forEach(function(el){ el.textContent = titleText; });
+      document.querySelectorAll('.auth-form-help').forEach(function(el){ el.textContent = helpText; });
+      if(subtitle) subtitle.textContent = mode === 'signup' ? '회원가입 후 이용자/관리자 모드를 선택하세요.' : '로그인 후 이용자/관리자 모드를 선택하세요.';
     }
     function backToAuthEntry(){
       document.getElementById('auth-entry-panel').classList.remove('hidden');
@@ -1365,10 +1382,21 @@
       document.getElementById('role-select-panel').classList.add('hidden');
       document.getElementById('login-modal-subtitle').textContent = '서비스 이용을 위해 로그인하거나 회원가입을 진행하세요.';
     }
+    function getActiveNameInput(){
+      return document.getElementById(authMode === 'signup' ? 'signup-name' : 'login-name');
+    }
+    function getActiveEmailInput(){
+      return document.getElementById(authMode === 'signup' ? 'signup-email' : 'login-email');
+    }
     function getUserDisplayName(){
-      const input = document.getElementById('auth-user-name');
+      const session = loadSession();
+      const input = getActiveNameInput();
       const raw = input ? input.value.trim() : '';
-      return raw || '000';
+      if(raw) return raw;
+      if(session && session.name) return session.name;
+      const roleTitle = document.getElementById('role-title');
+      if(roleTitle && roleTitle.dataset.userName) return roleTitle.dataset.userName;
+      return '000';
     }
     function updateUserGreeting(name){
       const displayName = (name || getUserDisplayName() || '000').trim();
@@ -1378,7 +1406,7 @@
       if(roleTitle) roleTitle.dataset.userName = displayName;
     }
     function completeAuth(){
-      const email = (document.getElementById('auth-user-email')?.value || '').trim().toLowerCase();
+      const email = (getActiveEmailInput()?.value || '').trim().toLowerCase();
       const name = getUserDisplayName();
       const loginPw = document.getElementById('login-password')?.value || '';
       const signupPw = document.getElementById('signup-password')?.value || '';
@@ -1413,7 +1441,7 @@
     }
     function resetAuthModal(){
       if(document.getElementById('auth-entry-panel')) backToAuthEntry();
-      ['login-password','signup-password','signup-password-confirm'].forEach(function(id){ const el = document.getElementById(id); if(el) el.value = ''; });
+      ['login-name','login-email','login-password','signup-name','signup-email','signup-password','signup-password-confirm'].forEach(function(id){ const el = document.getElementById(id); if(el) el.value = ''; });
     }
 
     function updateToken(){ const el=document.getElementById('user-token-balance'); if(el) el.textContent=userTokens.toLocaleString(); }
@@ -1717,8 +1745,7 @@
       showFlow('start-screen');
 
       // 사용자 이름 읽기
-      const nameEl = document.getElementById('auth-user-name');
-      const name = (nameEl && nameEl.value.trim()) || '000';
+      const name = getUserDisplayName();
 
       // 알림 팝업 생성 (기존 있으면 제거)
       const existingNoti = document.getElementById('home-noti');
