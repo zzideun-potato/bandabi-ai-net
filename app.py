@@ -842,6 +842,7 @@ def inject_css() -> None:
             border: 1px solid rgba(80,180,120,.25) !important;
             box-shadow: none !important;
         }}
+        .user-topbar-brand .brand-logo-shell,
         .user-header .brand-logo-shell {{
             width: 48px;
             height: 48px;
@@ -853,39 +854,189 @@ def inject_css() -> None:
             align-items: center;
             justify-content: center;
         }}
+        .user-topbar-brand .brand-logo-img,
         .user-header .brand-logo-img {{
             width: 100%;
             height: 100%;
             display: block;
             object-fit: cover;
         }}
-        .user-header-row {{
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: flex-start;
-            flex-wrap: wrap;
+        .user-topbar-shell {{
+            width: 100vw;
+            position: relative;
+            left: 50%;
+            right: 50%;
+            margin: -0.85rem -50vw 18px;
+            z-index: 40;
         }}
-        .user-header-brand {{
+        .user-topbar {{
+            background: rgba(243, 240, 247, .96);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid rgba(184, 172, 216, .24);
+        }}
+        .user-topbar-inner {{
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+        }}
+        .user-topbar-brand {{
             display: flex;
             align-items: center;
             gap: 12px;
-            min-width: 260px;
+            min-width: 240px;
+            flex: 0 1 auto;
         }}
-        .brand-user-tag {{
-            font-size: 14px;
+        .user-topbar-copy {{
+            min-width: 0;
+        }}
+        .user-topbar-title {{
+            margin: 0;
+            color: #4a2d7a;
+            font-size: 18px;
+            line-height: 1.15;
+            font-weight: 900;
+            white-space: nowrap;
+        }}
+        .user-topbar-title span {{
             color: #7868a0;
+            font-size: 14px;
             font-weight: 700;
         }}
-        .chip-token {{
-            background: rgba(255, 244, 224, .72);
+        .user-topbar-badges {{
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }}
+        .topbar-badge {{
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            border-radius: 999px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184, 172, 216, .24);
+            color: #7868a0;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            white-space: nowrap;
+        }}
+        .topbar-badge-token {{
+            background: rgba(255, 244, 224, .78);
             border-color: rgba(180, 130, 40, .18);
             color: #6b4fa0;
+            gap: 5px;
         }}
-        .chip-token-sub {{
-            font-size: 10px;
+        .topbar-badge-token small {{
             color: #b8acd8;
+            font-size: 10px;
             font-weight: 700;
+        }}
+        .user-topbar-nav {{
+            flex: 1 1 360px;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 2px 0;
+        }}
+        .app-tab-track {{
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            max-width: 100%;
+            background: #f0ecf8;
+            border: 1px solid rgba(184, 172, 216, .24);
+            border-radius: 16px;
+            padding: 4px;
+        }}
+        .app-tab {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 40px;
+            border-radius: 12px;
+            padding: 0 14px;
+            color: #7868a0 !important;
+            font-size: 13px;
+            font-weight: 800;
+            line-height: 1.2;
+            text-decoration: none !important;
+            white-space: nowrap;
+            transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+        }}
+        .app-tab svg {{
+            flex: 0 0 15px;
+        }}
+        .app-tab.active {{
+            background: #4a2d7a;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(74, 45, 122, .24);
+        }}
+        .app-tab.active svg {{
+            color: #ffffff;
+        }}
+        .user-topbar-tools {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 0 0 auto;
+        }}
+        .app-tool-btn {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 38px;
+            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid rgba(184, 172, 216, .24);
+            color: #7868a0 !important;
+            padding: 0 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none !important;
+            white-space: nowrap;
+            transition: border-color .15s ease, color .15s ease, transform .15s ease;
+        }}
+        .app-tool-btn:hover {{
+            border-color: rgba(74, 45, 122, .34);
+            color: #4a2d7a !important;
+        }}
+        .app-tool-btn.icon-only {{
+            width: 38px;
+            padding: 0;
+        }}
+        .app-tool-btn svg {{
+            display: block;
+        }}
+        @media (max-width: 980px) {{
+            .user-topbar-inner {{
+                flex-wrap: wrap;
+                justify-content: flex-start;
+            }}
+            .user-topbar-nav {{
+                order: 3;
+                flex-basis: 100%;
+                justify-content: flex-start;
+            }}
+            .user-topbar-tools {{
+                margin-left: auto;
+            }}
+        }}
+        @media (max-width: 640px) {{
+            .user-topbar-title {{
+                font-size: 16px;
+                white-space: normal;
+            }}
+            .app-tab {{
+                padding: 0 11px;
+                font-size: 12px;
+            }}
         }}
         .start-screen {{
             width: 100%;
@@ -1350,73 +1501,176 @@ def render_auth() -> None:
     )
 
 
-def render_header() -> None:
+USER_TABS: list[tuple[str, str, str]] = [
+    ("main", "AI 추천 및 이동지원 연계", "sparkle"),
+    ("schedule", "내 운동 일정 추천", "calendar"),
+    ("accessibility", "AI 기반 접근성 점검 보조", "eye"),
+]
+
+
+def tab_icon_svg(kind: str) -> str:
+    icons = {
+        "sparkle": """
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3l1.6 4.9L18.5 9.5 13.6 11.1 12 16 10.4 11.1 5.5 9.5 10.4 7.9 12 3Z" fill="currentColor"/>
+                <path d="M19 14l.9 2.7 2.6.9-2.6.9-.9 2.7-.9-2.7-2.6-.9 2.6-.9.9-2.7Z" fill="currentColor" opacity=".85"/>
+            </svg>
+        """,
+        "calendar": """
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <rect x="4" y="6" width="16" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 4v4M16 4v4M4 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        """,
+        "eye": """
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M2.5 12C4.6 7.8 8 5.5 12 5.5s7.4 2.3 9.5 6.5c-2.1 4.2-5.5 6.5-9.5 6.5S4.6 16.2 2.5 12Z" stroke="currentColor" stroke-width="2"/>
+                <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        """,
+    }
+    return icons.get(kind, "")
+
+
+def handle_user_chrome_query() -> None:
+    changed = False
+    page = st.query_params.get("page")
+    if page in {"main", "schedule", "accessibility"}:
+        st.session_state.current_page = page
+        changed = True
+    action = st.query_params.get("action")
+    if action == "high_contrast":
+        st.session_state.high_contrast = not bool(st.session_state.get("high_contrast"))
+        changed = True
+    elif action == "voice":
+        st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
+        changed = True
+    elif action == "logout":
+        st.session_state.logged_in = False
+        st.session_state.authenticated = False
+        st.session_state.current_page = "main"
+        st.session_state.pending_confirm = None
+        changed = True
+    for key in ("page", "action"):
+        if key in st.query_params:
+            try:
+                del st.query_params[key]
+            except Exception:
+                pass
+    if changed:
+        st.rerun()
+
+
+def render_user_topbar() -> None:
     name = st.session_state.get("user_name") or "반다비"
     points_value = int(st.session_state.get("bt_points", 3500))
-    is_user = st.session_state.get("role") == USER_ROLE
+    current_page = st.session_state.get("current_page", "main")
+    icon_src = bandabi_icon_data_uri()
+    logo_html = (
+        f'<img class="brand-logo-img" src="{icon_src}" alt="반다비">'
+        if icon_src
+        else '<span class="brand-mark" style="margin:0;width:48px;height:48px;border-radius:18px;">B</span>'
+    )
 
-    if is_user:
-        icon_src = bandabi_icon_data_uri()
-        logo_html = (
-            f'<img class="brand-logo-img" src="{icon_src}" alt="반다비">'
-            if icon_src
-            else '<span class="brand-mark" style="margin:0;">B</span>'
+    tab_links = []
+    for page, label, icon_kind in USER_TABS:
+        active = " active" if current_page == page else ""
+        tab_links.append(
+            f'<a class="app-tab{active}" href="?page={page}" target="_self">'
+            f"{tab_icon_svg(icon_kind)}{esc(label)}</a>"
         )
-        st.markdown(
-            f"""
-            <div class="bandabi-header user-header">
-                <div class="user-header-row">
-                    <div class="user-header-brand">
+
+    st.markdown(
+        html_block(f"""
+        <div class="user-topbar-shell">
+            <header class="user-topbar" aria-label="반다비 AI 이용자 헤더">
+                <div class="user-topbar-inner">
+                    <div class="user-topbar-brand">
                         <div class="brand-logo-shell">{logo_html}</div>
-                        <div>
-                            <p class="brand-title">
-                                반다비 AI <span class="brand-user-tag">(User | {esc(name)}님)</span>
-                            </p>
-                            <div class="chip-row" style="margin-top:8px;">
-                                <span class="chip">이용자 모드</span>
-                                <span class="chip chip-token">
+                        <div class="user-topbar-copy">
+                            <h1 class="user-topbar-title">
+                                반다비 AI <span>(User | {esc(name)}님)</span>
+                            </h1>
+                            <div class="user-topbar-badges">
+                                <span class="topbar-badge">이용자 모드</span>
+                                <span class="topbar-badge topbar-badge-token">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <ellipse cx="12" cy="14" rx="7" ry="3" fill="currentColor" opacity=".35"/>
+                                        <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M8.5 9.5h7M10 7.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                    </svg>
                                     {points_value:,} BT
-                                    <span class="chip-token-sub">현금 환급·양도 불가</span>
+                                    <small>현금 환급·양도 불가</small>
                                 </span>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-    else:
-        st.markdown(
-            f"""
-            <div class="bandabi-header">
-                <div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;">
-                    <div style="display:flex;align-items:center;min-width:260px;">
-                        <span class="brand-mark">B</span>
-                        <div>
-                            <p class="brand-title">반다비 AI</p>
-                            <p class="brand-subtitle">{esc(role_label())} · {esc(name)}님</p>
-                        </div>
-                    </div>
-                    <div class="chip-row" style="justify-content:flex-end;margin-top:0;">
-                        <span class="chip">{esc(role_label())}</span>
-                    </div>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
-    btn_cols = st.columns([1, 1, 1, 4])
+                    <nav class="user-topbar-nav" aria-label="주요 메뉴">
+                        <div class="app-tab-track">
+                            {"".join(tab_links)}
+                        </div>
+                    </nav>
+
+                    <div class="user-topbar-tools">
+                        <a class="app-tool-btn" href="?action=high_contrast" target="_self" aria-label="고대비">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 3a9 9 0 0 1 0 18" fill="currentColor" opacity=".45"/>
+                                <path d="M12 3a9 9 0 0 0 0 18" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            고대비
+                        </a>
+                        <a class="app-tool-btn" href="?action=voice" target="_self" aria-label="음성">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="9" y="4" width="6" height="11" rx="3" stroke="#6b4fa0" stroke-width="2"/>
+                                <path d="M6 11a6 6 0 0 0 12 0M12 17v3" stroke="#6b4fa0" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            음성
+                        </a>
+                        <a class="app-tool-btn icon-only" href="?action=logout" target="_self" aria-label="로그아웃">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M8.5 6.5a7.5 7.5 0 1 0 9.7 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+
+def render_header() -> None:
+    name = st.session_state.get("user_name") or "반다비"
+    st.markdown(
+        f"""
+        <div class="bandabi-header">
+            <div style="display:flex;justify-content:space-between;gap:18px;align-items:flex-start;flex-wrap:wrap;">
+                <div style="display:flex;align-items:center;min-width:260px;">
+                    <span class="brand-mark">B</span>
+                    <div>
+                        <p class="brand-title">반다비 AI</p>
+                        <p class="brand-subtitle">{esc(role_label())} · {esc(name)}님</p>
+                    </div>
+                </div>
+                <div class="chip-row" style="justify-content:flex-end;margin-top:0;">
+                    <span class="chip">{esc(role_label())}</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    btn_cols = st.columns([1, 1, 5, 1])
     with btn_cols[0]:
         if st.button("고대비", key="btn_high_contrast"):
             st.session_state.high_contrast = not bool(st.session_state.get("high_contrast"))
             st.rerun()
     with btn_cols[1]:
-        if st.button("음성", key="btn_voice"):
-            st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
-            st.rerun()
-    with btn_cols[2]:
         if st.button("로그아웃", key="btn_logout"):
             for key in ("logged_in", "authenticated"):
                 st.session_state[key] = False
@@ -1424,21 +1678,15 @@ def render_header() -> None:
             st.session_state.pending_confirm = None
             st.rerun()
 
-    hide_disclaimer = (
-        is_user
-        and st.session_state.get("current_page") == "main"
-        and st.session_state.get("main_step") == "start"
+    st.markdown(
+        """
+        <p class="disclaimer">
+        본 서비스는 생활체육 참여와 접근성 확인을 돕는 참고용 화면입니다.
+        의료 진단, 처방, 치료 효과 판단, 법적 적합 판정 또는 행정 처분 판단을 대체하지 않습니다.
+        </p>
+        """,
+        unsafe_allow_html=True,
     )
-    if not hide_disclaimer:
-        st.markdown(
-            """
-            <p class="disclaimer">
-            본 서비스는 생활체육 참여와 접근성 확인을 돕는 참고용 화면입니다.
-            의료 진단, 처방, 치료 효과 판단, 법적 적합 판정 또는 행정 처분 판단을 대체하지 않습니다.
-            </p>
-            """,
-            unsafe_allow_html=True,
-        )
 
 
 def nav_button(label: str, page: str, key: str) -> None:
@@ -1452,6 +1700,9 @@ def nav_button(label: str, page: str, key: str) -> None:
 
 
 def render_nav() -> None:
+    if st.session_state.get("role") == USER_ROLE:
+        return
+
     st.markdown('<div class="tab-shell">', unsafe_allow_html=True)
     if st.session_state.get("role") == ADMIN_ROLE:
         st.radio("탭", ["기관용 대시보드"], index=0, horizontal=True, label_visibility="collapsed")
@@ -2283,8 +2534,13 @@ def render_app() -> None:
         render_auth()
         return
 
-    render_header()
-    render_nav()
+    if st.session_state.get("role") == USER_ROLE:
+        handle_user_chrome_query()
+        render_user_topbar()
+    else:
+        render_header()
+        render_nav()
+
     render_notice()
 
     page = st.session_state.get("current_page", "main")
