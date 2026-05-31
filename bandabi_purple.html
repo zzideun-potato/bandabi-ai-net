@@ -529,7 +529,7 @@
 
       <div id="auth-form-panel" class="hidden mt-7 space-y-4">
         <!-- Chrome password manager UI is controlled by the browser. -->
-        <!-- In Streamlit iframe rendering, password suggestions may still be limited. -->
+        <!-- Because this app is rendered inside a Streamlit iframe, password suggestions may still be limited. -->
         <form id="login-form" autocomplete="on" onsubmit="return false;" class="space-y-4">
           <div class="rounded-3xl bg-surface border border-lav-line p-4">
             <p class="auth-form-title font-black">로그인</p>
@@ -537,7 +537,7 @@
             <div class="mt-4 space-y-3">
               <label class="block">
                 <span class="text-xs font-bold text-slate-400">이름</span>
-                <input id="login-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+                <input id="login-name" type="text" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
               </label>
               <label class="block">
                 <span class="text-xs font-bold text-slate-400">이메일</span>
@@ -561,7 +561,7 @@
             <div class="mt-4 space-y-3">
               <label class="block">
                 <span class="text-xs font-bold text-slate-400">이름</span>
-                <input id="signup-name" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+                <input id="signup-name" type="text" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
               </label>
               <label class="block">
                 <span class="text-xs font-bold text-slate-400">이메일</span>
@@ -1384,7 +1384,7 @@
 
     function applyUserToForm(user){
       // Chrome password manager UI is controlled by the browser.
-      // In Streamlit iframe rendering, password suggestions may still be limited.
+      // Because this app is rendered inside a Streamlit iframe, password suggestions may still be limited.
       if(!user) return;
       const nameInputs = [document.getElementById('login-name'), document.getElementById('signup-name')];
       const emailInputs = [document.getElementById('login-email'), document.getElementById('signup-email')];
