@@ -530,7 +530,8 @@
       <div id="auth-form-panel" class="hidden mt-7 space-y-4">
         <div class="rounded-3xl bg-surface border border-lav-line p-4">
           <p id="auth-form-title" class="font-black">로그인</p>
-          <p id="auth-form-help" class="mt-1 text-xs text-slate-400">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
+          <p id="auth-form-help" class="mt-1 text-xs text-slate-400">이메일과 비밀번호로 안전하게 로그인합니다.</p>
+          <p id="auth-form-error" class="hidden mt-3 rounded-2xl bg-surface border border-lav-line px-3 py-2 text-xs text-accent font-bold"></p>
           <div class="mt-4 space-y-3">
             <label class="block">
               <span class="text-xs font-bold text-slate-400">이름</span>
@@ -538,13 +539,21 @@
             </label>
             <label class="block">
               <span class="text-xs font-bold text-slate-400">이메일</span>
-              <input id="auth-user-email" type="email" value="" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+              <input id="auth-user-email" type="email" value="" autocomplete="username" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+            </label>
+            <label class="block">
+              <span class="text-xs font-bold text-slate-400">비밀번호</span>
+              <input id="auth-user-password" type="password" autocomplete="current-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="8자 이상" />
+            </label>
+            <label id="auth-password-confirm-wrap" class="hidden block">
+              <span class="text-xs font-bold text-slate-400">비밀번호 확인</span>
+              <input id="auth-user-password-confirm" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호를 다시 입력" />
             </label>
           </div>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <button onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
-          <button onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
+          <button id="auth-submit-btn" onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
         </div>
       </div>
 
@@ -815,7 +824,79 @@
     </section>
 
     <section id="vision-tab" class="tab-content">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5"><div class="glass rounded-[2rem] p-5"><div class="flex items-center justify-between"><div><p class="tiny-label text-blue-300">AI Vision</p><h2 class="text-2xl font-black">접근성 점검 보조</h2><p class="mt-1 text-sm text-slate-400">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p></div><button onclick="startVisionScan()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-4 py-3 font-black"><i class="fa-solid fa-camera mr-2"></i>스캔</button></div><div class="mt-5 rounded-[2rem] bg-slate-950 border border-slate-800 p-4 relative overflow-hidden"><svg viewBox="0 0 500 250" class="w-full h-auto"><rect width="500" height="250" fill="#0f172a"/><rect x="55" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="130" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="205" y="110" width="58" height="58" rx="5" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="8 6"/><rect x="330" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="405" y="110" width="58" height="58" rx="5" fill="#eab308"/><text x="250" y="205" text-anchor="middle" fill="#94a3b8" font-size="15">김포 반다비 1층 로비 점자블록</text></svg><div id="bbox-vision" class="hidden absolute border-4 border-red-500 bg-red-500/10 rounded-2xl" style="left:39%; top:43%; width:14%; height:24%;"><span class="absolute -top-8 left-0 bg-red-600 px-2 py-1 rounded-lg text-[10px] font-black">단절 96.8%</span></div><div id="scan-line" class="hidden absolute left-0 right-0 h-1 bg-cyan-400 shadow-lg shadow-cyan-400"></div></div><div id="vision-result" class="mt-4 rounded-2xl bg-slate-900 border border-slate-800 p-4 text-sm text-slate-400">스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, 법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다.</div><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="processReward()" class="rounded-2xl bg-amber-600/20 border border-amber-700/30 py-3 text-sm font-black text-mid"><i class="fa-solid fa-coins mr-2"></i>제보 참여 인센티브</button><button onclick="openGovModal()" class="rounded-2xl bg-red-600 hover:bg-red-500 py-3 text-sm font-black"><i class="fa-solid fa-file-signature mr-2"></i>공문 초안 생성</button></div></div><div class="glass rounded-[2rem] p-5"><p class="tiny-label text-amber-300">Accessibility Map</p><h2 class="text-2xl font-black">접근성 제보 지도</h2><div class="mt-5 grid grid-cols-1 gap-3"><div class="toss-card rounded-[2rem] p-4 flex gap-3"><div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div><div><p class="font-black">점자블록 단절</p><p class="text-xs text-slate-400 mt-1">1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기</p></div></div><div class="toss-card rounded-[2rem] p-4 flex gap-3"><div class="w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div><div><p class="font-black">접근 가능한 화장실 개선 완료</p><p class="text-xs text-slate-400 mt-1">2층 · 조치 완료 · 운영기관 확인 완료</p></div></div></div></div></div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="glass rounded-[2rem] p-5">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <p class="tiny-label text-blue-300">AI Vision</p>
+              <h2 class="text-2xl font-black">접근성 점검 보조</h2>
+              <p class="mt-1 text-sm text-slate-400">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p>
+            </div>
+            <button onclick="startVisionScan()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-4 py-3 font-black shrink-0"><i class="fa-solid fa-camera mr-2"></i>스캔</button>
+          </div>
+
+          <div class="mt-5 soft rounded-[2rem] border border-dashed border-lav-line p-5">
+            <p class="font-black">시설 사진 업로드</p>
+            <p class="mt-2 text-sm text-slate-400 leading-relaxed">경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.</p>
+            <input type="file" id="accessibility-photo-input" accept="image/jpeg,image/png,image/*" class="hidden" onchange="handleAccessibilityPhotoUpload(event)" />
+            <label for="accessibility-photo-input" class="mt-4 inline-flex items-center gap-2 rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm font-black cursor-pointer">
+              <i class="fa-solid fa-image text-accent"></i> 사진 선택
+            </label>
+            <p id="accessibility-photo-name" class="mt-3 text-xs text-mid"></p>
+            <p class="mt-2 text-[11px] text-slate-400 leading-relaxed">JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.</p>
+            <div id="accessibility-upload-empty" class="mt-4 flex flex-col items-center justify-center py-5 text-mid">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl text-accent mb-2" aria-hidden="true"></i>
+              <p class="text-xs">업로드할 사진을 선택해 주세요</p>
+            </div>
+            <div id="accessibility-photo-preview" class="hidden mt-4"></div>
+          </div>
+
+          <div class="mt-5 rounded-[2rem] bg-slate-950 border border-slate-800 p-4 relative overflow-hidden">
+            <div id="vision-preview-stage" class="relative">
+              <svg viewBox="0 0 500 250" class="w-full h-auto">
+                <rect width="500" height="250" fill="#0f172a"/>
+                <rect x="55" y="110" width="58" height="58" rx="5" fill="#eab308"/>
+                <rect x="130" y="110" width="58" height="58" rx="5" fill="#eab308"/>
+                <rect x="205" y="110" width="58" height="58" rx="5" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="8 6"/>
+                <rect x="330" y="110" width="58" height="58" rx="5" fill="#eab308"/>
+                <rect x="405" y="110" width="58" height="58" rx="5" fill="#eab308"/>
+                <text x="250" y="205" text-anchor="middle" fill="#94a3b8" font-size="15">김포 반다비 1층 로비 점자블록</text>
+              </svg>
+              <div id="bbox-vision" class="hidden absolute border-4 border-red-500 bg-red-500/10 rounded-2xl" style="left:39%; top:43%; width:14%; height:24%;">
+                <span class="absolute -top-8 left-0 bg-red-600 px-2 py-1 rounded-lg text-[10px] font-black">단절 96.8%</span>
+              </div>
+              <div id="scan-line" class="hidden absolute left-0 right-0 h-1 bg-cyan-400 shadow-lg shadow-cyan-400"></div>
+            </div>
+          </div>
+
+          <div id="vision-result" class="mt-4 rounded-2xl bg-slate-900 border border-slate-800 p-4 text-sm text-slate-400">스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, 법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다.</div>
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <button onclick="processReward()" class="rounded-2xl bg-amber-600/20 border border-amber-700/30 py-3 text-sm font-black text-mid"><i class="fa-solid fa-coins mr-2"></i>제보 참여 인센티브</button>
+            <button onclick="openGovModal()" class="rounded-2xl bg-red-600 hover:bg-red-500 py-3 text-sm font-black"><i class="fa-solid fa-file-signature mr-2"></i>공문 초안 생성</button>
+          </div>
+        </div>
+
+        <div class="glass rounded-[2rem] p-5">
+          <p class="tiny-label text-amber-300">Accessibility Map</p>
+          <h2 class="text-2xl font-black">접근성 제보 지도</h2>
+          <div class="mt-5 grid grid-cols-1 gap-3">
+            <div class="toss-card rounded-[2rem] p-4 flex gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>
+              <div>
+                <p class="font-black">점자블록 단절</p>
+                <p class="text-xs text-slate-400 mt-1">1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기</p>
+              </div>
+            </div>
+            <div class="toss-card rounded-[2rem] p-4 flex gap-3">
+              <div class="w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div>
+              <div>
+                <p class="font-black">접근 가능한 화장실 개선 완료</p>
+                <p class="text-xs text-slate-400 mt-1">2층 · 조치 완료 · 운영기관 확인 완료</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="dashboard-tab" class="tab-content">
@@ -898,26 +979,157 @@
 
     let authMode = 'login';
     let latestSendGridPayload = null;
+    const AUTH_TOKEN_KEY = 'bandabi_auth_token';
+    const flowProgress = {
+      routeAnalyzed: false,
+      routeApproved: false,
+      buddyDone: false,
+      classConfirmed: false,
+      reportSaved: false,
+      scheduleOptimized: false,
+      scheduleSelected: false,
+      visionScanned: false,
+    };
+
+    function resetFlowProgress(){
+      flowProgress.routeAnalyzed = false;
+      flowProgress.routeApproved = false;
+      flowProgress.buddyDone = false;
+      flowProgress.classConfirmed = false;
+      flowProgress.reportSaved = false;
+      flowProgress.scheduleOptimized = false;
+      flowProgress.scheduleSelected = false;
+      flowProgress.visionScanned = false;
+    }
+    function requireAuth(message){
+      if(!currentRole){
+        showAppToast(message || '로그인 후 이용할 수 있습니다.');
+        return false;
+      }
+      return true;
+    }
+    function guardStep(condition, message){
+      if(!condition){
+        showAppToast(message);
+        return false;
+      }
+      return true;
+    }
+    function isRouteResultReady(){
+      const result = document.getElementById('route-result');
+      return flowProgress.routeAnalyzed && result && !result.classList.contains('hidden');
+    }
+    function canAccessFlowScreen(screenId){
+      if(screenId === 'start-screen') return true;
+      if(screenId === 'route-screen') return flowProgress.routeAnalyzed;
+      if(screenId === 'care-screen') return flowProgress.routeApproved;
+      if(screenId === 'class-screen') return flowProgress.buddyDone;
+      if(screenId === 'report-screen') return flowProgress.classConfirmed;
+      if(screenId === 'guardian-summary-screen') return flowProgress.reportSaved;
+      return true;
+    }
+    function flowGuardMessage(screenId){
+      const messages = {
+        'route-screen': '출발지·목적지를 입력한 뒤 AI 추천을 먼저 실행해 주세요.',
+        'care-screen': '경로 분석 결과를 확정한 뒤 동행 단계로 이동할 수 있습니다.',
+        'class-screen': '동행(버디) 단계를 완료한 뒤 강습 추천으로 이동할 수 있습니다.',
+        'report-screen': '강습 추천을 확정한 뒤 리포트 화면으로 이동할 수 있습니다.',
+        'guardian-summary-screen': '리포트 저장 후 보호자 공유 화면을 볼 수 있습니다.',
+      };
+      return messages[screenId] || '이전 단계를 먼저 완료해 주세요.';
+    }
+    function validateGovForm(){
+      const to = (document.getElementById('gov-to-email')?.value || '').trim();
+      const subject = (document.getElementById('gov-subject')?.value || '').trim();
+      const body = (document.getElementById('gov-body')?.value || '').trim();
+      if(!to || !subject || !body){
+        showAppToast('수신 이메일, 제목, 본문을 입력해 주세요.');
+        return false;
+      }
+      return true;
+    }
+
+    function getApiBase(){
+      return (window.BANDABI_API_URL || 'http://localhost:8000').replace(/\/$/, '');
+    }
+    function formatAuthError(detail){
+      if(typeof detail === 'string') return detail;
+      if(Array.isArray(detail)) return detail.map(function(item){ return item.msg || String(item); }).join(' ');
+      return '요청에 실패했습니다. 잠시 후 다시 시도해 주세요.';
+    }
+    function showAuthError(message){
+      const el = document.getElementById('auth-form-error');
+      if(!el) return;
+      if(!message){ el.classList.add('hidden'); el.textContent=''; return; }
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+    function setAuthLoading(isLoading){
+      const btn = document.getElementById('auth-submit-btn');
+      if(!btn) return;
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? '처리 중…' : '계속';
+      btn.classList.toggle('opacity-70', isLoading);
+    }
+    function saveAuthToken(token){
+      if(token) localStorage.setItem(AUTH_TOKEN_KEY, token);
+      else localStorage.removeItem(AUTH_TOKEN_KEY);
+    }
+    function getAuthToken(){
+      return localStorage.getItem(AUTH_TOKEN_KEY);
+    }
+    async function authFetch(path, options){
+      const headers = Object.assign({ 'Content-Type': 'application/json' }, (options && options.headers) || {});
+      const token = getAuthToken();
+      if(token) headers.Authorization = 'Bearer ' + token;
+      const response = await fetch(getApiBase() + path, Object.assign({}, options || {}, { headers }));
+      let data = {};
+      try { data = await response.json(); } catch (_) {}
+      if(!response.ok) throw new Error(formatAuthError(data.detail || data.message));
+      return data;
+    }
+    function applyUserToForm(user){
+      if(!user) return;
+      const nameInput = document.getElementById('auth-user-name');
+      const emailInput = document.getElementById('auth-user-email');
+      if(nameInput && user.name) nameInput.value = user.name;
+      if(emailInput && user.email) emailInput.value = user.email;
+      updateUserGreeting(user.name || getUserDisplayName());
+    }
+    function showRoleSelectPanel(){
+      document.getElementById('auth-form-panel').classList.add('hidden');
+      document.getElementById('role-select-panel').classList.remove('hidden');
+      document.getElementById('login-modal-subtitle').textContent = '접속할 서비스를 선택하세요.';
+    }
 
     function showAuthPanel(mode){
       authMode = mode;
+      showAuthError('');
       document.getElementById('auth-entry-panel').classList.add('hidden');
       document.getElementById('role-select-panel').classList.add('hidden');
       document.getElementById('auth-form-panel').classList.remove('hidden');
       const title = document.getElementById('auth-form-title');
       const help = document.getElementById('auth-form-help');
       const subtitle = document.getElementById('login-modal-subtitle');
+      const confirmWrap = document.getElementById('auth-password-confirm-wrap');
+      const nameInput = document.getElementById('auth-user-name');
       if(mode === 'signup'){
         title.textContent = '회원가입';
-        help.textContent = '프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.';
+        help.textContent = '이름, 이메일, 비밀번호를 입력하면 계정이 생성됩니다.';
         subtitle.textContent = '회원가입 후 이용자/관리자 모드를 선택하세요.';
+        if(confirmWrap) confirmWrap.classList.remove('hidden');
+        if(nameInput) nameInput.closest('label').classList.remove('hidden');
       } else {
         title.textContent = '로그인';
-        help.textContent = '프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.';
+        help.textContent = '가입한 이메일과 비밀번호로 로그인합니다.';
         subtitle.textContent = '로그인 후 이용자/관리자 모드를 선택하세요.';
+        if(confirmWrap) confirmWrap.classList.add('hidden');
+        if(nameInput) nameInput.closest('label').classList.add('hidden');
       }
     }
     function backToAuthEntry(){
+      showAuthError('');
+      setAuthLoading(false);
       document.getElementById('auth-entry-panel').classList.remove('hidden');
       document.getElementById('auth-form-panel').classList.add('hidden');
       document.getElementById('role-select-panel').classList.add('hidden');
@@ -935,32 +1147,72 @@
       if(greeting) greeting.textContent = `반갑습니다, ${displayName}님 :)`;
       if(roleTitle) roleTitle.dataset.userName = displayName;
     }
-    function completeAuth(){
+    async function completeAuth(){
+      const emailEl = document.getElementById('auth-user-email');
+      const passwordEl = document.getElementById('auth-user-password');
+      const confirmEl = document.getElementById('auth-user-password-confirm');
+      const email = emailEl ? emailEl.value.trim() : '';
+      const password = passwordEl ? passwordEl.value : '';
       const name = getUserDisplayName();
-      updateUserGreeting(name);
-      document.getElementById('auth-form-panel').classList.add('hidden');
-      document.getElementById('role-select-panel').classList.remove('hidden');
-      document.getElementById('login-modal-subtitle').textContent = '접속할 서비스를 선택하세요.';
+
+      showAuthError('');
+      if(!email){ showAuthError('이메일을 입력해 주세요.'); return; }
+      if(!password){ showAuthError('비밀번호를 입력해 주세요.'); return; }
+      if(authMode === 'signup'){
+        if(!name || name === '000'){ showAuthError('이름을 입력해 주세요.'); return; }
+        if(password.length < 8){ showAuthError('비밀번호는 8자 이상이어야 합니다.'); return; }
+        const confirm = confirmEl ? confirmEl.value : '';
+        if(password !== confirm){ showAuthError('비밀번호가 일치하지 않습니다.'); return; }
+      }
+
+      setAuthLoading(true);
+      try {
+        const data = authMode === 'signup'
+          ? await authFetch('/auth/signup', { method: 'POST', body: JSON.stringify({ email, name, password }) })
+          : await authFetch('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+        saveAuthToken(data.access_token);
+        applyUserToForm(data.user);
+        if(data.user && data.user.role){
+          enterAppWithRole(data.user.role, data.user.name);
+          showAppToast('다시 오신 것을 환영합니다.');
+        } else {
+          showRoleSelectPanel();
+        }
+      } catch (error) {
+        showAuthError(error.message || '인증에 실패했습니다.');
+      } finally {
+        setAuthLoading(false);
+      }
     }
     function resetAuthModal(){
       if(document.getElementById('auth-entry-panel')) backToAuthEntry();
+      const passwordEl = document.getElementById('auth-user-password');
+      const confirmEl = document.getElementById('auth-user-password-confirm');
+      if(passwordEl) passwordEl.value = '';
+      if(confirmEl) confirmEl.value = '';
     }
 
     function updateToken(){ const el=document.getElementById('user-token-balance'); if(el) el.textContent=userTokens.toLocaleString(); }
-    function handleLogin(role){
-      currentRole=role; document.getElementById('login-modal').classList.add('hidden');
-      const badge=document.getElementById('role-badge'); const title=document.getElementById('role-title');
+    function enterAppWithRole(role, displayName){
+      resetFlowProgress();
+      currentRole = role;
+      document.getElementById('login-modal').classList.add('hidden');
+      const badge=document.getElementById('role-badge');
+      const title=document.getElementById('role-title');
+      const resolvedName = displayName || getUserDisplayName();
+      updateUserGreeting(resolvedName);
       if(role==='B2C'){
-        const displayName = (title && title.dataset.userName) || getUserDisplayName();
-        updateUserGreeting(displayName);
-        badge.textContent='이용자 모드'; title.textContent=`(User | ${displayName}님)`;
+        badge.textContent='이용자 모드';
+        title.textContent=`(User | ${resolvedName}님)`;
         badge.className='rounded-full bg-blue-950/60 border border-blue-700/30 px-3 py-1 text-[11px] font-black text-accent';
         document.getElementById('token-wrapper').classList.remove('hidden');
         const dashboardBtn = document.getElementById('tab-dashboard-btn');
         if(dashboardBtn) dashboardBtn.classList.add('hidden');
-        showFlow('start-screen'); switchTab('main-tab', document.getElementById('tab-main-btn'));
+        showFlow('start-screen');
+        switchTab('main-tab', document.getElementById('tab-main-btn'));
       } else {
-        badge.textContent='기관 관리자'; title.textContent='(Admin)';
+        badge.textContent='기관 관리자';
+        title.textContent='(Admin)';
         badge.className='rounded-full bg-purple-950/60 border border-purple-700/30 px-3 py-1 text-[11px] font-black text-lav';
         document.getElementById('token-wrapper').classList.add('hidden');
         const dashboardBtn = document.getElementById('tab-dashboard-btn');
@@ -968,7 +1220,48 @@
         switchTab('dashboard-tab', document.getElementById('tab-dashboard-btn'));
       }
     }
-    function logout(){ currentRole=null; document.getElementById('login-modal').classList.remove('hidden'); resetAuthModal(); document.getElementById('role-title').textContent='세션 대기'; document.getElementById('start-greeting').textContent='반갑습니다, 000님 :)'; document.getElementById('token-wrapper').classList.add('hidden'); const dashboardBtn=document.getElementById('tab-dashboard-btn'); if(dashboardBtn) dashboardBtn.classList.add('hidden'); showFlow('start-screen'); }
+    async function handleLogin(role){
+      try {
+        const data = await authFetch('/auth/select-role', { method: 'POST', body: JSON.stringify({ role }) });
+        saveAuthToken(data.access_token);
+        applyUserToForm(data.user);
+        enterAppWithRole(role, data.user && data.user.name);
+        showAppToast(role === 'B2G' ? '기관 관리자 모드로 접속했습니다.' : '이용자 모드로 접속했습니다.');
+      } catch (error) {
+        showAppToast(error.message || '역할 선택에 실패했습니다.');
+      }
+    }
+    function logout(){
+      saveAuthToken(null);
+      resetFlowProgress();
+      currentRole=null;
+      document.getElementById('login-modal').classList.remove('hidden');
+      resetAuthModal();
+      document.getElementById('role-title').textContent='세션 대기';
+      document.getElementById('start-greeting').textContent='반갑습니다, 000님 :)';
+      document.getElementById('token-wrapper').classList.add('hidden');
+      const dashboardBtn=document.getElementById('tab-dashboard-btn');
+      if(dashboardBtn) dashboardBtn.classList.add('hidden');
+      showFlow('start-screen');
+      showAppToast('로그아웃되었습니다.');
+    }
+    async function tryRestoreSession(){
+      if(!getAuthToken()) return;
+      try {
+        const user = await authFetch('/auth/me');
+        applyUserToForm(user);
+        if(user.role){
+          enterAppWithRole(user.role, user.name);
+        } else {
+          document.getElementById('login-modal').classList.remove('hidden');
+          document.getElementById('auth-entry-panel').classList.add('hidden');
+          document.getElementById('auth-form-panel').classList.add('hidden');
+          showRoleSelectPanel();
+        }
+      } catch (_) {
+        saveAuthToken(null);
+      }
+    }
     function showAppToast(message){
       const toast=document.getElementById('app-toast');
       if(!toast) return;
@@ -978,6 +1271,7 @@
       window.__bandabiToastTimer=setTimeout(()=>toast.classList.remove('open'), 2200);
     }
     function switchTab(tabId, btn){
+      if(!requireAuth('로그인 후 탭을 이용할 수 있습니다.')) return;
       if(tabId==='dashboard-tab' && currentRole!=='B2G'){
         showAppToast('기관용 대시보드는 관리자 모드에서만 접근할 수 있습니다.');
         const mainBtn=document.getElementById('tab-main-btn');
@@ -992,6 +1286,11 @@
       window.scrollTo({top:0,behavior:'smooth'});
     }
     function showFlow(screenId){
+      if(screenId !== 'start-screen' && !requireAuth()) return;
+      if(!canAccessFlowScreen(screenId)){
+        showAppToast(flowGuardMessage(screenId));
+        return;
+      }
       document.querySelectorAll('.flow-screen').forEach(el=>el.classList.remove('active'));
       const target=document.getElementById(screenId); if(target) target.classList.add('active');
       const steps=document.getElementById('user-flow-steps');
@@ -1002,9 +1301,21 @@
     function toggleHighContrast(){ document.getElementById('main-body').classList.toggle('high-contrast-active'); }
     function voiceDemo(){ const el=document.getElementById('voice-status'); el.textContent='인식 중'; setTimeout(()=>{ document.getElementById('disability-type').value='visual'; el.textContent='완료'; triggerAiEngine(); },900); }
     function routeInfo(disability){ const base={ physical:{score:'이동 가능성 86점 · 주의',risk:'주의',riskClass:'text-amber-300',total:'35분',walk:'300m',transfer:'1회',reserve:'74%',mode:'저상버스 18분',issue:'보도턱 1개 · 경사로 확인',action:'강습 85~90분 전 출발하고, 이동지원 연계를 함께 준비하세요.'}, visual:{score:'이동 가능성 91점 · 원활',risk:'원활',riskClass:'text-emerald-300',total:'29분',walk:'230m',transfer:'1회',reserve:'81%',mode:'버스 16분',issue:'유도블록 연속성 양호',action:'센터 입구에서 첫 방문 버디 안내를 연결하면 충분합니다.'}, developmental:{score:'이동 가능성 83점 · 지원 권장',risk:'지원 권장',riskClass:'text-blue-300',total:'28분',walk:'140m',transfer:'0회',reserve:'88%',mode:'이동지원 차량 22분',issue:'환승 없는 단순 경로',action:'이동지원 차량과 센터 도우미를 함께 연결해 첫 방문 불안을 줄이세요.'}, senior:{score:'이동 가능성 79점 · 주의',risk:'주의',riskClass:'text-purple-300',total:'32분',walk:'260m',transfer:'1회',reserve:'69%',mode:'마을버스 12분',issue:'휴식 지점 1곳 포함',action:'우천 시 이동지원 연계를 권장하고, 센터 진입 전 휴식 지점을 안내합니다.'} }; return base[disability] || base.physical; }
-    function triggerAiEngine(){ const disability=document.getElementById('disability-type').value; const origin=document.getElementById('origin').value||'김포 구래역 1번 출구'; const center=document.getElementById('center-location').value==='gimpo2'?'김포 제2 반다비 체육거점':'김포 반다비체육센터'; const info=routeInfo(disability); showFlow('route-screen'); document.getElementById('route-loading').classList.remove('hidden'); document.getElementById('route-result').classList.add('hidden'); setTimeout(()=>{ document.getElementById('route-loading').classList.add('hidden'); document.getElementById('route-result').classList.remove('hidden'); document.getElementById('route-title').textContent=`${origin} → ${center}`; document.getElementById('route-risk').textContent=info.risk; document.getElementById('route-risk').className='mt-1 text-3xl font-black '+info.riskClass; document.getElementById('route-action').textContent=info.action; document.getElementById('route-total').textContent=info.total; document.getElementById('route-walk').textContent=info.walk; document.getElementById('route-transfer').textContent=info.transfer; document.getElementById('route-reserve').textContent=info.reserve; },900); }
-    function simulateDispatch(){ const msg=document.getElementById('route-action'); if(msg) msg.textContent='재계산 완료: 현재 권장 출발 시간은 강습 85분 전입니다.'; }
+    function triggerAiEngine(){
+      if(!requireAuth()) return;
+      const originEl = document.getElementById('origin');
+      const origin = (originEl && originEl.value.trim()) || '';
+      if(!origin){
+        showAppToast('출발지를 입력해 주세요.');
+        if(originEl) originEl.focus();
+        return;
+      }
+      const disability=document.getElementById('disability-type').value; const center=document.getElementById('center-location').value==='gimpo2'?'김포 제2 반다비 체육거점':'김포 반다비체육센터'; const info=routeInfo(disability); flowProgress.routeAnalyzed = true; showFlow('route-screen'); document.getElementById('route-loading').classList.remove('hidden'); document.getElementById('route-result').classList.add('hidden'); setTimeout(()=>{ document.getElementById('route-loading').classList.add('hidden'); document.getElementById('route-result').classList.remove('hidden'); document.getElementById('route-title').textContent=`${origin} → ${center}`; document.getElementById('route-risk').textContent=info.risk; document.getElementById('route-risk').className='mt-1 text-3xl font-black '+info.riskClass; document.getElementById('route-action').textContent=info.action; document.getElementById('route-total').textContent=info.total; document.getElementById('route-walk').textContent=info.walk; document.getElementById('route-transfer').textContent=info.transfer; document.getElementById('route-reserve').textContent=info.reserve; },900); }
+    function simulateDispatch(){
+      if(!guardStep(isRouteResultReady(), '경로 분석을 먼저 실행한 뒤 재계산할 수 있습니다.')) return;
+      const msg=document.getElementById('route-action'); if(msg) msg.textContent='재계산 완료: 현재 권장 출발 시간은 강습 85분 전입니다.'; }
     function restartRouteAnalysis(){
+      resetFlowProgress();
       const loading=document.getElementById('route-loading');
       const result=document.getElementById('route-result');
       if(loading) loading.classList.remove('hidden');
@@ -1024,13 +1335,14 @@
       if(modal) modal.classList.add('open');
     }
     function approveReservation(){
+      if(!guardStep(isRouteResultReady(), '경로 분석이 완료된 뒤 확정할 수 있습니다.')) return;
       userTokens+=500;
       updateToken();
       openStepConfirmModal({
         title:'운영 확정 요청이 등록되었습니다.',
         subtitle:'예약·이동·동행 플랜이 다음 단계로 연결됩니다.',
         message:'운영 확정 요청이 등록되었습니다.<br/>참여 인센티브 <strong>500BT</strong>가 적립되었습니다.<br/>현금 환급·양도·재판매는 불가하며, 협약된 생활체육 서비스 혜택으로만 사용할 수 있습니다.',
-        onConfirm:()=>showFlow('care-screen')
+        onConfirm:()=>{ flowProgress.routeApproved = true; showFlow('care-screen'); }
       });
     }
     function confirmRewardModal(){
@@ -1040,35 +1352,51 @@
       pendingConfirmAction=null;
       if(action) action();
     }
-    function skipBuddy(){ document.getElementById('care-msg').textContent='버디 매칭은 건너뛰었습니다. 강습 추천 화면으로 이동합니다.'; setTimeout(()=>showFlow('class-screen'),450); }
+    function skipBuddy(){
+      if(!guardStep(flowProgress.routeApproved, '경로 확정 후 동행 단계를 진행할 수 있습니다.')) return;
+      flowProgress.buddyDone = true;
+      document.getElementById('care-msg').textContent='버디 매칭은 건너뛰었습니다. 강습 추천 화면으로 이동합니다.'; setTimeout(()=>showFlow('class-screen'),450); }
     function confirmBuddy(){
+      if(!guardStep(flowProgress.routeApproved, '경로 확정 후 버디 매칭을 진행할 수 있습니다.')) return;
       openStepConfirmModal({
         title:'버디 매칭 확정 요청이 등록되었습니다.',
         subtitle:'상호 동의와 관리자 확인 후 연결됩니다.',
         message:'첫 방문 버디 후보 연결 요청이 등록되었습니다.<br/>실명·연락처는 확정 전 비공개로 유지되며, 관리자 확인 후 다음 단계로 연결됩니다.',
         onConfirm:()=>{
+          flowProgress.buddyDone = true;
           const msg=document.getElementById('care-msg');
           if(msg) msg.textContent='버디 후보가 임시 확정되었습니다. 관리자 확인 후 최종 연결됩니다.';
           showFlow('class-screen');
         }
       });
     }
-    function switchInstructor(){ instructorIndex=(instructorIndex+1)%instructors.length; const data=instructors[instructorIndex]; document.getElementById('coach-card').innerHTML=`<p class="text-sm font-black text-cyan-300">추천 지도자</p><p class="mt-6 text-4xl font-black">${data.name} <span class="text-lg text-slate-400">지도자</span></p><p class="mt-3 text-sm text-slate-400">${data.meta}</p><div class="mt-8 flex flex-wrap gap-2 text-xs">${data.tags.map(t=>`<span class="soft rounded-xl px-3 py-2">${t}</span>`).join('')}</div>`; }
+    function switchInstructor(){
+      if(!guardStep(flowProgress.buddyDone, '동행 단계를 완료한 뒤 강습 추천을 이용할 수 있습니다.')) return;
+      instructorIndex=(instructorIndex+1)%instructors.length; const data=instructors[instructorIndex]; document.getElementById('coach-card').innerHTML=`<p class="text-sm font-black text-cyan-300">추천 지도자</p><p class="mt-6 text-4xl font-black">${data.name} <span class="text-lg text-slate-400">지도자</span></p><p class="mt-3 text-sm text-slate-400">${data.meta}</p><div class="mt-8 flex flex-wrap gap-2 text-xs">${data.tags.map(t=>`<span class="soft rounded-xl px-3 py-2">${t}</span>`).join('')}</div>`; }
     function confirmClass(){
+      if(!guardStep(flowProgress.buddyDone, '동행 단계를 완료한 뒤 강습을 확정할 수 있습니다.')) return;
       openStepConfirmModal({
         title:'강습·지도자 추천이 확정되었습니다.',
         subtitle:'운동 참여 결과를 리포트 화면에서 확인합니다.',
         message:'추천 지도자와 강습 선택이 등록되었습니다.<br/>본 내용은 생활체육 참여 지원을 위한 참고자료이며, 최종 운영 확정은 이용자와 운영기관 확인 후 진행됩니다.',
         onConfirm:()=>{
+          flowProgress.classConfirmed = true;
           const msg=document.getElementById('class-msg');
           if(msg) msg.textContent='강습 추천이 확정되었습니다. 생활체육 리포트 화면으로 이동합니다.';
           showFlow('report-screen');
         }
       });
     }
-    function saveReport(){ const msg=document.getElementById('report-msg'); msg.classList.remove('hidden'); msg.textContent='리포트가 보호자 공유용 요약으로 저장되었습니다.'; setTimeout(()=>showFlow('guardian-summary-screen'),650); }
-    function shareGuardianSummary(){ const msg=document.getElementById('guardian-msg'); msg.classList.remove('hidden'); msg.textContent='보호자 공유 완료 메시지가 생성되었습니다. 실제 외부 전송은 연결하지 않았습니다.'; }
-    function addMileage(){ userTokens+=300; updateToken(); const msg=document.getElementById('report-msg'); if(msg){ msg.classList.remove('hidden'); msg.textContent='운동 완료 참여 인센티브 300BT가 적립되었습니다.'; } }
+    function saveReport(){
+      if(!guardStep(flowProgress.classConfirmed, '강습 추천 확정 후 리포트를 저장할 수 있습니다.')) return;
+      flowProgress.reportSaved = true;
+      const msg=document.getElementById('report-msg'); msg.classList.remove('hidden'); msg.textContent='리포트가 보호자 공유용 요약으로 저장되었습니다.'; setTimeout(()=>showFlow('guardian-summary-screen'),650); }
+    function shareGuardianSummary(){
+      if(!guardStep(flowProgress.reportSaved, '리포트 저장 후 보호자에게 공유할 수 있습니다.')) return;
+      const msg=document.getElementById('guardian-msg'); msg.classList.remove('hidden'); msg.textContent='보호자 공유 완료 메시지가 생성되었습니다. 실제 외부 전송은 연결하지 않았습니다.'; }
+    function addMileage(){
+      if(!guardStep(flowProgress.classConfirmed, '강습 참여 확정 후 인센티브를 확인할 수 있습니다.')) return;
+      userTokens+=300; updateToken(); const msg=document.getElementById('report-msg'); if(msg){ msg.classList.remove('hidden'); msg.textContent='운동 완료 참여 인센티브 300BT가 적립되었습니다.'; } }
     function getNextWeekday(targetDay) {
       // targetDay: 0=일,1=월,2=화,3=수,4=목,5=금,6=토
       const today = new Date();
@@ -1087,6 +1415,8 @@
       return y + ' / ' + m + ' / ' + d + ' / ' + days[date.getDay()];
     }
     function runScheduleOptimize(){
+      if(!requireAuth()) return;
+      flowProgress.scheduleSelected = false;
       const container = document.getElementById('after-schedule');
       const badge = document.getElementById('optimize-badge');
       const result = document.getElementById('optimize-result');
@@ -1153,9 +1483,12 @@
         // 하단 추천 문구도 업데이트
         const resultEl = document.getElementById('optimize-result');
         if(resultEl) resultEl.innerHTML = '가장 추천하는 시간은 <b>' + tueLabel + '</b>입니다. 이동지원 연계 가능성이 높고, 같은 센터를 이용하는 버디 후보가 있습니다.';
+        flowProgress.scheduleOptimized = true;
       }, 900);
     }
     function selectScheduleTime(time){
+      if(!guardStep(flowProgress.scheduleOptimized, '먼저 가능한 시간 찾기를 실행해 주세요.')) return;
+      flowProgress.scheduleSelected = true;
       const box = document.getElementById('schedule-confirm-box');
       const selected = document.getElementById('selected-schedule-time');
       if(selected) selected.textContent = time;
@@ -1163,12 +1496,81 @@
       showAppToast(time + ' 일정이 선택되었습니다.');
     }
     function continueWithSelectedSchedule(){
+      if(!requireAuth()) return;
+      if(!guardStep(flowProgress.scheduleOptimized, '먼저 가능한 시간 찾기를 실행해 주세요.')) return;
+      if(!guardStep(flowProgress.scheduleSelected, '추천 시간 중 하나를 선택해 주세요.')) return;
       switchTab('main-tab', document.getElementById('tab-main-btn'));
-      showFlow('route-screen');
-      showAppToast('선택한 시간 기준으로 예약 흐름을 이어갑니다.');
+      if(flowProgress.routeAnalyzed){
+        showFlow('route-screen');
+        showAppToast('선택한 시간 기준으로 예약 흐름을 이어갑니다.');
+      } else {
+        showFlow('start-screen');
+        showAppToast('선택한 일정으로 이어가려면 출발지·목적지를 확인한 뒤 AI 추천을 실행해 주세요.');
+      }
     }
-    function startVisionScan(){ document.getElementById('scan-line').classList.remove('hidden'); document.getElementById('scan-line').classList.add('scan-line'); document.getElementById('bbox-vision').classList.add('hidden'); document.getElementById('vision-result').innerHTML='<i class="fa-solid fa-spinner spinner text-blue-300 mr-2"></i>사진 속 접근성 위험 요소를 분석 중입니다.'; setTimeout(()=>{ document.getElementById('scan-line').classList.add('hidden'); document.getElementById('bbox-vision').classList.remove('hidden'); document.getElementById('vision-result').innerHTML='<div class="flex items-start gap-3"><div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div><div><p class="font-black text-red-200">개선 필요 · AI 탐지 참고값 96.8%</p><p class="text-sm text-slate-400 mt-1">점자블록 단절이 의심됩니다. 기관 확인 후 공문 초안 생성이 가능합니다.</p></div></div>'; },1200); }
-    function processReward(){ userTokens+=200; updateToken(); alert('접근성 제보 참여 인센티브 200BT가 적립되었습니다.'); }
+    function handleAccessibilityPhotoUpload(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const fileNameEl = document.getElementById('accessibility-photo-name');
+      const previewEl = document.getElementById('accessibility-photo-preview');
+      const stageEl = document.getElementById('vision-preview-stage');
+      const emptyEl = document.getElementById('accessibility-upload-empty');
+
+      if (fileNameEl) fileNameEl.textContent = file.name;
+      if (emptyEl) emptyEl.classList.add('hidden');
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const imageUrl = e.target.result;
+
+        if (previewEl) {
+          previewEl.classList.remove('hidden');
+          previewEl.innerHTML = '<img src="' + imageUrl + '" alt="업로드한 접근성 제보 사진" class="w-full max-h-[220px] object-contain rounded-2xl border border-lav-line bg-surface" />';
+        }
+
+        if (stageEl) {
+          stageEl.innerHTML =
+            '<img src="' + imageUrl + '" alt="AI 접근성 점검 대상 이미지" class="w-full max-h-[260px] object-contain rounded-2xl bg-surface" />' +
+            '<div id="bbox-vision" class="hidden absolute border-4 border-purple-700/35 bg-purple-500/10 rounded-2xl" style="left:39%; top:43%; width:14%; height:24%;">' +
+              '<span class="absolute -top-8 left-0 bg-surface border border-lav-line px-2 py-1 rounded-lg text-[10px] font-black text-accent">검토 후보 · 참고</span>' +
+            '</div>' +
+            '<div id="scan-line" class="hidden absolute left-0 right-0 h-1 bg-cyan-400 shadow-lg shadow-cyan-400"></div>';
+        }
+
+        showAppToast('사진이 업로드되었습니다. AI 점검 보조를 실행해 주세요.');
+      };
+
+      reader.readAsDataURL(file);
+    }
+    function startVisionScan(){
+      if(!requireAuth()) return;
+      const scanLine = document.getElementById('scan-line');
+      const bboxVision = document.getElementById('bbox-vision');
+      const visionResult = document.getElementById('vision-result');
+      if (!scanLine || !bboxVision || !visionResult) return;
+      scanLine.classList.remove('hidden');
+      scanLine.classList.add('scan-line');
+      bboxVision.classList.add('hidden');
+      visionResult.innerHTML = '<i class="fa-solid fa-spinner spinner text-blue-300 mr-2"></i>사진 속 접근성 확인 후보를 AI 점검 보조 중입니다.';
+      setTimeout(function(){
+        scanLine.classList.add('hidden');
+        bboxVision.classList.remove('hidden');
+        visionResult.innerHTML =
+          '<div class="flex items-start gap-3">' +
+            '<div class="w-11 h-11 rounded-2xl bg-purple-500/15 text-accent flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div>' +
+            '<div>' +
+              '<p class="font-black text-accent">개선 필요 가능성 · AI 점검 보조(참고)</p>' +
+              '<p class="text-sm text-slate-400 mt-1">점자블록 단절 가능성이 있습니다. 관리자 확인·검토 요청 후 공문 초안 생성이 가능합니다.</p>' +
+            '</div>' +
+          '</div>';
+        flowProgress.visionScanned = true;
+      }, 1200);
+    }
+    function processReward(){
+      if(!requireAuth()) return;
+      if(!guardStep(flowProgress.visionScanned, '접근성 점검 보조 스캔 후 인센티브를 확인할 수 있습니다.')) return;
+      userTokens+=200; updateToken(); alert('접근성 제보 참여 인센티브 200BT가 적립되었습니다.'); }
     function buildSendGridPayload(){
       const toEmail = document.getElementById('gov-to-email')?.value || '';
       const fromEmail = document.getElementById('gov-from-email')?.value || '';
@@ -1189,6 +1591,8 @@
       return latestSendGridPayload;
     }
     function openGovModal(){
+      if(!requireAuth()) return;
+      if(!guardStep(flowProgress.visionScanned, 'AI 점검 보조 스캔을 먼저 실행한 뒤 공문 초안을 생성할 수 있습니다.')) return;
       const modal = document.getElementById('gov-modal');
       modal.classList.remove('hidden');
       modal.classList.add('flex');
@@ -1196,17 +1600,23 @@
     }
     function closeGovModal(){ document.getElementById('gov-modal').classList.add('hidden'); document.getElementById('gov-modal').classList.remove('flex'); }
     function prepareSendGridEmail(){
+      if(!validateGovForm()) return;
       refreshSendGridPayload();
       showAppToast('SendGrid 발송용 payload가 준비되었습니다. 실제 발송 API는 추후 연결하면 됩니다.');
     }
     function submitGovModal(){
+      if(!guardStep(flowProgress.visionScanned, '접근성 점검 보조 스캔 후 검토 요청을 등록할 수 있습니다.')) return;
+      if(!validateGovForm()) return;
       refreshSendGridPayload();
       const status=document.getElementById('table-status-target-1');
       if(status){ status.textContent='검토 요청 등록 완료'; status.className='p-3 text-right text-emerald-300 font-bold'; }
       closeGovModal();
       showAppToast('수정한 공문 초안과 이메일 payload가 검토 요청으로 저장되었습니다.');
     }
-    function triggerForcedDispatch(){ const log=document.getElementById('b2g-log-feed'); log.innerHTML+='<p class="text-purple-300">[10:08:21] 노쇼 공백 감지 · 대기자 2명 알림 발송</p><p class="text-emerald-300">[10:08:28] 1순위 대기자 수락 · 슬롯 임시 확정</p>'; log.scrollTop=log.scrollHeight; }
+    function triggerForcedDispatch(){
+      if(!requireAuth('로그인 후 이용할 수 있습니다.')) return;
+      if(!guardStep(currentRole === 'B2G', '기관 관리자 모드에서만 실행할 수 있습니다.')) return;
+      const log=document.getElementById('b2g-log-feed'); log.innerHTML+='<p class="text-purple-300">[10:08:21] 노쇼 공백 감지 · 대기자 2명 알림 발송</p><p class="text-emerald-300">[10:08:28] 1순위 대기자 수락 · 슬롯 임시 확정</p>'; log.scrollTop=log.scrollHeight; }
 
     function goHomeWithGreeting() {
       // 로그인 상태가 아니면 무시
@@ -1275,6 +1685,7 @@
       }, 5000);
     }
     function renderCharts(){ if(chart1) chart1.destroy(); if(chart2) chart2.destroy(); const ctx1=document.getElementById('disabilityChart'); const ctx2=document.getElementById('trafficChart'); if(!ctx1||!ctx2) return; chart1=new Chart(ctx1,{type:'doughnut',data:{labels:['보행 보조','음성 안내','단계별 안내','기타'],datasets:[{data:[48,18,22,12],backgroundColor:['#8b5cf6','#a78bfa','#6d28d9','#4c1d95'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}}); chart2=new Chart(ctx2,{type:'bar',data:{labels:['09시','11시','13시','15시','17시','19시'],datasets:[{label:'예약',data:[35,68,42,95,50,20],backgroundColor:'#6366f1',borderRadius:8},{label:'이동지원 지연',data:[5,18,8,28,12,2],type:'line',borderColor:'#ef4444',borderWidth:2,fill:false}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#94a3b8'},grid:{display:false}},y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}}},plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}}); }
+    document.addEventListener('DOMContentLoaded', function(){ tryRestoreSession(); });
   </script>
 </body>
 </html>

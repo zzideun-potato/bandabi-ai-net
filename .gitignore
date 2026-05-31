@@ -31,7 +31,10 @@ faiss_index/
 _extracted/
 *.zip
 
-# OS / editor
+# Local SQLite auth DB
+backend/data/
+*.db
+
 .DS_Store
 Thumbs.db
 .vscode/

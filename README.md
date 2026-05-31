@@ -8,17 +8,43 @@ HTML·CSS·JS는 **건드리지 않습니다.** 백엔드/API 연결은 추후 �
 ```
 project/
 ├── app.py
-├── bandabi_purple.html   ← 원본 그대로 (수정 금지)
+├── bandabi_purple.html
+├── backend/              ← FastAPI 인증 API
 ├── requirements.txt
 └── README.md
 ```
 
 ## 로컬 실행
 
+**1) 인증 API (터미널 1)**
+
+```bash
+pip install -r backend/requirements.txt
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+**2) Streamlit UI (터미널 2)**
+
 ```bash
 pip install -r requirements.txt
 python -m streamlit run app.py
 ```
+
+`app.py`는 `bandabi_purple.html`에 `BACKEND_API_URL`(기본 `http://localhost:8000`)만 주입합니다.  
+로그인·회원가입은 FastAPI + SQLite(`backend/data/bandabi.db`) + JWT로 처리됩니다.
+
+### 인증 흐름
+
+| 단계 | 설명 |
+|------|------|
+| 회원가입 | 이름 · 이메일 · 비밀번호(8자+) → `/auth/signup` |
+| 로그인 | 이메일 · 비밀번호 → `/auth/login` |
+| 역할 선택 | 이용자(B2C) / 기관 관리자(B2G) → `/auth/select-role` |
+| 세션 유지 | JWT를 브라우저 `localStorage`에 저장, 새로고침 시 `/auth/me`로 복원 |
+
+배포 시 `.streamlit/secrets.toml`에 `BACKEND_API_URL`, 백엔드 env에 `JWT_SECRET`을 설정하세요.
+
+API 서버 없이 Streamlit만 실행하면 로그인/회원가입 요청이 실패합니다. **1)+2)** 를 함께 실행하세요.
 
 ## 원본과 동일하게 보기
 
