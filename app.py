@@ -2462,6 +2462,15 @@ def inject_css() -> None:
             grid-template-columns: 1fr 1fr;
             gap: 26px;
         }}
+        .access-native-shell {{
+            width: min(1380px, calc(100vw - 330px));
+            margin: 5px auto 0;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }}
+        .st-key-access_left_native,
+        .st-key-access_right_native,
         .access-native-card {{
             background: #ffffff;
             border: 1px solid var(--bandabi-line);
@@ -2472,6 +2481,11 @@ def inject_css() -> None:
                 0 2px 6px rgba(109,40,217,.06),
                 0 10px 28px rgba(109,40,217,.10),
                 0 1px 0 rgba(255,255,255,.92) inset;
+        }}
+        .st-key-access_left_native [data-testid="stVerticalBlockBorderWrapper"],
+        .st-key-access_right_native [data-testid="stVerticalBlockBorderWrapper"] {{
+            border: none;
+            padding: 0;
         }}
         .access-native-head {{
             display: flex;
@@ -2523,6 +2537,15 @@ def inject_css() -> None:
             gap: 16px;
             flex-wrap: wrap;
         }}
+        .access-upload-slot {{
+            flex: 0 0 auto;
+        }}
+        .access-upload-name-slot {{
+            flex: 1 1 180px;
+            display: flex;
+            align-items: center;
+            min-height: 42px;
+        }}
         .access-upload-visual-btn {{
             min-height: 42px;
             border-radius: 14px;
@@ -2546,22 +2569,31 @@ def inject_css() -> None:
             font-size: 13px;
             font-weight: 600;
         }}
-        .st-key-access_photo_upload_wrap {{
-            margin: 0 0 4px;
+        .st-key-access_left_native [data-testid="stFileUploader"],
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] {{
+            margin: 0;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] label {{
+        .st-key-access_left_native [data-testid="stFileUploader"] label,
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] label,
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] label {{
             display: none !important;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {{
+        .st-key-access_left_native [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"],
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {{
             background: transparent;
             border: none;
             padding: 0;
             min-height: 0;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"] {{
+        .st-key-access_left_native [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"],
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"],
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"] {{
             display: none !important;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button {{
+        .st-key-access_left_native [data-testid="stFileUploader"] button,
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button,
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] button {{
             min-height: 42px !important;
             border-radius: 14px !important;
             padding: 0 16px !important;
@@ -2571,19 +2603,22 @@ def inject_css() -> None:
             font-weight: 900 !important;
             box-shadow: 0 10px 22px rgba(74,45,122,.18) !important;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button span {{
+        .st-key-access_left_native [data-testid="stFileUploader"] button span,
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button span,
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] button span {{
             display: none !important;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button::after {{
+        .st-key-access_left_native [data-testid="stFileUploader"] button::after,
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button::after,
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] button::after {{
             content: "사진 선택";
             font-size: 14px;
             font-weight: 900;
         }}
-        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"] {{
-            color: #7a6aa1;
-            font-size: 13px;
-            font-weight: 700;
-            margin-top: 8px;
+        .st-key-access_left_native [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"],
+        .st-key-access_left_native [data-testid="column"] [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"] {{
+            display: none !important;
         }}
         .topbar-badge-admin {{
             background: rgba(74,45,122,.10);
@@ -3119,12 +3154,14 @@ def inject_css() -> None:
             height: 18px;
         }}
         @media (max-width: 980px) {{
-            .access-native-grid {{
+            .access-native-grid,
+            .access-native-shell {{
                 width: 100%;
                 left: auto;
                 transform: none;
-                grid-template-columns: 1fr;
             }}
+            .st-key-access_left_native,
+            .st-key-access_right_native,
             .access-native-card {{
                 min-height: auto;
             }}
@@ -5291,10 +5328,13 @@ def render_accessibility_page() -> None:
         for value in ACCESS_ISSUE_OPTIONS
     )
 
-    st.markdown(
-        html_block(f"""
-        <section class="access-native-grid">
-            <div class="access-native-card">
+    st.markdown('<div class="access-native-shell">', unsafe_allow_html=True)
+    left_col, right_col = st.columns(2, gap="large")
+
+    with left_col:
+        with st.container(key="access_left_native"):
+            st.markdown(
+                html_block(f"""
                 <div class="access-native-head">
                     <div>
                         <p class="access-kicker">AI Vision</p>
@@ -5315,59 +5355,52 @@ def render_accessibility_page() -> None:
                         경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.<br>
                         JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.
                     </p>
-        """),
-        unsafe_allow_html=True,
-    )
-    with st.container(key="access_photo_upload_wrap"):
-        st.file_uploader(
-            "시설 사진",
-            type=["jpg", "jpeg", "png", "webp"],
-            key="access_photo_upload",
-            label_visibility="collapsed",
-        )
-
-    uploaded = st.session_state.get("access_photo_upload")
-    has_photo = uploaded is not None
-    upload_file_label = uploaded.name if has_photo and getattr(uploaded, "name", None) else "선택된 파일 없음"
-    if has_photo:
-        photo_bytes = uploaded.getvalue()
-        mime = uploaded.type or "image/jpeg"
-        preview_markup = (
-            f'<img src="data:{mime};base64,{base64.b64encode(photo_bytes).decode("ascii")}" '
-            'alt="업로드한 시설 사진" style="width:100%;border-radius:18px;display:block;" />'
-        )
-    else:
-        preview_markup = access_braille_preview_svg()
-
-    if analysis:
-        detect_score = float(analysis.get("detection_score", 96.8))
-        result_note = (
-            f"<b>개선 필요 · AI 탐지 참고값 {detect_score:.1f}%</b><br>"
-            f"{esc(analysis.get('facility_type', facility_type))} 관련 접근성 확인이 필요할 수 있습니다. "
-            "기관 확인 후 공문 초안 생성이 가능합니다."
-        )
-    else:
-        result_note = (
-            "스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, "
-            "법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다."
-        )
-
-    recent = list(st.session_state.get("access_recent_reports") or [])
-    first_meta = "1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기"
-    if recent:
-        first = recent[0]
-        if first.get("grade") != "양호":
-            first_meta = (
-                f"{first.get('location', '1층 로비')} · "
-                f"개선 필요 가능성 높음 · {first.get('status', '검토 요청 대기')}"
-            )
-
-    st.markdown(
-        html_block(f"""
-                    <div class="access-upload-action-row">
-                        <span class="access-upload-file-name">{esc(upload_file_label)}</span>
-                    </div>
                 </div>
+                """),
+                unsafe_allow_html=True,
+            )
+            upload_btn_col, upload_name_col = st.columns([1.05, 1.6], gap="small")
+            with upload_btn_col:
+                st.file_uploader(
+                    "시설 사진",
+                    type=["jpg", "jpeg", "png", "webp"],
+                    key="access_photo_upload",
+                    label_visibility="collapsed",
+                )
+            uploaded = st.session_state.get("access_photo_upload")
+            has_photo = uploaded is not None
+            upload_file_label = uploaded.name if has_photo and getattr(uploaded, "name", None) else "선택된 파일 없음"
+            with upload_name_col:
+                st.markdown(
+                    html_block(f'<p class="access-upload-file-name">{esc(upload_file_label)}</p>'),
+                    unsafe_allow_html=True,
+                )
+
+            if has_photo:
+                photo_bytes = uploaded.getvalue()
+                mime = uploaded.type or "image/jpeg"
+                preview_markup = (
+                    f'<img src="data:{mime};base64,{base64.b64encode(photo_bytes).decode("ascii")}" '
+                    'alt="업로드한 시설 사진" style="width:100%;border-radius:18px;display:block;" />'
+                )
+            else:
+                preview_markup = access_braille_preview_svg()
+
+            if analysis:
+                detect_score = float(analysis.get("detection_score", 96.8))
+                result_note = (
+                    f"<b>개선 필요 · AI 탐지 참고값 {detect_score:.1f}%</b><br>"
+                    f"{esc(analysis.get('facility_type', facility_type))} 관련 접근성 확인이 필요할 수 있습니다. "
+                    "기관 확인 후 공문 초안 생성이 가능합니다."
+                )
+            else:
+                result_note = (
+                    "스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, "
+                    "법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다."
+                )
+
+            st.markdown(
+                html_block(f"""
                 <div class="access-detail-native">
                     <form class="access-detail-form" method="get">
                         {access_hidden_inputs}
@@ -5426,8 +5459,24 @@ def render_accessibility_page() -> None:
                         공문 초안 생성
                     </a>
                 </div>
-            </div>
-            <div class="access-native-card">
+                """),
+                unsafe_allow_html=True,
+            )
+
+    recent = list(st.session_state.get("access_recent_reports") or [])
+    first_meta = "1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기"
+    if recent:
+        first = recent[0]
+        if first.get("grade") != "양호":
+            first_meta = (
+                f"{first.get('location', '1층 로비')} · "
+                f"개선 필요 가능성 높음 · {first.get('status', '검토 요청 대기')}"
+            )
+
+    with right_col:
+        with st.container(key="access_right_native"):
+            st.markdown(
+                html_block(f"""
                 <p class="access-kicker">Accessibility Map</p>
                 <h2 class="access-native-heading">접근성 제보 지도</h2>
                 <div class="access-map-native-list">
@@ -5456,11 +5505,11 @@ def render_accessibility_page() -> None:
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        """),
-        unsafe_allow_html=True,
-    )
+                """),
+                unsafe_allow_html=True,
+            )
+
+    st.markdown("</div>", unsafe_allow_html=True)
 
     if analysis:
         grade = analysis.get("grade", "점검 필요")
