@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import html
 import base64
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
@@ -2716,6 +2717,212 @@ def inject_css() -> None:
             max-width: 1380px;
             margin: 18px auto 0;
         }}
+        .access-report-native {{
+            width: min(1380px, calc(100vw - 330px));
+            margin: 18px auto 0;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 10px 28px rgba(109,40,217,.09);
+        }}
+        .access-report-native h3 {{
+            margin: 0 0 14px;
+            color: #2d2040;
+            font-size: 21px;
+            font-weight: 900;
+        }}
+        .access-report-native-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }}
+        .access-draft-overlay {{
+            position: fixed;
+            inset: 0;
+            z-index: 90;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 42px 18px;
+            background: rgba(232,226,244,.78);
+            backdrop-filter: blur(10px);
+            overflow-y: auto;
+        }}
+        .access-draft-modal {{
+            width: min(920px, calc(100vw - 44px));
+            max-height: calc(100vh - 84px);
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.28);
+            border-radius: 18px;
+            padding: 28px 28px 30px;
+            box-shadow: 0 24px 70px rgba(74,45,122,.17);
+        }}
+        .access-draft-head {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(184,172,216,.25);
+        }}
+        .access-draft-title {{
+            margin: 5px 0 0;
+            color: #2d2040;
+            font-size: 27px;
+            font-weight: 900;
+            line-height: 1.12;
+        }}
+        .access-draft-copy {{
+            margin: 8px 0 0;
+            color: #7c5fb8;
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+        }}
+        .access-draft-close {{
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: #f0ecf8;
+            color: #4a2d7a !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            border: 1px solid rgba(184,172,216,.35);
+            flex: 0 0 52px;
+        }}
+        .access-draft-close svg {{
+            width: 22px;
+            height: 22px;
+        }}
+        .access-draft-form-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+            margin-top: 24px;
+        }}
+        .access-draft-label {{
+            display: block;
+            color: #7c5fb8;
+            font-size: 13px;
+            font-weight: 900;
+            margin: 0 0 10px;
+        }}
+        .access-draft-input,
+        .access-draft-textarea {{
+            box-sizing: border-box;
+            width: 100%;
+            border: 1px solid rgba(184,172,216,.28);
+            background: #ffffff;
+            color: #4a2d7a;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 500;
+            line-height: 1.7;
+            padding: 14px 18px;
+        }}
+        .access-draft-input {{
+            min-height: 58px;
+        }}
+        .access-draft-section {{
+            margin-top: 24px;
+            border-radius: 22px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.30);
+            padding: 20px;
+        }}
+        .access-draft-section-head {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 14px;
+        }}
+        .access-draft-section-title {{
+            margin: 0;
+            color: #2d2040;
+            font-size: 20px;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }}
+        .access-draft-section-title svg {{
+            width: 21px;
+            height: 21px;
+            color: #6d28d9;
+        }}
+        .access-draft-mini-link {{
+            min-height: 40px;
+            border-radius: 14px;
+            padding: 0 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #f6f3fc;
+            color: #4a2d7a !important;
+            border: 1px solid rgba(184,172,216,.35);
+            text-decoration: none !important;
+            font-size: 13px;
+            font-weight: 900;
+            white-space: nowrap;
+        }}
+        .access-draft-textarea {{
+            min-height: 300px;
+            resize: vertical;
+            white-space: pre-wrap;
+        }}
+        .access-draft-pre {{
+            margin: 0;
+            min-height: 220px;
+            overflow-x: auto;
+            border-radius: 16px;
+            background: rgba(30, 25, 38, .45);
+            color: #ffffff;
+            border: 1px solid rgba(74,45,122,.18);
+            padding: 18px;
+            font-size: 12px;
+            line-height: 1.7;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace !important;
+        }}
+        .access-draft-warning {{
+            margin: 14px 0 0;
+            color: #8a5a00;
+            font-size: 12px;
+            line-height: 1.5;
+            font-weight: 700;
+        }}
+        .access-draft-actions {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 22px;
+        }}
+        .access-draft-action {{
+            min-height: 52px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none !important;
+            font-size: 14px;
+            font-weight: 900;
+            color: #ffffff !important;
+        }}
+        .access-draft-action.neutral {{ background: #514463; }}
+        .access-draft-action.ready {{ background: #4a2d7a; }}
+        .access-draft-action.submit {{ background: #6d28d9; }}
+        .access-draft-action svg {{
+            width: 18px;
+            height: 18px;
+        }}
         @media (max-width: 980px) {{
             .access-native-grid {{
                 width: 100%;
@@ -2725,6 +2932,16 @@ def inject_css() -> None:
             }}
             .access-native-card {{
                 min-height: auto;
+            }}
+            .access-report-native {{
+                width: 100%;
+                left: auto;
+                transform: none;
+            }}
+            .access-draft-form-grid,
+            .access-draft-actions,
+            .access-report-native-grid {{
+                grid-template-columns: 1fr;
             }}
         }}
         @media (max-width: 760px) {{
@@ -3284,6 +3501,28 @@ def handle_user_chrome_query() -> None:
             )
         st.session_state.access_show_draft = True
         st.session_state.current_page = "accessibility"
+        changed = True
+    elif action == "access_close_draft":
+        st.session_state.access_show_draft = False
+        st.session_state.current_page = "accessibility"
+        changed = True
+    elif action == "access_prepare_draft":
+        facility_type, focus, issues = sync_access_controls_from_query()
+        if not st.session_state.get("access_analysis"):
+            access_run_scan(
+                facility_type,
+                focus,
+                issues,
+                st.session_state.get("access_photo_upload") is not None,
+            )
+        st.session_state.access_show_draft = True
+        st.session_state.current_page = "accessibility"
+        st.session_state.notice = "SendGrid 발송용 payload가 준비되었습니다. 실제 이메일 발송은 실행하지 않습니다."
+        changed = True
+    elif action == "access_submit_draft":
+        st.session_state.access_show_draft = False
+        st.session_state.current_page = "accessibility"
+        st.session_state.notice = "수정한 공문 초안과 이메일 payload가 검토 요청으로 저장되었습니다. 실제 외부 발송은 실행하지 않았습니다."
         changed = True
     elif action == "logout":
         st.session_state.logged_in = False
@@ -4920,9 +5159,28 @@ def render_accessibility_page() -> None:
         impact_html = "".join(
             f"<li><b>{esc(name)}</b>: {esc(text)}</li>" for name, text in impacts.items()
         )
-        with st.expander("AI 보조 점검 상세 리포트", expanded=False):
-            st.markdown(
-                html_block(f"""
+        short_actions = "".join(f"<li>{esc(x)}</li>" for x in actions.get("short", []))
+        medium_actions = "".join(f"<li>{esc(x)}</li>" for x in actions.get("medium", []))
+        long_actions = "".join(f"<li>{esc(x)}</li>" for x in actions.get("long", []))
+        last_submission = st.session_state.get("access_last_submission")
+        completion_html = ""
+        if last_submission:
+            completion_html = f"""
+            <div class="access-complete-card">
+                <p class="access-complete-title">점검 리포트가 생성되었습니다</p>
+                <p class="access-complete-meta">
+                    제보 번호 {esc(last_submission.get('id', ''))} ·
+                    제보 시설 {esc(last_submission.get('facility', ''))} ·
+                    접근성 점검 등급 {esc(last_submission.get('grade', ''))} ·
+                    개선 우선순위 참고 점수 {esc(str(last_submission.get('score', '')))}점 ·
+                    관리자 확인 상태 {esc(last_submission.get('status', '접수 대기'))}
+                </p>
+            </div>
+            """
+        st.markdown(
+            html_block(f"""
+            <section class="access-report-native" aria-label="AI 보조 점검 상세 리포트">
+                <h3>AI 보조 점검 상세 리포트</h3>
                 <div class="access-result-card">
                     <div class="access-grade-row">
                         <span class="access-grade-badge {grade_class}">접근성 점검 등급 · {esc(grade)}</span>
@@ -4951,70 +5209,136 @@ def render_accessibility_page() -> None:
                         </div>
                     </div>
                 </div>
-                <div class="access-section-grid">
+                <div class="access-report-native-grid">
                     <div class="access-soft">
                         <p class="access-soft-title">지원 필요 유형별 영향 안내</p>
                         <ul class="access-impact-list">{impact_html}</ul>
                     </div>
                     <div class="access-soft">
                         <p class="access-soft-title">기관용 조치 제안</p>
-                        <div class="access-action-block"><b>단기 조치</b><ul class="access-action-list">{''.join(f'<li>{esc(x)}</li>' for x in actions.get('short', []))}</ul></div>
-                        <div class="access-action-block"><b>중기 조치</b><ul class="access-action-list">{''.join(f'<li>{esc(x)}</li>' for x in actions.get('medium', []))}</ul></div>
-                        <div class="access-action-block"><b>장기 조치</b><ul class="access-action-list">{''.join(f'<li>{esc(x)}</li>' for x in actions.get('long', []))}</ul></div>
+                        <div class="access-action-block"><b>단기 조치</b><ul class="access-action-list">{short_actions}</ul></div>
+                        <div class="access-action-block"><b>중기 조치</b><ul class="access-action-list">{medium_actions}</ul></div>
+                        <div class="access-action-block"><b>장기 조치</b><ul class="access-action-list">{long_actions}</ul></div>
                     </div>
                 </div>
-                """),
-                unsafe_allow_html=True,
-            )
-            last_submission = st.session_state.get("access_last_submission")
-            if last_submission:
-                st.markdown(
-                    html_block(f"""
-                    <div class="access-complete-card">
-                        <p class="access-complete-title">점검 리포트가 생성되었습니다</p>
-                        <p class="access-complete-meta">
-                            제보 번호 {esc(last_submission.get('id', ''))} ·
-                            제보 시설 {esc(last_submission.get('facility', ''))} ·
-                            접근성 점검 등급 {esc(last_submission.get('grade', ''))} ·
-                            개선 우선순위 참고 점수 {esc(str(last_submission.get('score', '')))}점 ·
-                            관리자 확인 상태 {esc(last_submission.get('status', '접수 대기'))}
-                        </p>
-                    </div>
-                    """),
-                    unsafe_allow_html=True,
-                )
+                {completion_html}
+            </section>
+            """),
+            unsafe_allow_html=True,
+        )
 
     if st.session_state.get("access_show_draft"):
         report = st.session_state.get("access_analysis") or mock_accessibility_result(
             st.session_state.get("access_facility_type", "점자블록")
         )
-        default_subject, default_body = build_official_draft(report)
-        with st.expander("공문 초안 생성", expanded=True):
-            col1, col2 = st.columns(2)
-            with col1:
-                to_email = st.text_input("수신자 이메일", value="accessibility@gimpo.example.kr", key="access_draft_to")
-                from_name = st.text_input(
-                    "발신자 이름",
-                    value=st.session_state.get("user_name") or "반다비 이용자",
-                    key="access_draft_from_name",
-                )
-                from_email = st.text_input(
-                    "발신자 이메일",
-                    value=st.session_state.get("user_email") or "bandabi.user@example.com",
-                    key="access_draft_from_email",
-                )
-                subject = st.text_input("공문 제목", value=default_subject, key="access_draft_subject")
-            with col2:
-                body = st.text_area("공문 본문", value=default_body, height=260, key="access_draft_body")
-            payload = {
-                "personalizations": [{"to": [{"email": to_email}], "subject": subject}],
-                "from": {"email": from_email, "name": from_name},
-                "content": [{"type": "text/plain", "value": body}],
-                "send_disabled": True,
-                "note": "실제 SendGrid 발송은 이 화면에서 실행하지 않습니다. API Key 값도 표시하지 않습니다.",
-            }
-            st.markdown("<div class='notice-box'>SendGrid payload 미리보기</div>", unsafe_allow_html=True)
-            st.json(payload)
+        facility = report.get("facility_type") or report.get("report_type", "점자블록")
+        to_email = "facility@gimpo.go.kr"
+        from_name = "김포 반다비 AI 운영팀"
+        from_email = "no-reply@bandabi-ai.kr"
+        subject = f"{DEFAULT_DESTINATION} 접근성 위험 요소 개선 검토 요청"
+        body = (
+            "수신: 김포시 시설관리 담당부서\n\n"
+            f"제목: {subject}\n\n"
+            f"{DEFAULT_DESTINATION} 1층 로비 구간에서 {facility} 관련 접근성 확인이 필요한 제보가 접수되었습니다.\n\n"
+            "본 내용은 AI 기반 접근성 점검 보조 결과와 이용자 제보를 바탕으로 생성된 관리자 검토용 초안입니다. "
+            "실제 시설 적합 여부와 개선 필요성은 담당자 현장 확인 후 판단해 주시기 바랍니다.\n\n"
+            "첨부 예정: AI 비전 분석 이미지, 현장 제보 요약, 접근성 위험 요소 리포트"
+        )
+        payload = {
+            "personalizations": [{"to": [{"email": to_email}], "subject": subject}],
+            "from": {"email": from_email, "name": from_name},
+            "content": [{"type": "text/plain", "value": body}],
+            "send_disabled": True,
+            "note": "실제 SendGrid 발송은 이 화면에서 실행하지 않습니다. API Key 값도 표시하지 않습니다.",
+        }
+        payload_text = json.dumps(payload, ensure_ascii=False, indent=2)
+        body_textarea = esc(body).replace("\n", "&#10;")
+        st.markdown(
+            html_block(f"""
+            <div class="access-draft-overlay" role="dialog" aria-modal="true" aria-label="접근성 개선 검토용 공문 이메일 초안">
+                <section class="access-draft-modal">
+                    <div class="access-draft-head">
+                        <div>
+                            <p class="access-kicker">Official Notice Draft</p>
+                            <h2 class="access-draft-title">접근성 개선 검토용 공문·이메일 초안</h2>
+                            <p class="access-draft-copy">미리보기 내용을 수정한 뒤, 추후 SendGrid API와 연결할 수 있는 형태로 저장합니다.</p>
+                        </div>
+                        <a class="access-draft-close" href="{esc(access_href('access_close_draft'))}" target="_self" aria-label="공문 초안 닫기">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="access-draft-form-grid">
+                        <label>
+                            <span class="access-draft-label">받는 이메일 주소</span>
+                            <input class="access-draft-input" type="email" value="{esc(to_email)}" />
+                        </label>
+                        <label>
+                            <span class="access-draft-label">보내는 이 이름</span>
+                            <input class="access-draft-input" value="{esc(from_name)}" />
+                        </label>
+                        <label>
+                            <span class="access-draft-label">보내는 이메일 주소</span>
+                            <input class="access-draft-input" type="email" value="{esc(from_email)}" />
+                        </label>
+                        <label>
+                            <span class="access-draft-label">메일 제목</span>
+                            <input class="access-draft-input" value="{esc(subject)}" />
+                        </label>
+                    </div>
+                    <div class="access-draft-section">
+                        <div class="access-draft-section-head">
+                            <p class="access-draft-section-title">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+                                    <path d="m14 8 2 2" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                                </svg>
+                                공문/이메일 본문 미리보기
+                            </p>
+                            <a class="access-draft-mini-link" href="{esc(access_href('access_prepare_draft'))}" target="_self">Payload 갱신</a>
+                        </div>
+                        <textarea class="access-draft-textarea" spellcheck="false">{body_textarea}</textarea>
+                    </div>
+                    <div class="access-draft-section">
+                        <p class="access-draft-section-title">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            SendGrid 연동용 payload 미리보기
+                        </p>
+                        <pre class="access-draft-pre">{esc(payload_text)}</pre>
+                    </div>
+                    <p class="access-draft-warning">※ 본 문서는 관리자 검토용 초안이며, 실제 이메일 발송은 SendGrid API 키와 인증된 발신자 설정을 연결한 뒤 가능합니다. 이 화면에서는 API Key를 표시하거나 발송하지 않습니다.</p>
+                    <div class="access-draft-actions">
+                        <a class="access-draft-action neutral" href="{esc(access_href('access_prepare_draft'))}" target="_self">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" stroke="currentColor" stroke-width="2.2"/>
+                                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+                            </svg>
+                            미리보기 갱신
+                        </a>
+                        <a class="access-draft-action ready" href="{esc(access_href('access_prepare_draft'))}" target="_self">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
+                                <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="m16.5 15.5 1.5 1.5 3-3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            발송 준비
+                        </a>
+                        <a class="access-draft-action submit" href="{esc(access_href('access_submit_draft'))}" target="_self">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M21 3 10 14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                                <path d="m21 3-7 18-4-7-7-4 18-7Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>
+                            </svg>
+                            검토 요청 등록
+                        </a>
+                    </div>
+                </section>
+            </div>
+            """),
+            unsafe_allow_html=True,
+        )
 
 def render_dashboard_page() -> None:
     if st.session_state.get("role") != ADMIN_ROLE:
