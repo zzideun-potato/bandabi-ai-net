@@ -1371,78 +1371,124 @@ def inject_css() -> None:
             font-weight: 300;
             margin: 30px 0 0;
         }}
-        .schedule-shell {{
+        .st-key-schedule_shell {{
             background: #ffffff;
             border: 1px solid var(--bandabi-line);
             border-radius: 30px;
             padding: 26px 28px 28px;
         }}
-        .schedule-head-row {{
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 16px;
+        .schedule-kicker {{
+            color: #6b4fa0;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .11em;
+            margin: 0;
         }}
-        .schedule-grid {{
-            display: grid;
-            grid-template-columns: 1fr 1.35fr;
-            gap: 22px;
-            margin-top: 18px;
+        .schedule-title {{
+            color: #332456;
+            font-size: clamp(52px, 3.8vw, 64px);
+            font-weight: 900;
+            margin: 4px 0 0;
+            line-height: 1.02;
         }}
-        .schedule-pane {{
+        .schedule-sub {{
+            margin: 12px 0 0;
+            color: #7a6aa1;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.55;
+        }}
+        .st-key-schedule_find_btn > button {{
+            min-height: 60px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 800;
+            white-space: nowrap;
+        }}
+        .st-key-schedule_pref_card,
+        .st-key-schedule_criteria_card,
+        .st-key-schedule_result_card {{
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.22);
             border-radius: 22px;
             padding: 20px;
+            box-shadow: 0 3px 10px rgba(74,45,122,.06);
         }}
-        .schedule-pane-title {{
+        .schedule-card-title {{
             margin: 0 0 14px;
-            color: #312453;
+            color: #2f2350;
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.2;
+        }}
+        .schedule-label {{
+            display: block;
+            color: #7a6aa1;
+            font-size: 13px;
+            font-weight: 800;
+            margin: 10px 0 8px;
+        }}
+        .schedule-fields [data-testid="stSelectbox"] label {{
+            display: none;
+        }}
+        .schedule-fields [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
+            min-height: 52px;
+            border-radius: 14px;
+            border-color: rgba(119, 96, 160, .22);
+            background: #fff;
+            color: #4a2d7a;
+            font-size: 14px;
+            font-weight: 500;
+        }}
+        .schedule-toggle-row {{
+            margin-top: 10px;
+        }}
+        .schedule-criteria-list {{
+            color: #5e4f84;
             font-size: 16px;
+            line-height: 1.9;
+            font-weight: 500;
+            margin: 0;
+        }}
+        .schedule-criteria-list b {{
+            color: #3f3068;
             font-weight: 900;
         }}
-        .schedule-candidates {{
-            min-height: 218px;
-            display: grid;
-            place-items: center;
-            text-align: center;
-            color: #4a2d7a;
-            line-height: 1.5;
-            font-size: 16px;
-            font-weight: 700;
+        .schedule-result-head {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2px 0 12px;
         }}
         .schedule-status-chip {{
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(184,172,216,.35);
-            color: #655586;
-            border-radius: 999px;
             min-height: 32px;
-            padding: 0 14px;
-            font-size: 14px;
-            font-weight: 700;
+            border-radius: 999px;
+            border: 1px solid rgba(184,172,216,.35);
             background: #f6f3fc;
+            color: #6d5f90;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 0 14px;
         }}
-        .schedule-criteria {{
-            margin-top: 14px;
-            background: #f0ecf8;
-            border: 1px solid rgba(184,172,216,.22);
-            border-radius: 22px;
-            padding: 20px;
-            color: #5e4f84;
-            font-size: 17px;
-            line-height: 1.85;
-            font-weight: 500;
+        .schedule-empty {{
+            min-height: 210px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #4c3b74;
         }}
-        .schedule-criteria b {{
-            color: #3e2f66;
+        .schedule-empty .big {{
+            font-size: 28px;
             font-weight: 900;
+            line-height: 1.35;
         }}
-        .schedule-hero-btn button {{
-            min-height: 58px;
-            border-radius: 16px;
-            font-weight: 800;
+        .schedule-empty .small {{
+            margin-top: 8px;
+            font-size: 15px;
+            color: #8575ad;
+            font-weight: 500;
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
@@ -2673,81 +2719,78 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 
 def render_schedule_page() -> None:
-    st.markdown('<div class="schedule-shell">', unsafe_allow_html=True)
-    st.markdown('<div class="schedule-head-row">', unsafe_allow_html=True)
-    st.markdown(
-        "<div><p class='start-kicker' style='margin:0'>Personal Schedule AI</p>"
-        "<h2 class='start-greeting' style='margin-top:2px'>내 운동 일정 추천</h2>"
-        "<p class='start-lead' style='margin-top:6px'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p></div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown('<div class="schedule-hero-btn">', unsafe_allow_html=True)
-    find_clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary")
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div class="schedule-grid">', unsafe_allow_html=True)
-    st.markdown('<div>', unsafe_allow_html=True)
-    st.markdown('<div class="schedule-pane">', unsafe_allow_html=True)
-    st.markdown("<h3 class='schedule-pane-title'>선호 조건</h3>", unsafe_allow_html=True)
-    day_label = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0)
-    time_label = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0)
-    c1, c2 = st.columns(2)
-    with c1:
-        mobility_first = st.checkbox("이동지원 우선", value=True)
-    with c2:
-        buddy_first = st.checkbox("버디 후보 우선", value=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='schedule-criteria'><b>추천 기준</b><br>"
-        "1 지도자 가능 시간과 프로그램 정원<br>"
-        "2 이동지원 연계 가능성과 시간대 혼잡도<br>"
-        "3 같은 센터·시간대 버디 후보 여부</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    st.markdown('<div>', unsafe_allow_html=True)
-    right_head_col, right_chip_col = st.columns([1, 0.36], gap="small")
-    with right_head_col:
-        st.markdown("<h3 class='schedule-pane-title' style='margin-top:2px'>참여 가능 시간 후보</h3>", unsafe_allow_html=True)
-    with right_chip_col:
-        st.markdown("<div class='schedule-status-chip'>분석 대기</div>", unsafe_allow_html=True)
-    st.markdown('<div class="schedule-pane schedule-candidates">', unsafe_allow_html=True)
-
-    day_map = {
-        "화·목 중심": ["화", "목"],
-        "월·수 중심": ["월", "수"],
-        "주말 중심": ["토", "일"],
-    }
-    if find_clicked:
-        st.session_state.schedule_recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
-
-    recommendations = st.session_state.get("schedule_recommendations", [])
-    if recommendations:
-        for idx, item in enumerate(recommendations[:3], start=1):
+    with st.container(key="schedule_shell"):
+        head_left, head_right = st.columns([1.7, 0.6], gap="medium")
+        with head_left:
+            st.markdown("<p class='schedule-kicker'>Personal Schedule AI</p>", unsafe_allow_html=True)
+            st.markdown("<h2 class='schedule-title'>내 운동 일정 추천</h2>", unsafe_allow_html=True)
             st.markdown(
-                f"<div class='notice-box' style='width:100%;text-align:left'><b>{idx}</b> {esc(item['title'])}<br>{esc(item['reason'])}</div>",
+                "<p class='schedule-sub'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>",
                 unsafe_allow_html=True,
             )
-    else:
-        st.markdown(
-            "<div><div style='font-size:48px;line-height:1'>📅</div>"
-            "<div style='margin-top:6px;font-size:38px;font-weight:900;color:#3f2f67;'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
-            "<div style='margin-top:4px;font-size:28px;color:#8473ae;'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>",
-            unsafe_allow_html=True,
-        )
-    st.markdown("</div>", unsafe_allow_html=True)
-    if recommendations and st.button("이 시간으로 예약 이어가기", key="schedule_pick_0", type="primary", use_container_width=True):
-        pick = recommendations[0]
-        st.session_state.selected_schedule = f"{pick['date']} {pick['title']}"
-        st.session_state.current_page = "main"
-        st.session_state.main_step = "start"
-        st.session_state.notice = f"선택한 시간({st.session_state.selected_schedule}) 기준으로 예약 흐름을 이어갑니다."
-        st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        with head_right:
+            with st.container(key="schedule_find_btn"):
+                find_clicked = st.button("🔎 가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
+
+        left_col, right_col = st.columns([1, 1.35], gap="large")
+
+        with left_col:
+            with st.container(key="schedule_pref_card"):
+                st.markdown("<h3 class='schedule-card-title'>🎛️ 선호 조건</h3>", unsafe_allow_html=True)
+                st.markdown("<div class='schedule-fields'>", unsafe_allow_html=True)
+                st.markdown("<span class='schedule-label'>선호 요일</span>", unsafe_allow_html=True)
+                day_label = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0, label_visibility="collapsed")
+                st.markdown("<span class='schedule-label'>선호 시간대</span>", unsafe_allow_html=True)
+                time_label = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0, label_visibility="collapsed")
+                st.markdown("</div>", unsafe_allow_html=True)
+
+                t1, t2 = st.columns(2, gap="small")
+                with t1:
+                    st.checkbox("이동지원 우선", value=True, key="schedule_mobility_first")
+                with t2:
+                    st.checkbox("버디 후보 우선", value=True, key="schedule_buddy_first")
+
+            with st.container(key="schedule_criteria_card"):
+                st.markdown(
+                    "<h3 class='schedule-card-title'>ℹ️ 추천 기준</h3>"
+                    "<p class='schedule-criteria-list'>"
+                    "<b>1</b> 지도자 가능 시간과 프로그램 정원<br>"
+                    "<b>2</b> 이동지원 연계 가능성과 시간대 혼잡도<br>"
+                    "<b>3</b> 같은 센터·시간대 버디 후보 여부"
+                    "</p>",
+                    unsafe_allow_html=True,
+                )
+
+        with right_col:
+            st.markdown(
+                "<div class='schedule-result-head'><h3 class='schedule-card-title' style='margin:0'>📅 참여 가능 시간 후보</h3><span class='schedule-status-chip'>분석 대기</span></div>",
+                unsafe_allow_html=True,
+            )
+            with st.container(key="schedule_result_card"):
+                day_map = {
+                    "화·목 중심": ["화", "목"],
+                    "월·수 중심": ["월", "수"],
+                    "주말 중심": ["토", "일"],
+                }
+                if find_clicked:
+                    st.session_state.schedule_recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
+
+                recommendations = st.session_state.get("schedule_recommendations", [])
+                if recommendations:
+                    for idx, item in enumerate(recommendations[:3], start=1):
+                        st.markdown(
+                            f"<div class='notice-box' style='margin:8px 0;'><b>{idx}</b> {esc(item['title'])}<br>{esc(item['reason'])}</div>",
+                            unsafe_allow_html=True,
+                        )
+                else:
+                    st.markdown(
+                        "<div class='schedule-empty'>"
+                        "<div><div style='font-size:46px;line-height:1'>📅</div>"
+                        "<div class='big'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
+                        "<div class='small'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>"
+                        "</div>",
+                        unsafe_allow_html=True,
+                    )
 
 
 def mock_accessibility_result(report_type: str) -> dict[str, Any]:
