@@ -8,6 +8,7 @@ from typing import Any
 
 from modules.api_clients import (
     data_go_kr_status,
+    fetch_disabled_convenience_facilities,
     fetch_bus_arrival,
     fetch_bus_route,
     fetch_weather_short_forecast,
@@ -78,6 +79,210 @@ def _normalize_api_status(status: Any) -> str:
     if text == "mock_fallback":
         return "fallback"
     return text
+
+
+def _result_items(result: dict[str, Any]) -> list[Any]:
+    items = result.get("items") if isinstance(result, dict) else []
+    return items if isinstance(items, list) else []
+
+
+def _first_result_value(result: dict[str, Any], keys: tuple[str, ...]) -> str:
+    for item in _result_items(result):
+        if not isinstance(item, dict):
+            continue
+        lowered = {str(key).lower(): value for key, value in item.items()}
+        for key in keys:
+            value = lowered.get(key.lower())
+            if value not in (None, ""):
+                return str(value)
+    return ""
+
+
+def _status_korean(status: str) -> str:
+    return {
+        "real_api": "실API",
+        "real_api_no_data": "실API no data",
+        "missing_key": "키 미설정",
+        "missing_params": "파라미터 확인",
+        "timeout": "API 지연",
+        "network_error": "네트워크 확인",
+        "fallback": "대체 응답",
+    }.get(status, status or "확인 필요")
+
+
+def _safe_float(value: Any) -> float | None:
+    try:
+        if value in (None, ""):
+            return None
+        return float(str(value).strip())
+    except Exception:
+        return None
+
+
+def _format_eta(value: Any) -> str:
+    number = _safe_float(value)
+    if number is None:
+        return ""
+    minutes = int(round(number / 60)) if number > 120 else int(round(number))
+    return f"약 {max(1, minutes)}분"
+
+
+def _extract_weather_detail(weather_result: dict[str, Any]) -> dict[str, Any]:
+    status = _normalize_api_status(weather_result.get("status", weather_result.get("data_status")))
+    summary_block = weather_result.get("summary")
+    summary_text = ""
+    if isinstance(summary_block, dict):
+        summary_text = str(summary_block.get("weather_summary", ""))
+    if not summary_text:
+        summary_text = str(weather_result.get("message", "기상 정보 확인 필요"))
+
+    categories: dict[str, Any] = {}
+    for item in _result_items(weather_result):
+        if not isinstance(item, dict):
+            continue
+        category = str(item.get("category", ""))
+        if category and category not in categories:
+            categories[category] = item.get("fcstValue", item.get("obsrValue", ""))
+
+    sky_map = {"1": "맑음", "3": "구름 많음", "4": "흐림"}
+    pty_map = {"0": "강수 없음", "1": "비", "2": "비/눈", "3": "눈", "4": "소나기"}
+    sky = sky_map.get(str(categories.get("SKY", "")).strip(), "")
+    pty = pty_map.get(str(categories.get("PTY", "")).strip(), "")
+    tmp = categories.get("TMP", "")
+    pop = categories.get("POP", "")
+    wsd = categories.get("WSD", "")
+
+    details = []
+    if sky:
+        details.append(f"하늘상태 {sky}")
+    if pty:
+        details.append(f"강수형태 {pty}")
+    if tmp not in (None, ""):
+        details.append(f"기온 {tmp}°C")
+    if pop not in (None, ""):
+        details.append(f"강수확률 {pop}%")
+    if wsd not in (None, ""):
+        details.append(f"풍속 {wsd}m/s")
+
+    caution = "도보 구간 기본 여유 5분"
+    pop_num = _safe_float(pop)
+    wsd_num = _safe_float(wsd)
+    if pty and pty != "강수 없음":
+        caution = "비·눈 가능성 · 미끄럼과 승하차 대기 여유 필요"
+    elif pop_num is not None and pop_num >= 40:
+        caution = "강수확률 높음 · 우산/우비와 도보 여유 필요"
+    elif wsd_num is not None and wsd_num >= 4:
+        caution = "바람 다소 강함 · 보행 보조 이용 시 속도 조절"
+
+    return {
+        "status": status,
+        "headline": " · ".join(details[:3]) if details else summary_text,
+        "summary": summary_text,
+        "details": details[:5],
+        "caution": caution,
+        "badge": _status_korean(status),
+    }
+
+
+def _extract_bus_detail(bus_route_result: dict[str, Any], bus_arrival_result: dict[str, Any]) -> dict[str, Any]:
+    route_status = _normalize_api_status(bus_route_result.get("status"))
+    arrival_status = _normalize_api_status(bus_arrival_result.get("status"))
+    route_summary = bus_route_result.get("summary") if isinstance(bus_route_result.get("summary"), dict) else {}
+    arrival_summary = bus_arrival_result.get("summary") if isinstance(bus_arrival_result.get("summary"), dict) else {}
+
+    route_no = str(route_summary.get("route_no") or "").strip()
+    route_no = route_no or _first_result_value(bus_route_result, ("routeno", "routeNo", "route_no", "busNo"))
+    route_type = _first_result_value(bus_route_result, ("routetp", "routeTp", "routetypenm", "routeTypeNm"))
+    route_id_found = bool(route_summary.get("route_id_found") or arrival_summary.get("route_id_found"))
+
+    eta = _first_result_value(
+        bus_arrival_result,
+        ("arrtime", "arrTime", "arrprevstationtime", "predicttime1", "predictTime1"),
+    )
+    eta_text = _format_eta(eta)
+    prev_cnt = _first_result_value(
+        bus_arrival_result,
+        ("arrprevstationcnt", "arrprevstationnum", "arrPrevStationCnt", "arrprevstationCnt"),
+    )
+    station = _first_result_value(bus_arrival_result, ("nodenm", "nodeNm", "stationNm", "nodeName"))
+    vehicle = _first_result_value(bus_arrival_result, ("vehicleno", "vehicleNo", "plainNo"))
+
+    route_label = f"{route_no}번" if route_no else "노선 확인"
+    if route_type:
+        route_label = f"{route_label} · {route_type}"
+
+    if arrival_status == "real_api" and eta_text:
+        headline = f"{route_label} 도착 {eta_text}"
+    elif arrival_status == "real_api" and prev_cnt:
+        headline = f"{route_label} 남은 정류소 {prev_cnt}개"
+    elif arrival_status == "real_api_no_data":
+        headline = f"{route_label} 도착 데이터 없음"
+    elif route_status == "real_api":
+        headline = f"{route_label} 노선 확인 · 도착은 사전 확인"
+    else:
+        headline = f"{route_label} · 사전 확인 권장"
+
+    details = [
+        f"노선 API {_status_korean(route_status)}",
+        f"도착 API {_status_korean(arrival_status)}",
+    ]
+    if station:
+        details.append(f"기준 정류소 {station}")
+    if prev_cnt:
+        details.append(f"남은 정류소 {prev_cnt}개")
+    if vehicle:
+        details.append(f"차량 {vehicle}")
+    if route_id_found:
+        details.append("routeId 확보")
+
+    return {
+        "status": arrival_status,
+        "route_status": route_status,
+        "route_no": route_no,
+        "route_label": route_label,
+        "headline": headline,
+        "details": details[:5],
+        "caption": "TAGO 노선·도착 API 기준 참고",
+        "badge": _status_korean(arrival_status),
+    }
+
+
+def _extract_facility_detail(facility_result: dict[str, Any], support: str) -> dict[str, Any]:
+    status = _normalize_api_status(facility_result.get("status", facility_result.get("data_status")))
+    count = int(facility_result.get("real_count") or facility_result.get("count") or 0)
+    name = _first_result_value(
+        facility_result,
+        ("faclnm", "faclNm", "faci_nm", "faciNm", "facility_name", "wfcltNm"),
+    )
+    area = _first_result_value(facility_result, ("addr", "address", "roadNmAddr", "lcMnad", "area"))
+    if status == "real_api" and count:
+        headline = f"편의시설 API {count}건 확인"
+    elif status == "real_api_no_data":
+        headline = "편의시설 API 정상 응답 · 항목 없음"
+    else:
+        headline = "시설 접근성 현장 확인 필요"
+
+    focus = "주출입구·승강기·접근 가능한 화장실"
+    if "시각" in support:
+        focus = "점자블록·음성안내·안내표식"
+    elif "청각" in support:
+        focus = "시각 안내·안내데스크 소통"
+    elif "천천히" in support:
+        focus = "쉬운 안내·대기 동선·보호자 동행"
+
+    details = [f"중점 확인: {focus}", f"데이터 상태: {_status_korean(status)}"]
+    if name:
+        details.insert(0, f"시설명 {name}")
+    if area:
+        details.append(f"위치/주소 {area}")
+
+    return {
+        "status": status,
+        "headline": headline,
+        "details": details[:5],
+        "caption": "공공 편의시설 데이터와 현장 확인 병행",
+        "badge": _status_korean(status),
+    }
 
 
 _LONG_DISTANCE_TOKENS = (
@@ -162,7 +367,7 @@ def _estimate_route_timing(
     return total, walk, transfers, alternative, risk, route, opinion
 
 
-def _fetch_route_public_apis_parallel() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def _fetch_route_public_apis_parallel() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     def _weather() -> dict[str, Any]:
         try:
             return fetch_weather_short_forecast()
@@ -181,14 +386,21 @@ def _fetch_route_public_apis_parallel() -> tuple[dict[str, Any], dict[str, Any],
         except Exception:
             return {"status": "network_error"}
 
-    with ThreadPoolExecutor(max_workers=3) as pool:
+    def _facility_access() -> dict[str, Any]:
+        try:
+            return fetch_disabled_convenience_facilities("반다비")
+        except Exception:
+            return {"status": "network_error", "items": []}
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
         weather_future = pool.submit(_weather)
         route_future = pool.submit(_bus_route)
         arrival_future = pool.submit(_bus_arrival)
-        return weather_future.result(), route_future.result(), arrival_future.result()
+        facility_future = pool.submit(_facility_access)
+        return weather_future.result(), route_future.result(), arrival_future.result(), facility_future.result()
 
 
-def _load_route_public_api_bundle(force_refresh: bool = False) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+def _load_route_public_api_bundle(force_refresh: bool = False) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
     try:
         import streamlit as st
 
@@ -198,11 +410,12 @@ def _load_route_public_api_bundle(force_refresh: bool = False) -> tuple[dict[str
                 cached.get("weather", {"status": "fallback"}),
                 cached.get("bus_route", {"status": "fallback"}),
                 cached.get("bus_arrival", {"status": "fallback"}),
+                cached.get("facility_access", {"status": "fallback", "items": []}),
             )
     except Exception:
         pass
 
-    weather_result, bus_route_result, bus_arrival_result = _fetch_route_public_apis_parallel()
+    weather_result, bus_route_result, bus_arrival_result, facility_access_result = _fetch_route_public_apis_parallel()
     try:
         import streamlit as st
 
@@ -210,10 +423,11 @@ def _load_route_public_api_bundle(force_refresh: bool = False) -> tuple[dict[str
             "weather": weather_result,
             "bus_route": bus_route_result,
             "bus_arrival": bus_arrival_result,
+            "facility_access": facility_access_result,
         }
     except Exception:
         pass
-    return weather_result, bus_route_result, bus_arrival_result
+    return weather_result, bus_route_result, bus_arrival_result, facility_access_result
 
 
 def run_route_analysis(
@@ -231,11 +445,12 @@ def run_route_analysis(
         "default_destination",
     )
 
-    weather_result, bus_route_result, bus_arrival_result = _load_route_public_api_bundle(force_refresh_apis)
+    weather_result, bus_route_result, bus_arrival_result, facility_access_result = _load_route_public_api_bundle(force_refresh_apis)
 
     weather_status = _normalize_api_status(weather_result.get("status", weather_result.get("data_status")))
     bus_route_status = _normalize_api_status(bus_route_result.get("status"))
     bus_arrival_status = _normalize_api_status(bus_arrival_result.get("status"))
+    facility_access_status = _normalize_api_status(facility_access_result.get("status", facility_access_result.get("data_status")))
 
     score_inputs = {
         "origin": origin,
@@ -272,25 +487,37 @@ def run_route_analysis(
         weather_summary = str(summary_block.get("weather_summary", ""))
     if not weather_summary:
         weather_summary = str(weather_result.get("message", "기상 정보 확인 필요"))
+    weather_detail = _extract_weather_detail(weather_result)
+    bus_detail = _extract_bus_detail(bus_route_result, bus_arrival_result)
+    facility_detail = _extract_facility_detail(facility_access_result, support)
     weather_adjustment = (
-        f"{weather_summary} (status: {weather_status})"
+        f"{weather_detail['headline']} · {weather_detail['caution']} ({weather_detail['badge']})"
         if weather_status in {"real_api", "real_api_no_data"}
         else f"기상 {weather_status} · 비 예보 시 도보 구간 6분 여유 권장"
     )
 
-    if bus_arrival_status == "real_api_no_data":
-        bus_arrival = "TAGO 정상 응답 · 도착 데이터 없음 (real_api_no_data)"
-    elif bus_arrival_status == "real_api":
-        bus_arrival = "TAGO 버스 도착 정보 확인됨 (real_api)"
-    else:
-        bus_arrival = f"버스 도착 status: {bus_arrival_status} · 사전 확인 권장"
+    bus_arrival = bus_detail["headline"]
+    facility_access = facility_detail["headline"]
+    route_warnings = []
+    if timing_risk in {"중간", "중간 이상"} or transfers >= 2:
+        route_warnings.append("환승·대기 시간이 길어질 수 있어 출발 시간을 10~15분 앞당겨 잡아주세요.")
+    if "휠체어" in support or "보행" in support:
+        route_warnings.append("센터 도착 전 마지막 보행 구간의 경사, 보도 턱, 주출입구 문폭을 확인해 주세요.")
+    if "시각" in support:
+        route_warnings.append("하차 후 점자블록 단절 여부와 음성 안내 가능 여부를 한 번 더 확인해 주세요.")
+    if bus_arrival_status != "real_api":
+        route_warnings.append("TAGO 도착 정보가 충분하지 않으니 출발 직전 버스앱으로 실제 도착 시각을 재확인해 주세요.")
+    if weather_detail.get("caution"):
+        route_warnings.append(str(weather_detail["caution"]))
+    if not route_warnings:
+        route_warnings.append("현장 상황에 따라 승하차 위치와 센터 진입 동선은 한 번 더 확인해 주세요.")
 
     origin_geo_status = _normalize_api_status(origin_coord["data_status"])
     dest_geo_status = _normalize_api_status(destination_coord["data_status"])
     status_line = (
         f"VWorld 출발 {origin_geo_status} / 목적 {dest_geo_status} · "
         f"기상 {weather_status} · 버스노선 {bus_route_status} · "
-        f"버스도착 {bus_arrival_status} · scoring rule_engine"
+        f"버스도착 {bus_arrival_status} · 시설편의 {facility_access_status} · scoring rule_engine"
     )
 
     return {
@@ -305,8 +532,22 @@ def run_route_analysis(
         "alternative": alternative,
         "walk_risk": timing_risk if timing_risk else walk_risk,
         "weather_adjustment": weather_adjustment,
-        "facility_access": "센터 주출입구, 승강기, 접근 가능한 화장실 확인 필요",
+        "facility_access": facility_access,
         "bus_arrival": bus_arrival,
+        "bus_detail": bus_detail,
+        "bus_number": bus_detail.get("route_label", ""),
+        "weather_detail": weather_detail,
+        "facility_detail": facility_detail,
+        "route_warnings": route_warnings[:5],
+        "route_map": {
+            "total": f"약 {total}분",
+            "walk": f"도보 약 {walk}분",
+            "transfers": f"{transfers}회",
+            "bus": bus_detail.get("route_label", "버스 확인"),
+            "weather": weather_detail.get("headline", weather_summary),
+            "caution": route_warnings[0],
+            "facility": facility_detail.get("headline", "센터 진입 확인"),
+        },
         "generated_at": generated_at,
         "status_line": status_line,
         "distance_km": round(
@@ -324,7 +565,14 @@ def run_route_analysis(
             "weather": weather_status,
             "bus_route": bus_route_status,
             "bus_arrival": bus_arrival_status,
+            "facility_access": facility_access_status,
             "scoring": "rule_engine",
+        },
+        "public_api": {
+            "weather": weather_result,
+            "bus_route": bus_route_result,
+            "bus_arrival": bus_arrival_result,
+            "facility_access": facility_access_result,
         },
         "score_result": score_result,
     }

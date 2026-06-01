@@ -447,6 +447,8 @@ def inject_css() -> None:
         }}
         .section-title {{
             color: var(--bandabi-ink);
+            font-family: {PRETENDARD_STACK} !important;
+            font-variation-settings: "wght" 900;
             font-weight: 900;
             font-size: clamp(24px, 2.4vw, 30px);
             line-height: 1.12;
@@ -1189,12 +1191,103 @@ def inject_css() -> None:
             padding: 10px;
             margin-top: 14px;
         }}
+        .route-map text {{
+            font-family: {PRETENDARD_STACK} !important;
+            letter-spacing: 0 !important;
+        }}
         .route-line {{
             stroke-dasharray: 14 10;
             animation: routeDash 1.3s linear infinite;
         }}
         @keyframes routeDash {{
             to {{ stroke-dashoffset: -48; }}
+        }}
+        .route-warning-panel {{
+            margin-top: 14px;
+            border-radius: 16px;
+            background: rgba(240,236,248,.72);
+            border: 1px solid var(--bandabi-line);
+            padding: 14px 16px;
+        }}
+        .route-warning-title {{
+            margin: 0 0 9px;
+            color: var(--bandabi-ink);
+            font-size: 14px;
+            font-weight: 900;
+        }}
+        .route-warning-list {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }}
+        .route-warning-list li {{
+            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid rgba(119,96,160,.18);
+            color: var(--bandabi-mid);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.55;
+            padding: 10px 12px;
+        }}
+        .route-detail-card {{
+            min-height: 178px;
+            padding: 16px;
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 18px;
+            box-shadow:
+                0 2px 6px rgba(109,40,217,.06),
+                0 8px 24px rgba(109,40,217,.09),
+                0 1px 0 rgba(255,255,255,.90) inset;
+        }}
+        .route-detail-top {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }}
+        .route-detail-label {{
+            color: var(--bandabi-mid);
+            font-size: 12px;
+            font-weight: 900;
+        }}
+        .route-detail-badge {{
+            display: inline-flex;
+            align-items: center;
+            min-height: 24px;
+            padding: 0 9px;
+            border-radius: 999px;
+            background: var(--bandabi-surface);
+            color: var(--bandabi-accent);
+            border: 1px solid var(--bandabi-line);
+            font-size: 10px;
+            font-weight: 900;
+            white-space: nowrap;
+        }}
+        .route-detail-value {{
+            color: var(--bandabi-ink);
+            font-size: 20px;
+            font-weight: 900;
+            line-height: 1.22;
+            margin: 0;
+        }}
+        .route-detail-caption {{
+            color: var(--bandabi-mid);
+            font-size: 12px;
+            line-height: 1.5;
+            margin: 8px 0 0;
+        }}
+        .route-detail-list {{
+            margin: 10px 0 0;
+            padding-left: 15px;
+            color: var(--bandabi-mid);
+            font-size: 11px;
+            line-height: 1.6;
         }}
         .confirm-action .stButton > button,
         .confirm-action .stButton > button[kind="primary"] {{
@@ -3462,6 +3555,7 @@ def inject_css() -> None:
             .brand-title {{ font-size: 17px; }}
             .section-title {{ font-size: 25px; }}
             .metric-value {{ font-size: 24px; }}
+            .route-warning-list {{ grid-template-columns: 1fr; }}
         }}
         </style>
         """,
@@ -3510,6 +3604,36 @@ def metric_card(label: str, value: str, caption: str = "") -> None:
             <div class="metric-label">{esc(label)}</div>
             <div class="metric-value">{esc(value)}</div>
             <div class="metric-caption">{esc(caption)}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def route_detail_card(
+    label: str,
+    value: str,
+    caption: str = "",
+    *,
+    details: list[Any] | None = None,
+    badge: str = "",
+) -> None:
+    badge_html = f'<span class="route-detail-badge">{esc(badge)}</span>' if badge else ""
+    detail_html = ""
+    if details:
+        detail_html = "<ul class='route-detail-list'>" + "".join(
+            f"<li>{esc(item)}</li>" for item in details if str(item).strip()
+        ) + "</ul>"
+    st.markdown(
+        f"""
+        <div class="route-detail-card">
+            <div class="route-detail-top">
+                <span class="route-detail-label">{esc(label)}</span>
+                {badge_html}
+            </div>
+            <p class="route-detail-value">{esc(value)}</p>
+            <p class="route-detail-caption">{esc(caption)}</p>
+            {detail_html}
         </div>
         """,
         unsafe_allow_html=True,
@@ -4588,9 +4712,23 @@ def build_route_analysis() -> dict[str, Any]:
 
 
 def route_map_svg(result: dict[str, Any]) -> str:
-    """Small native SVG that echoes the original HTML route-card visual."""
-    route_note = "장거리 · 이동지원 검토" if "장거리" in result.get("alternative", "") else "센터 진입 180m"
-    time_note = result.get("total_time", "예상 시간")
+    """Small native SVG that follows the current route/API result."""
+    route_map = result.get("route_map") if isinstance(result.get("route_map"), dict) else {}
+    transfers_text = str(result.get("transfers") or route_map.get("transfers") or "0회")
+    transfer_digits = "".join(ch for ch in transfers_text if ch.isdigit())
+    transfer_count = int(transfer_digits or 0)
+    route_note = str(route_map.get("facility") or result.get("facility_access") or "센터 진입 동선 확인")
+    time_note = str(route_map.get("total") or result.get("total_time") or "예상 시간")
+    bus_note = str(route_map.get("bus") or result.get("bus_number") or "버스 확인")
+    weather_note = str(route_map.get("weather") or result.get("weather_adjustment") or "날씨 확인")
+    caution_note = str(route_map.get("caution") or "주의 지점 확인")
+    middle_label = "환승2" if transfer_count >= 2 else "환승" if transfer_count == 1 else "버스"
+    risk = str(result.get("walk_risk", "중간"))
+    caution_color = "#9d3654" if "중간" in risk or "높" in risk else "#6b4fa0"
+    bus_short = bus_note if len(bus_note) <= 12 else bus_note[:11] + "…"
+    weather_short = weather_note if len(weather_note) <= 28 else weather_note[:27] + "…"
+    caution_short = caution_note if len(caution_note) <= 32 else caution_note[:31] + "…"
+    route_short = route_note if len(route_note) <= 30 else route_note[:29] + "…"
     return f"""
     <div class="route-map">
       <svg viewBox="0 0 860 310" style="display:block;width:100%;height:auto;" role="img" aria-label="추천 경로 도식">
@@ -4609,12 +4747,14 @@ def route_map_svg(result: dict[str, Any]) -> str:
         <circle cx="625" cy="180" r="27" fill="#f3e8ff"/>
         <circle cx="790" cy="105" r="27" fill="#fef3c7"/>
         <text x="90" y="211" text-anchor="middle" fill="#166534" font-size="13" font-weight="900">출발</text>
-        <text x="340" y="131" text-anchor="middle" fill="#0e7490" font-size="13" font-weight="900">환승</text>
+        <text x="340" y="131" text-anchor="middle" fill="#0e7490" font-size="13" font-weight="900">{esc(middle_label)}</text>
         <text x="625" y="186" text-anchor="middle" fill="#6d28d9" font-size="13" font-weight="900">하차</text>
         <text x="790" y="111" text-anchor="middle" fill="#92400e" font-size="13" font-weight="900">센터</text>
-        <text x="250" y="96" fill="#7868a0" font-size="14">{esc(time_note)}</text>
-        <text x="560" y="224" fill="#7868a0" font-size="14">{esc(route_note)}</text>
-        <text x="410" y="164" fill="#6b4fa0" font-size="13" font-weight="800">주의 지점 확인</text>
+        <text x="252" y="96" fill="#7868a0" font-size="14" font-weight="800">{esc(time_note)}</text>
+        <text x="300" y="160" fill="#0e7490" font-size="12" font-weight="800">{esc(bus_short)}</text>
+        <text x="560" y="224" fill="#7868a0" font-size="14">{esc(route_short)}</text>
+        <text x="410" y="164" fill="{caution_color}" font-size="13" font-weight="900">{esc(caution_short)}</text>
+        <text x="510" y="76" fill="#7868a0" font-size="12" font-weight="700">{esc(weather_short)}</text>
       </svg>
     </div>
     """
@@ -4890,6 +5030,14 @@ def render_route() -> None:
         st.session_state.route_inputs_fingerprint = fingerprint
         st.session_state.route_api_force_refresh = False
     result = cached
+    route_warnings = result.get("route_warnings") or []
+    warning_items = route_warnings[:4] or ["현장 상황에 따라 승하차 위치와 센터 진입 동선은 한 번 더 확인해 주세요."]
+    warning_html = "".join(f"<li>{esc(item)}</li>" for item in warning_items)
+    bus_detail = result.get("bus_detail") if isinstance(result.get("bus_detail"), dict) else {}
+    weather_detail = result.get("weather_detail") if isinstance(result.get("weather_detail"), dict) else {}
+    facility_detail = result.get("facility_detail") if isinstance(result.get("facility_detail"), dict) else {}
+    distance = result.get("distance_km")
+    time_caption = f"좌표 기준 약 {distance}km · {result.get('generated_at', '')}" if distance not in (None, "") else "좌표·API 조합 참고"
 
     section_intro(
         "MAIN01",
@@ -4899,36 +5047,64 @@ def render_route() -> None:
     )
 
     st.markdown(
-        f"""
+        html_block(f"""
         <div class="section-card">
             <p class="tiny-label">추천 경로</p>
             <h2 style="margin:0;color:var(--bandabi-ink);font-size:24px;font-weight:900;line-height:1.28;">{esc(result["recommended_route"])}</h2>
             <p class="section-copy">{esc(result["opinion"])}</p>
             {route_map_svg(result)}
+            <div class="route-warning-panel">
+                <p class="route-warning-title">주의해야 할 점</p>
+                <ul class="route-warning-list">{warning_html}</ul>
+            </div>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
     cols = st.columns(4)
     with cols[0]:
-        metric_card("총 시간", result["total_time"], "참고용 예상 시간")
+        metric_card("총 시간", result["total_time"], time_caption)
     with cols[1]:
-        metric_card("도보", result["walk_time"], "마지막 접근 구간 포함")
+        metric_card("도보", result["walk_time"], "센터 주변 마지막 접근 구간 포함")
     with cols[2]:
-        metric_card("환승", result["transfers"], "여유 시간 반영 권장")
+        metric_card("환승", result["transfers"], f"{result.get('bus_number') or '버스 노선'} 기준 확인")
     with cols[3]:
-        metric_card("대체 이동수단", result["alternative"], "이동지원 검토")
+        metric_card("대체 이동수단", result["alternative"], "이동지원센터 연계 검토")
 
     cols = st.columns(4)
     with cols[0]:
-        metric_card("도보 위험도", result["walk_risk"], "보행 환경 확인")
+        route_detail_card(
+            "도보 위험도",
+            result["walk_risk"],
+            "보행 환경과 마지막 접근 구간 확인",
+            details=warning_items[:2],
+            badge="AI score",
+        )
     with cols[1]:
-        metric_card("날씨 보정", "여유 필요", result["weather_adjustment"])
+        route_detail_card(
+            "날씨 보정",
+            weather_detail.get("headline") or "날씨 확인 필요",
+            weather_detail.get("caution") or result["weather_adjustment"],
+            details=weather_detail.get("details") or [result["weather_adjustment"]],
+            badge=weather_detail.get("badge", ""),
+        )
     with cols[2]:
-        metric_card("시설 접근성", "확인 필요", result["facility_access"])
+        route_detail_card(
+            "시설 접근성",
+            result["facility_access"],
+            facility_detail.get("caption") or "센터 주출입구, 승강기, 접근 가능한 화장실 확인",
+            details=facility_detail.get("details") or ["주출입구", "승강기", "접근 가능한 화장실"],
+            badge=facility_detail.get("badge", ""),
+        )
     with cols[3]:
-        metric_card("버스 도착", "사전 확인", result["bus_arrival"])
+        route_detail_card(
+            "버스 도착",
+            result["bus_arrival"],
+            bus_detail.get("caption") or "TAGO 버스 도착 정보",
+            details=bus_detail.get("details") or [result.get("bus_number", ""), "출발 전 재확인 권장"],
+            badge=bus_detail.get("badge", ""),
+        )
 
     st.markdown(
         """
