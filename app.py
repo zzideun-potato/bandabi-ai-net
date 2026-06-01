@@ -1812,6 +1812,15 @@ def inject_css() -> None:
             text-align: center;
             padding: 28px;
         }}
+        .schedule-result-panel.has-results {{
+            display: block;
+            min-height: 0;
+            padding: 0;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            text-align: left;
+        }}
         .schedule-result-card {{
             width: 100%;
             text-align: left;
@@ -1826,7 +1835,7 @@ def inject_css() -> None:
         }}
         .schedule-result-stack {{
             display: grid;
-            gap: 12px;
+            gap: 14px;
         }}
         .schedule-slot-card {{
             display: block;
@@ -1836,16 +1845,19 @@ def inject_css() -> None:
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.28);
             border-radius: 24px;
-            padding: 20px 22px;
-            box-shadow: 0 1px 8px rgba(109,40,217,.06);
-            transition: border-color .15s ease, box-shadow .15s ease;
+            padding: 22px 24px;
+            min-height: 145px;
+            box-shadow: 0 6px 18px rgba(109,40,217,.08);
+            transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
             color: inherit;
         }}
         .schedule-slot-card:hover {{
             border-color: rgba(109,40,217,.34);
             box-shadow: 0 4px 20px rgba(109,40,217,.12);
+            transform: translateY(-1px);
         }}
-        .schedule-slot-card.primary {{
+        .schedule-slot-card.primary,
+        .schedule-slot-card.selected {{
             border-color: rgba(109,40,217,.34);
         }}
         .schedule-slot-head {{
@@ -1871,13 +1883,13 @@ def inject_css() -> None:
         .schedule-slot-title {{
             margin: 4px 0 0;
             color: #2d2040;
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 900;
             line-height: 1.15;
         }}
         .schedule-slot-date {{
-            font-size: 16px;
-            font-weight: 500;
+            font-size: 18px;
+            font-weight: 700;
             color: #7a6aa1;
         }}
         .schedule-slot-reason {{
@@ -1913,21 +1925,22 @@ def inject_css() -> None:
         }}
         .schedule-optimize-result {{
             margin-top: 16px;
-            padding: 16px 18px;
+            padding: 21px 22px;
             border-radius: 18px;
-            background: rgba(74,45,122,.08);
-            border: 1px solid rgba(109,40,217,.18);
-            color: #4a2d7a;
-            font-size: 14px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.28);
+            color: #b8acd8;
+            font-size: 16px;
+            font-weight: 500;
             line-height: 1.65;
         }}
         .schedule-optimize-result b {{
-            color: #2d2040;
+            color: #a99bcd;
             font-weight: 900;
         }}
         .schedule-confirm-box {{
-            margin-top: 4px;
-            padding: 18px 20px;
+            margin-top: 2px;
+            padding: 24px 26px;
             border-radius: 24px;
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.28);
@@ -1945,7 +1958,7 @@ def inject_css() -> None:
         .schedule-confirm-title {{
             margin: 0;
             color: #2d2040;
-            font-size: 16px;
+            font-size: 19px;
             font-weight: 900;
         }}
         .schedule-confirm-copy {{
@@ -1958,16 +1971,35 @@ def inject_css() -> None:
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-height: 46px;
+            min-height: 56px;
             border-radius: 16px;
-            padding: 0 18px;
+            padding: 0 24px;
             background: #a8e6c4;
             border: 1px solid rgba(80,180,120,.25);
             color: #1a5c38 !important;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 900;
             text-decoration: none !important;
             white-space: nowrap;
+        }}
+        .schedule-toast {{
+            position: fixed;
+            left: 50%;
+            bottom: 18px;
+            transform: translateX(-50%);
+            z-index: 60;
+            min-height: 56px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 18px;
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.32);
+            color: #2d2040;
+            padding: 0 28px;
+            font-size: 16px;
+            font-weight: 900;
+            box-shadow: 0 10px 28px rgba(74,45,122,.16);
         }}
         .schedule-status-chip.ready {{
             background: rgba(74,45,122,.08);
@@ -2405,19 +2437,6 @@ def inject_css() -> None:
             font-size: 11px;
             line-height: 1.55;
         }}
-        .st-key-access_detail_panel [data-testid="stSelectbox"] label,
-        .st-key-access_detail_panel [data-testid="stMultiSelect"] label {{
-            color: #7868a0 !important;
-            font-size: 12px !important;
-            font-weight: 800 !important;
-        }}
-        .st-key-access_detail_panel [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
-        .st-key-access_detail_panel [data-testid="stMultiSelect"] div[data-baseweb="select"] > div {{
-            min-height: 46px;
-            border-radius: 16px;
-            border-color: rgba(119, 96, 160, .22);
-            background: #fff;
-        }}
         @media (max-width: 980px) {{
             .access-section-grid,
             .access-recent-grid,
@@ -2521,6 +2540,74 @@ def inject_css() -> None:
             color: #7a6aa1;
             font-size: 13px;
             font-weight: 600;
+        }}
+        .access-detail-native {{
+            margin-top: 16px;
+            padding: 18px 18px 16px;
+            border-radius: 22px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.32);
+        }}
+        .access-detail-form {{
+            margin: 0;
+            display: grid;
+            gap: 14px;
+        }}
+        .access-native-label {{
+            display: block;
+            color: #7a6aa1;
+            font-size: 12px;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }}
+        .access-native-select {{
+            width: 100%;
+            min-height: 50px;
+            border-radius: 16px;
+            border: 1px solid rgba(119,96,160,.18);
+            background-color: #ffffff;
+            color: #2d2040;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 0 42px 0 14px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237c5fb8' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            background-size: 16px;
+        }}
+        .access-detail-actions {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 2px;
+        }}
+        .access-detail-button {{
+            min-height: 48px;
+            border-radius: 14px;
+            border: 0;
+            padding: 0 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+        }}
+        .access-detail-button.primary {{
+            background: #4a2d7a;
+            color: #ffffff;
+            box-shadow: 0 10px 22px rgba(74,45,122,.18);
+        }}
+        .access-detail-button.secondary {{
+            background: #ffffff;
+            color: #4a2d7a;
+            border: 1px solid rgba(184,172,216,.34);
+        }}
+        .access-detail-button svg {{
+            width: 16px;
+            height: 16px;
         }}
         .access-preview-native {{
             margin-top: 22px;
@@ -3069,6 +3156,30 @@ def tab_icon_svg(kind: str) -> str:
 
 def handle_user_chrome_query() -> None:
     changed = False
+
+    def sync_access_controls_from_query() -> tuple[str, str, list[str]]:
+        facility = st.query_params.get("access_facility_type")
+        focus = st.query_params.get("access_focus")
+        try:
+            issues = [x for x in st.query_params.get_all("access_issue") if x]
+        except Exception:
+            issue = st.query_params.get("access_issue", "")
+            issues = [issue] if issue else []
+        if facility in ACCESS_FACILITY_TYPES:
+            st.session_state.access_facility_type = facility
+        if focus in ACCESS_DISABILITY_FOCUS:
+            st.session_state.access_disability_focus = focus
+        cleaned_issues = [issue for issue in issues if issue in ACCESS_ISSUE_OPTIONS]
+        if "access_issue" in st.query_params:
+            st.session_state.access_issue_choices = cleaned_issues
+        elif cleaned_issues:
+            st.session_state.access_issue_choices = cleaned_issues
+        return (
+            st.session_state.get("access_facility_type", "점자블록"),
+            st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
+            st.session_state.get("access_issue_choices") or [],
+        )
+
     nav_tab = st.query_params.get("nav_tab")
     if nav_tab in {"main", "schedule", "accessibility"}:
         st.session_state.current_page = nav_tab
@@ -3128,19 +3239,33 @@ def handle_user_chrome_query() -> None:
         st.session_state.notice = "선택한 시간 기준으로 예약 흐름을 이어갑니다."
         changed = True
     elif action == "access_scan":
+        facility_type, focus, issues = sync_access_controls_from_query()
         access_run_scan(
-            st.session_state.get("access_facility_type", "점자블록"),
-            st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
-            st.session_state.get("access_issue_choices") or [],
+            facility_type,
+            focus,
+            issues,
             st.session_state.get("access_photo_upload") is not None,
         )
         st.session_state.current_page = "accessibility"
         changed = True
+    elif action == "access_submit":
+        facility_type, focus, issues = sync_access_controls_from_query()
+        current = access_run_scan(
+            facility_type,
+            focus,
+            issues,
+            st.session_state.get("access_photo_upload") is not None,
+        )
+        entry = register_accessibility_submission(current)
+        st.session_state.current_page = "accessibility"
+        st.session_state.notice = f"제보 {entry['id']}가 접수 대기 상태로 등록되었습니다. 관리자 확인이 필요합니다."
+        changed = True
     elif action == "access_reward":
+        facility_type, focus, issues = sync_access_controls_from_query()
         current = st.session_state.get("access_analysis") or access_run_scan(
-            st.session_state.get("access_facility_type", "점자블록"),
-            st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
-            st.session_state.get("access_issue_choices") or [],
+            facility_type,
+            focus,
+            issues,
             st.session_state.get("access_photo_upload") is not None,
         )
         register_accessibility_submission(current)
@@ -3149,11 +3274,12 @@ def handle_user_chrome_query() -> None:
         st.session_state.notice = "접근성 제보 참여 인센티브 200BT가 적립되었습니다. 현금 환급·양도·재판매는 불가합니다."
         changed = True
     elif action == "access_draft":
+        facility_type, focus, issues = sync_access_controls_from_query()
         if not st.session_state.get("access_analysis"):
             access_run_scan(
-                st.session_state.get("access_facility_type", "점자블록"),
-                st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
-                st.session_state.get("access_issue_choices") or [],
+                facility_type,
+                focus,
+                issues,
                 st.session_state.get("access_photo_upload") is not None,
             )
         st.session_state.access_show_draft = True
@@ -3174,7 +3300,16 @@ def handle_user_chrome_query() -> None:
                 except Exception:
                     pass
         changed = True
-    for key in ("nav_tab", "action", "schedule_time", "schedule_day_label", "schedule_time_label"):
+    for key in (
+        "nav_tab",
+        "action",
+        "schedule_time",
+        "schedule_day_label",
+        "schedule_time_label",
+        "access_facility_type",
+        "access_focus",
+        "access_issue",
+    ):
         if key in st.query_params:
             try:
                 del st.query_params[key]
@@ -4032,7 +4167,13 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 
 def schedule_slot_card_html(item: dict[str, str]) -> str:
-    card_class = "schedule-slot-card primary" if item.get("primary") else "schedule-slot-card"
+    selected = st.session_state.get("schedule_selected_time") == item.get("full_label")
+    classes = ["schedule-slot-card"]
+    if item.get("primary"):
+        classes.append("primary")
+    if selected:
+        classes.append("selected")
+    card_class = " ".join(classes)
     select_href = "?" + urlencode(
         schedule_resume_query(extra={"action": "schedule_select", "schedule_time": item["full_label"]})
     )
@@ -4074,6 +4215,7 @@ def build_schedule_results_html() -> str:
     cards = "".join(schedule_slot_card_html(item) for item in recommendations[:3])
     selected = st.session_state.get("schedule_selected_time") or ""
     confirm_html = ""
+    toast_html = ""
     if selected:
         continue_href = "?" + urlencode(schedule_resume_query(extra={"action": "schedule_continue"}))
         confirm_html = f"""
@@ -4085,6 +4227,7 @@ def build_schedule_results_html() -> str:
             <a class="schedule-confirm-link" href="{esc(continue_href)}" target="_self">이 시간으로 예약 이어가기</a>
         </div>
         """
+        toast_html = f"<div class='schedule-toast'>{esc(selected)} 일정이 선택되었습니다.</div>"
     top_pick = st.session_state.get("schedule_top_pick") or recommendations[0]["full_label"]
     optimize_html = (
         f"<div class='schedule-optimize-result'>"
@@ -4092,7 +4235,7 @@ def build_schedule_results_html() -> str:
         "이동지원 연계 가능성이 높고, 같은 센터를 이용하는 버디 후보가 있습니다."
         "</div>"
     )
-    return f"<div class='schedule-result-stack'>{cards}{confirm_html}</div>{optimize_html}"
+    return f"<div class='schedule-result-stack'>{cards}{confirm_html}</div>{optimize_html}{toast_html}"
 
 
 def render_schedule_page() -> None:
@@ -4137,6 +4280,7 @@ def render_schedule_page() -> None:
     generated = bool(st.session_state.get("schedule_generated") and st.session_state.get("schedule_recommendations"))
     status_label = "추천 3건" if generated else "분석 대기"
     status_class = "schedule-status-chip ready" if generated else "schedule-status-chip"
+    panel_class = "schedule-result-panel has-results" if generated else "schedule-result-panel"
     result_html = build_schedule_results_html()
 
     st.markdown(
@@ -4190,7 +4334,7 @@ def render_schedule_page() -> None:
                         <h3 class="schedule-soft-title" style="margin:0">{calendar_check_icon}참여 가능 시간 후보</h3>
                         <span class="{status_class}">{esc(status_label)}</span>
                     </div>
-                    <div class="schedule-result-panel">{result_html}</div>
+                    <div class="{panel_class}">{result_html}</div>
                 </div>
             </div>
         </section>
@@ -4575,6 +4719,33 @@ def render_accessibility_page() -> None:
             }
         )
 
+    access_form_query = {
+        "resume": "1",
+        "page": "accessibility",
+        "step": st.session_state.get("main_step", "start"),
+        "role": st.session_state.get("role", USER_ROLE),
+        "user": st.session_state.get("user_name", ""),
+        "email": st.session_state.get("user_email", ""),
+    }
+    access_hidden_inputs = "".join(
+        f'<input type="hidden" name="{esc(key)}" value="{esc(value)}" />'
+        for key, value in access_form_query.items()
+        if value != ""
+    )
+    facility_options = "".join(
+        f'<option value="{esc(value)}"{" selected" if value == facility_type else ""}>{esc(value)}</option>'
+        for value in ACCESS_FACILITY_TYPES
+    )
+    focus_options = "".join(
+        f'<option value="{esc(value)}"{" selected" if value == disability_focus else ""}>{esc(value)}</option>'
+        for value in ACCESS_DISABILITY_FOCUS
+    )
+    issue_selected = issue_choices[0] if issue_choices else ""
+    issue_options = "<option value=''>선택 안 함</option>" + "".join(
+        f'<option value="{esc(value)}"{" selected" if value == issue_selected else ""}>{esc(value)}</option>'
+        for value in ACCESS_ISSUE_OPTIONS
+    )
+
     uploaded = st.session_state.get("access_photo_upload")
     has_photo = uploaded is not None
     upload_file_label = uploaded.name if has_photo and getattr(uploaded, "name", None) else "선택된 파일 없음"
@@ -4647,6 +4818,41 @@ def render_accessibility_page() -> None:
                         <span class="access-upload-file-name">{esc(upload_file_label)}</span>
                     </div>
                 </div>
+                <div class="access-detail-native">
+                    <form class="access-detail-form" method="get">
+                        {access_hidden_inputs}
+                        <div>
+                            <label class="access-native-label">점검 시설 유형</label>
+                            <select class="access-native-select" name="access_facility_type" aria-label="점검 시설 유형">
+                                {facility_options}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="access-native-label">중점 확인 관점</label>
+                            <select class="access-native-select" name="access_focus" aria-label="중점 확인 관점">
+                                {focus_options}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="access-native-label">불편 요소 선택</label>
+                            <select class="access-native-select" name="access_issue" aria-label="불편 요소 선택">
+                                {issue_options}
+                            </select>
+                        </div>
+                        <div class="access-detail-actions">
+                            <button class="access-detail-button primary" type="submit" name="action" value="access_scan">
+                                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                    <path d="M5 8.5h3l1.5-2h5L16 8.5h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="currentColor"/>
+                                    <circle cx="12" cy="14" r="3.2" fill="#fff"/>
+                                </svg>
+                                선택값으로 AI 보조 점검 실행
+                            </button>
+                            <button class="access-detail-button secondary" type="submit" name="action" value="access_submit">
+                                점검 리포트 생성 · 제보 등록
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 <div class="access-preview-native">
                     {preview_markup}
                     <p class="access-preview-caption">{esc(access_preview_caption(facility_type))}</p>
@@ -4663,8 +4869,9 @@ def render_accessibility_page() -> None:
                     </a>
                     <a class="access-action-link draft" href="{esc(access_href('access_draft'))}" target="_self">
                         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M5 4h9l5 5v11H5V4Z" fill="currentColor"/>
-                            <path d="M14 4v5h5M8 15l2 2 5-6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 3.5h8.2L19 8.3V20.5H6V3.5Z" fill="currentColor"/>
+                            <path d="M14 3.5V8.5H19" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+                            <path d="M9.2 16.7 10 14.2 15.2 9 17 10.8 11.8 16l-2.6.7Z" fill="#fff"/>
                         </svg>
                         공문 초안 생성
                     </a>
@@ -4704,37 +4911,6 @@ def render_accessibility_page() -> None:
         """),
         unsafe_allow_html=True,
     )
-
-    with st.expander("사진 업로드 및 점검 항목 상세 설정", expanded=False):
-        with st.container(key="access_detail_panel"):
-            st.file_uploader(
-                "시설 사진",
-                type=["jpg", "jpeg", "png", "webp"],
-                key="access_photo_upload",
-            )
-            st.selectbox("점검 시설 유형", ACCESS_FACILITY_TYPES, key="access_facility_type")
-            st.selectbox("중점 확인 관점", ACCESS_DISABILITY_FOCUS, key="access_disability_focus")
-            st.multiselect("불편 요소 선택", ACCESS_ISSUE_OPTIONS, key="access_issue_choices")
-            if st.button("선택값으로 AI 보조 점검 실행", key="access_analyze_btn", type="primary"):
-                access_run_scan(
-                    st.session_state.access_facility_type,
-                    st.session_state.access_disability_focus,
-                    st.session_state.get("access_issue_choices") or [],
-                    st.session_state.get("access_photo_upload") is not None,
-                )
-                st.rerun()
-            if st.button("점검 리포트 생성 · 제보 등록", key="access_submit_btn"):
-                current = st.session_state.get("access_analysis") or access_run_scan(
-                    st.session_state.access_facility_type,
-                    st.session_state.access_disability_focus,
-                    st.session_state.get("access_issue_choices") or [],
-                    st.session_state.get("access_photo_upload") is not None,
-                )
-                entry = register_accessibility_submission(current)
-                st.session_state.notice = (
-                    f"제보 {entry['id']}가 접수 대기 상태로 등록되었습니다. 관리자 확인이 필요합니다."
-                )
-                st.rerun()
 
     if analysis:
         grade = analysis.get("grade", "점검 필요")
