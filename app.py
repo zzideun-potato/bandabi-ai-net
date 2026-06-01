@@ -2381,6 +2381,189 @@ def inject_css() -> None:
                 margin-top: 0;
             }}
         }}
+        .access-native-grid {{
+            width: min(1380px, calc(100vw - 330px));
+            margin: 5px auto 0;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 26px;
+        }}
+        .access-native-card {{
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 32px;
+            padding: 26px;
+            min-height: 860px;
+            box-shadow:
+                0 2px 6px rgba(109,40,217,.06),
+                0 10px 28px rgba(109,40,217,.10),
+                0 1px 0 rgba(255,255,255,.92) inset;
+        }}
+        .access-native-head {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 18px;
+        }}
+        .access-native-heading {{
+            color: #2d2040 !important;
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", sans-serif !important;
+            font-size: 31px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.02em !important;
+            margin: 5px 0 0;
+            line-height: 1.1;
+        }}
+        .access-scan-link {{
+            min-width: 100px;
+            min-height: 58px;
+            border-radius: 16px;
+            background: #4a2d7a;
+            color: #ffffff !important;
+            text-decoration: none !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 17px;
+            font-weight: 900;
+            box-shadow: 0 10px 22px rgba(74,45,122,.24);
+        }}
+        .access-scan-link svg {{
+            width: 20px;
+            height: 20px;
+        }}
+        .access-upload-native {{
+            margin-top: 24px;
+            padding: 20px 22px;
+            border-radius: 22px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.32);
+        }}
+        .access-upload-native .access-upload-copy {{
+            margin-bottom: 0;
+        }}
+        .access-preview-native {{
+            margin-top: 22px;
+            border-radius: 24px;
+            background: #0f172a;
+            border: 1px solid rgba(184,172,216,.24);
+            padding: 18px;
+            overflow: hidden;
+        }}
+        .access-preview-native svg {{
+            display: block;
+            width: 100%;
+            height: 294px;
+        }}
+        .access-note-native {{
+            margin-top: 18px;
+            padding: 15px 18px;
+            border-radius: 18px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.32);
+            color: #2d2040;
+            font-size: 14px;
+            line-height: 1.7;
+        }}
+        .access-action-native-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }}
+        .access-action-link {{
+            min-height: 54px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none !important;
+            font-size: 15px;
+            font-weight: 900;
+        }}
+        .access-action-link.reward {{
+            background: #8170ac;
+            color: #ffffff !important;
+            border: 1px solid rgba(129,112,172,.24);
+        }}
+        .access-action-link.draft {{
+            background: #6d28d9;
+            color: #ffffff !important;
+            box-shadow: 0 10px 22px rgba(109,40,217,.20);
+        }}
+        .access-action-link svg {{
+            width: 18px;
+            height: 18px;
+        }}
+        .access-map-native-list {{
+            display: grid;
+            gap: 16px;
+            margin-top: 28px;
+        }}
+        .access-map-native-item {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 92px;
+            padding: 18px 20px;
+            border-radius: 22px;
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.26);
+            box-shadow: 0 8px 22px rgba(109,40,217,.08);
+        }}
+        .access-map-native-icon {{
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            flex: 0 0 52px;
+        }}
+        .access-map-native-icon.warn {{
+            background: #fde1e6;
+            color: #4a2d7a;
+        }}
+        .access-map-native-icon.done {{
+            background: #d9f3ea;
+            color: #4a2d7a;
+        }}
+        .access-map-native-icon svg {{
+            width: 22px;
+            height: 22px;
+        }}
+        .access-map-native-title {{
+            margin: 0;
+            color: #2d2040;
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.25;
+        }}
+        .access-map-native-meta {{
+            margin: 6px 0 0;
+            color: #7868a0;
+            font-size: 13px;
+            line-height: 1.55;
+        }}
+        .access-hidden-tools {{
+            max-width: 1380px;
+            margin: 18px auto 0;
+        }}
+        @media (max-width: 980px) {{
+            .access-native-grid {{
+                width: 100%;
+                left: auto;
+                transform: none;
+                grid-template-columns: 1fr;
+            }}
+            .access-native-card {{
+                min-height: auto;
+            }}
+        }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
             .section-card, .auth-card {{ padding: 20px; border-radius: 18px; }}
@@ -2851,7 +3034,7 @@ def handle_user_chrome_query() -> None:
         st.session_state.current_page = "schedule"
         changed = True
     elif action == "schedule_select":
-        selected = qp.get("schedule_time", "")
+        selected = st.query_params.get("schedule_time", "")
         if selected:
             st.session_state.schedule_selected_time = selected
             st.session_state.current_page = "schedule"
@@ -2861,6 +3044,38 @@ def handle_user_chrome_query() -> None:
         st.session_state.current_page = "main"
         st.session_state.main_step = "route"
         st.session_state.notice = "선택한 시간 기준으로 예약 흐름을 이어갑니다."
+        changed = True
+    elif action == "access_scan":
+        access_run_scan(
+            st.session_state.get("access_facility_type", "점자블록"),
+            st.session_state.get("access_disability_focus", "시각장애인"),
+            st.session_state.get("access_issue_choices") or [],
+            st.session_state.get("access_photo_upload") is not None,
+        )
+        st.session_state.current_page = "accessibility"
+        changed = True
+    elif action == "access_reward":
+        current = st.session_state.get("access_analysis") or access_run_scan(
+            st.session_state.get("access_facility_type", "점자블록"),
+            st.session_state.get("access_disability_focus", "시각장애인"),
+            st.session_state.get("access_issue_choices") or [],
+            st.session_state.get("access_photo_upload") is not None,
+        )
+        register_accessibility_submission(current)
+        add_points(200, "accessibility_points_awarded")
+        st.session_state.current_page = "accessibility"
+        st.session_state.notice = "접근성 제보 참여 인센티브 200BT가 적립되었습니다. 현금 환급·양도·재판매는 불가합니다."
+        changed = True
+    elif action == "access_draft":
+        if not st.session_state.get("access_analysis"):
+            access_run_scan(
+                st.session_state.get("access_facility_type", "점자블록"),
+                st.session_state.get("access_disability_focus", "시각장애인"),
+                st.session_state.get("access_issue_choices") or [],
+                st.session_state.get("access_photo_upload") is not None,
+            )
+        st.session_state.access_show_draft = True
+        st.session_state.current_page = "accessibility"
         changed = True
     elif action == "logout":
         st.session_state.logged_in = False
@@ -3779,6 +3994,7 @@ def build_schedule_results_html() -> str:
 
 
 def render_schedule_page() -> None:
+    schedule_find_href = "?" + urlencode(schedule_resume_query(extra={"action": "schedule_find"}))
     sliders_icon = """
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
@@ -3803,96 +4019,66 @@ def render_schedule_page() -> None:
     status_class = "schedule-status-chip ready" if generated else "schedule-status-chip"
     result_html = build_schedule_results_html()
 
-    st.markdown('<section class="st-key-schedule_shell">', unsafe_allow_html=True)
-    head_left, head_btn = st.columns([3.2, 1.2], gap="medium")
-    with head_left:
-        st.markdown(
-            html_block("""
-            <div>
-                <p class="schedule-kicker">Personal Schedule AI</p>
-                <h2 class="schedule-title">내 운동 일정 추천</h2>
-                <p class="schedule-sub">강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>
-            </div>
-            """),
-            unsafe_allow_html=True,
-        )
-    with head_btn:
-        st.markdown('<div class="st-key-schedule_find_btn">', unsafe_allow_html=True)
-        if st.button("가능한 시간 찾기", key="schedule_find_btn", type="primary", use_container_width=True):
-            day_map = {
-                "화·목 중심": ["화", "목"],
-                "월·수 중심": ["월", "수"],
-                "주말 가능": ["토", "일"],
-            }
-            day_label = st.session_state.get("schedule_day_label", "화·목 중심")
-            time_label = st.session_state.get("schedule_time_label", "오전 10시 전후")
-            recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
-            st.session_state.schedule_recommendations = recommendations
-            st.session_state.schedule_generated = True
-            st.session_state.schedule_selected_time = ""
-            st.session_state.schedule_top_pick = recommendations[0]["full_label"] if recommendations else ""
-            st.session_state.notice = "참여 가능 시간 3건을 추천했습니다."
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    left_col, right_col = st.columns([5, 7], gap="large")
-    with left_col:
-        with st.container(key="schedule_pref_card"):
-            st.markdown(
-                html_block(f"""
-                <p class="schedule-soft-title">{sliders_icon}선호 조건</p>
-                <label class="schedule-field-label">선호 요일</label>
-                """),
-                unsafe_allow_html=True,
-            )
-            st.selectbox(
-                "선호 요일",
-                ["화·목 중심", "월·수 중심", "주말 가능"],
-                key="schedule_day_label",
-                label_visibility="collapsed",
-            )
-            st.markdown('<label class="schedule-field-label">선호 시간대</label>', unsafe_allow_html=True)
-            st.selectbox(
-                "선호 시간대",
-                ["오전 10시 전후", "오후 2시 전후", "오후 4시 전후"],
-                key="schedule_time_label",
-                label_visibility="collapsed",
-            )
-            st.markdown(
-                html_block("""
-                <div class="schedule-check-grid">
-                    <div class="schedule-check"><span>✓</span>이동지원 우선</div>
-                    <div class="schedule-check"><span>✓</span>버디 후보 우선</div>
+    st.markdown(
+        html_block(f"""
+        <section class="st-key-schedule_shell">
+            <div class="schedule-native-head">
+                <div>
+                    <p class="schedule-kicker">Personal Schedule AI</p>
+                    <h2 class="schedule-title">내 운동 일정 추천</h2>
+                    <p class="schedule-sub">강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>
                 </div>
-                """),
-                unsafe_allow_html=True,
-            )
-        with st.container(key="schedule_criteria_card"):
-            st.markdown(
-                html_block(f"""
-                <p class="schedule-soft-title">{info_icon}추천 기준</p>
-                <p class="schedule-rule-list">
-                    <b>1</b>지도자 가능 시간과 프로그램 정원<br>
-                    <b>2</b>이동지원 연계 가능성과 시간대 혼잡도<br>
-                    <b>3</b>같은 센터·시간대 버디 후보 여부
-                </p>
-                """),
-                unsafe_allow_html=True,
-            )
-
-    with right_col:
-        st.markdown(
-            html_block(f"""
-            <div class="schedule-result-top">
-                <h3 class="schedule-soft-title" style="margin:0">{calendar_check_icon}참여 가능 시간 후보</h3>
-                <span class="{status_class}">{esc(status_label)}</span>
+                <a class="schedule-find-link" href="{esc(schedule_find_href)}" target="_self">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10.8 4.2a6.6 6.6 0 1 0 0 13.2 6.6 6.6 0 0 0 0-13.2Zm0 2.9a2.7 2.7 0 0 1 2.7 2.7c0 2-2.7 5.1-2.7 5.1S8.1 11.8 8.1 9.8a2.7 2.7 0 0 1 2.7-2.7Z" fill="currentColor"/>
+                        <path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="10.8" cy="9.8" r="1.1" fill="#4a2d7a"/>
+                    </svg>
+                    가능한 시간 찾기
+                </a>
             </div>
-            <div class="schedule-result-panel">{result_html}</div>
-            """),
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("</section>", unsafe_allow_html=True)
+            <div class="schedule-native-grid">
+                <div class="schedule-left-stack">
+                    <div class="schedule-soft">
+                        <h3 class="schedule-soft-title">{sliders_icon}선호 조건</h3>
+                        <label class="schedule-field-label">선호 요일</label>
+                        <select class="schedule-control" aria-label="선호 요일">
+                            <option>화·목 중심</option>
+                            <option>월·수 중심</option>
+                            <option>주말 가능</option>
+                        </select>
+                        <label class="schedule-field-label">선호 시간대</label>
+                        <select class="schedule-control" aria-label="선호 시간대">
+                            <option>오전 10시 전후</option>
+                            <option>오후 2시 전후</option>
+                            <option>오후 4시 전후</option>
+                        </select>
+                        <div class="schedule-check-grid">
+                            <div class="schedule-check"><span>✓</span>이동지원 우선</div>
+                            <div class="schedule-check"><span>✓</span>버디 후보 우선</div>
+                        </div>
+                    </div>
+                    <div class="schedule-soft">
+                        <h3 class="schedule-soft-title">{info_icon}추천 기준</h3>
+                        <p class="schedule-rule-list">
+                            <b>1</b>지도자 가능 시간과 프로그램 정원<br>
+                            <b>2</b>이동지원 연계 가능성과 시간대 혼잡도<br>
+                            <b>3</b>같은 센터·시간대 버디 후보 여부
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <div class="schedule-result-top">
+                        <h3 class="schedule-soft-title" style="margin:0">{calendar_check_icon}참여 가능 시간 후보</h3>
+                        <span class="{status_class}">{esc(status_label)}</span>
+                    </div>
+                    <div class="schedule-result-panel">{result_html}</div>
+                </div>
+            </div>
+        </section>
+        """),
+        unsafe_allow_html=True,
+    )
 
 
 ACCESS_FACILITY_TYPES = [
@@ -4258,156 +4444,144 @@ def render_accessibility_page() -> None:
     issue_choices = st.session_state.get("access_issue_choices") or []
     analysis = st.session_state.get("access_analysis")
 
-    col_left, col_right = st.columns(2, gap="large")
+    def access_href(action: str) -> str:
+        return "?" + urlencode(
+            {
+                "resume": "1",
+                "page": "accessibility",
+                "step": st.session_state.get("main_step", "start"),
+                "role": st.session_state.get("role", USER_ROLE),
+                "user": st.session_state.get("user_name", ""),
+                "email": st.session_state.get("user_email", ""),
+                "action": action,
+            }
+        )
 
-    with col_left:
-        with st.container(key="access_left_card"):
-            head_col, scan_col = st.columns([4.2, 1.2])
-            with head_col:
-                st.markdown(
-                    html_block("""
+    uploaded = st.session_state.get("access_photo_upload")
+    has_photo = uploaded is not None
+    if has_photo:
+        photo_bytes = uploaded.getvalue()
+        mime = uploaded.type or "image/jpeg"
+        preview_markup = (
+            f'<img src="data:{mime};base64,{base64.b64encode(photo_bytes).decode("ascii")}" '
+            'alt="업로드한 시설 사진" style="width:100%;border-radius:18px;display:block;" />'
+        )
+    else:
+        preview_markup = access_braille_preview_svg()
+
+    if analysis:
+        detect_score = float(analysis.get("detection_score", 96.8))
+        result_note = (
+            f"<b>개선 필요 · AI 탐지 참고값 {detect_score:.1f}%</b><br>"
+            f"{esc(analysis.get('facility_type', facility_type))} 관련 접근성 확인이 필요할 수 있습니다. "
+            "기관 확인 후 공문 초안 생성이 가능합니다."
+        )
+    else:
+        result_note = (
+            "스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, "
+            "법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다."
+        )
+
+    recent = list(st.session_state.get("access_recent_reports") or [])
+    first_meta = "1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기"
+    if recent:
+        first = recent[0]
+        if first.get("grade") != "양호":
+            first_meta = (
+                f"{first.get('location', '1층 로비')} · "
+                f"개선 필요 가능성 높음 · {first.get('status', '검토 요청 대기')}"
+            )
+
+    st.markdown(
+        html_block(f"""
+        <section class="access-native-grid">
+            <div class="access-native-card">
+                <div class="access-native-head">
                     <div>
                         <p class="access-kicker">AI Vision</p>
-                        <h3 style="margin:4px 0 0;color:#2d2040;font-size:24px;font-weight:900;">접근성 점검 보조</h3>
-                        <p class="access-sub" style="margin-top:6px;">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p>
+                        <h2 class="access-native-heading">접근성 점검 보조</h2>
+                        <p class="access-sub">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p>
                     </div>
-                    """),
-                    unsafe_allow_html=True,
-                )
-            with scan_col:
-                if st.button("스캔", key="access_scan_btn", type="primary", use_container_width=True):
-                    access_run_scan(
-                        facility_type,
-                        disability_focus,
-                        issue_choices,
-                        st.session_state.get("access_photo_upload") is not None,
-                    )
-                    st.rerun()
-
-            st.markdown(
-                html_block("""
-                <div class="access-upload-panel">
+                    <a class="access-scan-link" href="{esc(access_href('access_scan'))}" target="_self">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 8.5h3l1.5-2h5L16 8.5h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="currentColor"/>
+                            <circle cx="12" cy="14" r="3.2" fill="#fff"/>
+                        </svg>
+                        스캔
+                    </a>
+                </div>
+                <div class="access-upload-native">
                     <p class="access-upload-title">시설 사진 업로드</p>
                     <p class="access-upload-copy">
-                        경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.
+                        경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.<br>
+                        JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.
                     </p>
                 </div>
-                """),
-                unsafe_allow_html=True,
-            )
-            uploaded = st.file_uploader(
+                <div class="access-preview-native">
+                    {preview_markup}
+                    <p class="access-preview-caption">{esc(access_preview_caption(facility_type))}</p>
+                </div>
+                <div class="access-note-native">{result_note}</div>
+                <div class="access-action-native-grid">
+                    <a class="access-action-link reward" href="{esc(access_href('access_reward'))}" target="_self">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <ellipse cx="12" cy="6.5" rx="7" ry="2.8" fill="currentColor"/>
+                            <path d="M5 7v8c0 1.7 3.1 3 7 3s7-1.3 7-3V7" stroke="#fff" stroke-width="2"/>
+                            <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3" stroke="#fff" stroke-width="1.7"/>
+                        </svg>
+                        제보 참여 인센티브
+                    </a>
+                    <a class="access-action-link draft" href="{esc(access_href('access_draft'))}" target="_self">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 4h9l5 5v11H5V4Z" fill="currentColor"/>
+                            <path d="M14 4v5h5M8 15l2 2 5-6" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        공문 초안 생성
+                    </a>
+                </div>
+            </div>
+            <div class="access-native-card">
+                <p class="access-kicker">Accessibility Map</p>
+                <h2 class="access-native-heading">접근성 제보 지도</h2>
+                <div class="access-map-native-list">
+                    <div class="access-map-native-item">
+                        <div class="access-map-native-icon warn">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3 22 20H2L12 3Z" fill="currentColor"/>
+                                <path d="M12 9v5M12 17h.01" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="access-map-native-title">점자블록 단절</p>
+                            <p class="access-map-native-meta">{esc(first_meta)}</p>
+                        </div>
+                    </div>
+                    <div class="access-map-native-item">
+                        <div class="access-map-native-icon done">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10" fill="currentColor"/>
+                                <path d="m8 12 2.5 2.5L16.5 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="access-map-native-title">접근 가능한 화장실 개선 완료</p>
+                            <p class="access-map-native-meta">2층 · 조치 완료 · 운영기관 확인 완료</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        """),
+        unsafe_allow_html=True,
+    )
+
+    with st.expander("사진 업로드 및 점검 항목 상세 설정", expanded=False):
+        with st.container(key="access_detail_panel"):
+            st.file_uploader(
                 "시설 사진",
                 type=["jpg", "jpeg", "png", "webp"],
                 key="access_photo_upload",
-                label_visibility="collapsed",
             )
-            has_photo = uploaded is not None
-
-            if has_photo:
-                photo_bytes = uploaded.getvalue()
-                mime = uploaded.type or "image/jpeg"
-                photo_src = f"data:{mime};base64,{base64.b64encode(photo_bytes).decode('ascii')}"
-                st.markdown(
-                    html_block(f"""
-                    <div class="access-preview-dark">
-                        <img src="{photo_src}" alt="업로드한 시설 사진" style="width:100%;border-radius:18px;display:block;" />
-                        <p class="access-preview-caption">{esc(access_preview_caption(facility_type))}</p>
-                    </div>
-                    """),
-                    unsafe_allow_html=True,
-                )
-            else:
-                st.markdown(
-                    html_block(f"""
-                    <div class="access-preview-dark">
-                        {access_braille_preview_svg()}
-                        <p class="access-preview-caption">{esc(access_preview_caption(facility_type))}</p>
-                    </div>
-                    """),
-                    unsafe_allow_html=True,
-                )
-
-            st.markdown(
-                html_block(f"""
-                <div class="access-vision-result">{access_vision_result_html(analysis)}</div>
-                <p class="access-upload-copy" style="margin-top:10px;">
-                    AI 분석 결과는 접근성 점검 보조자료이며, 법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다.
-                </p>
-                """),
-                unsafe_allow_html=True,
-            )
-
-            btn1, btn2 = st.columns(2)
-            with btn1:
-                if st.button("제보 참여 인센티브", key="access_reward_btn", use_container_width=True):
-                    current = st.session_state.get("access_analysis")
-                    if current:
-                        register_accessibility_submission(current)
-                        add_points(200, "accessibility_points_awarded")
-                        st.session_state.notice = (
-                            "접근성 제보 참여 인센티브 200BT가 적립되었습니다. "
-                            "현금 환급·양도·재판매는 불가합니다."
-                        )
-                    else:
-                        access_run_scan(
-                            facility_type,
-                            disability_focus,
-                            issue_choices,
-                            has_photo,
-                        )
-                        register_accessibility_submission(st.session_state.access_analysis)
-                        add_points(200, "accessibility_points_awarded")
-                        st.session_state.notice = (
-                            "접근성 제보 참여 인센티브 200BT가 적립되었습니다. "
-                            "현금 환급·양도·재판매는 불가합니다."
-                        )
-                    st.rerun()
-            with btn2:
-                if st.button("공문 초안 생성", key="access_draft_btn", use_container_width=True):
-                    if not st.session_state.get("access_analysis"):
-                        access_run_scan(
-                            facility_type,
-                            disability_focus,
-                            issue_choices,
-                            has_photo,
-                        )
-                    st.session_state.access_show_draft = True
-                    st.rerun()
-
-    with col_right:
-        with st.container(key="access_right_card"):
-            recent = list(st.session_state.get("access_recent_reports") or [])
-            first_meta = "1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기"
-            if recent:
-                first = recent[0]
-                if first.get("grade") != "양호":
-                    first_meta = (
-                        f"{first.get('location', '1층 로비')} · "
-                        f"개선 필요 가능성 높음 · {first.get('status', '검토 요청 대기')}"
-                    )
-            map_html = access_map_item_html(
-                {"title": "점자블록 단절", "meta": first_meta},
-                tone="warn",
-            ) + access_map_item_html(
-                {
-                    "title": "접근 가능한 화장실 개선 완료",
-                    "meta": "2층 · 조치 완료 · 운영기관 확인 완료",
-                },
-                tone="done",
-            )
-            st.markdown(
-                html_block(f"""
-                <div>
-                    <p class="access-kicker">Accessibility Map</p>
-                    <h3 class="access-title" style="font-size:24px;margin-top:4px;">접근성 제보 지도</h3>
-                    <div class="access-map-list">{map_html}</div>
-                </div>
-                """),
-                unsafe_allow_html=True,
-            )
-
-    with st.expander("점검 항목 상세 설정", expanded=False):
-        with st.container(key="access_detail_panel"):
             st.selectbox("점검 시설 유형", ACCESS_FACILITY_TYPES, key="access_facility_type")
             st.selectbox("중점 확인 장애유형", ACCESS_DISABILITY_FOCUS, key="access_disability_focus")
             st.multiselect("불편 요소 선택", ACCESS_ISSUE_OPTIONS, key="access_issue_choices")
