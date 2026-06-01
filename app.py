@@ -4367,6 +4367,11 @@ def handle_user_chrome_query() -> None:
         "access_facility_type",
         "access_focus",
         "access_issue",
+        "pending_next",
+        "pending_point_key",
+        "pending_bt_delta",
+        "pending_confirm_buddy",
+        "pending_confirm_class",
     ):
         if key in st.query_params:
             try:
@@ -4832,13 +4837,37 @@ def _cancel_pending_confirm() -> None:
 
 def apply_pending_confirm() -> None:
     pending = st.session_state.get("pending_confirm") or {}
-    if pending.get("point_key"):
-        add_points(int(pending.get("bt_delta", 0)), str(pending["point_key"]))
-    if pending.get("confirm_buddy"):
+    next_step = (
+        pending.get("next_step")
+        or st.query_params.get("pending_next")
+        or st.query_params.get("step")
+        or st.session_state.get("main_step", "start")
+    )
+    if next_step not in {"start", "route", "care", "class", "report", "guardian"}:
+        next_step = "start"
+
+    point_key = pending.get("point_key") or st.query_params.get("pending_point_key")
+    point_amounts = {
+        "route_points_awarded": 500,
+        "report_points_awarded": 300,
+        "accessibility_points_awarded": 200,
+    }
+    if point_key in point_amounts:
+        try:
+            bt_delta = int(
+                pending.get("bt_delta")
+                or st.query_params.get("pending_bt_delta")
+                or point_amounts[point_key]
+            )
+        except (TypeError, ValueError):
+            bt_delta = point_amounts[point_key]
+        add_points(point_amounts.get(str(point_key), bt_delta), str(point_key))
+
+    if pending.get("confirm_buddy") or st.query_params.get("pending_confirm_buddy") == "1":
         st.session_state.buddy_confirmed = True
-    if pending.get("confirm_class"):
+    if pending.get("confirm_class") or st.query_params.get("pending_confirm_class") == "1":
         st.session_state.class_confirmed = True
-    st.session_state.main_step = pending.get("next_step", st.session_state.get("main_step", "start"))
+    st.session_state.main_step = next_step
     st.session_state.current_page = "main"
     st.session_state.notice = pending.get("toast", "")
     st.session_state.pending_confirm = None
@@ -4863,8 +4892,22 @@ def render_pending_confirm() -> None:
     pending = st.session_state.get("pending_confirm")
     if not pending:
         return
+    next_step = str(pending.get("next_step") or st.session_state.get("main_step", "start"))
+    ok_extra = {
+        "action": "pending_ok",
+        "step": next_step,
+        "pending_next": next_step,
+    }
+    if pending.get("point_key"):
+        ok_extra["pending_point_key"] = str(pending.get("point_key"))
+        ok_extra["pending_bt_delta"] = str(pending.get("bt_delta", ""))
+    if pending.get("confirm_buddy"):
+        ok_extra["pending_confirm_buddy"] = "1"
+    if pending.get("confirm_class"):
+        ok_extra["pending_confirm_class"] = "1"
+
     cancel_href = "?" + urlencode(main_resume_query(extra={"action": "pending_cancel"}))
-    ok_href = "?" + urlencode(main_resume_query(extra={"action": "pending_ok"}))
+    ok_href = "?" + urlencode(main_resume_query(extra=ok_extra))
     st.markdown(
         f"""
         <div class="section-card pending-confirm-card">
