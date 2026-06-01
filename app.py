@@ -1336,12 +1336,17 @@ def inject_css() -> None:
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
+            padding-top: 26px;
+            padding-bottom: 26px;
         }}
         .st-key-btn_ai_start > button p {{
             font-size: 25px;
             font-weight: 900;
             margin: 0;
             line-height: 1;
+        }}
+        .st-key-btn_ai_start button[kind="primary"] {{
+            min-height: 232px !important;
         }}
         .st-key-btn_ai_start > button::before {{
             content: "";
@@ -1361,6 +1366,29 @@ def inject_css() -> None:
             line-height: 1.65;
             font-weight: 300;
             margin: 30px 0 0;
+        }}
+        .schedule-shell {{
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 30px;
+            padding: 28px;
+        }}
+        .schedule-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 22px;
+            margin-top: 14px;
+        }}
+        .schedule-pane {{
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.22);
+            border-radius: 22px;
+            padding: 20px;
+        }}
+        .schedule-hero-btn button {{
+            min-height: 58px;
+            border-radius: 16px;
+            font-weight: 800;
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
@@ -2580,45 +2608,38 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 
 def render_schedule_page() -> None:
-    section_intro(
-        "Schedule AI",
-        "내 운동 일정 추천",
-        "선호 요일과 시간대, 이동지원 및 버디 우선순위를 반영해 예약 후보 3개를 제안합니다.",
-        ["추천 시간 3개", "예약 흐름 연결", "mock 일정"],
-    )
-    col1, col2 = st.columns(2)
-    with col1:
-        days = st.multiselect("선호 요일", ["월", "화", "수", "목", "금", "토"], default=["화", "목"])
-        time_range = st.selectbox("선호 시간대", ["오전", "오후", "저녁"], index=0)
-    with col2:
+    st.markdown('<div class="schedule-shell">', unsafe_allow_html=True)
+    st.markdown("<p class='start-kicker' style='margin:0'>Personal Schedule AI</p>", unsafe_allow_html=True)
+    st.markdown("<h2 class='start-greeting' style='margin-top:6px'>내 운동 일정 추천</h2>", unsafe_allow_html=True)
+    st.markdown("<p class='start-lead' style='margin-top:8px'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>", unsafe_allow_html=True)
+    st.markdown('<div class="schedule-grid">', unsafe_allow_html=True)
+    st.markdown('<div class="schedule-pane">', unsafe_allow_html=True)
+    days = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0)
+    time_range = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0)
+    c1, c2 = st.columns(2)
+    with c1:
         mobility_first = st.checkbox("이동지원 우선", value=True)
+    with c2:
         buddy_first = st.checkbox("버디 후보 우선", value=True)
-        st.markdown(
-            f"""
-            <div class="notice-box">
-            우선순위: 이동지원 {'우선' if mobility_first else '일반'} · 버디 후보 {'우선' if buddy_first else '일반'}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    if st.button("추천 시간 보기", key="schedule_generate", type="primary"):
-        st.session_state.schedule_recommendations = make_schedule_recommendations(days, time_range)
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('<div class="schedule-pane">', unsafe_allow_html=True)
+    st.markdown('<div class="schedule-hero-btn">', unsafe_allow_html=True)
+    clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    if clicked or not st.session_state.get("schedule_recommendations"):
+        st.session_state.schedule_recommendations = make_schedule_recommendations(["화", "목"], time_range)
+    for idx, item in enumerate(st.session_state.schedule_recommendations[:3], start=1):
+        st.markdown(f"<div class='notice-box'><b>{idx}</b>  {esc(item['title'])} · {esc(item['reason'])}</div>", unsafe_allow_html=True)
+    if st.button("이 시간으로 예약 이어가기", key="schedule_pick_0", type="primary", use_container_width=True):
+        pick = st.session_state.schedule_recommendations[0]
+        st.session_state.selected_schedule = f"{pick['date']} {pick['title']}"
+        st.session_state.current_page = "main"
+        st.session_state.main_step = "start"
+        st.session_state.notice = f"선택한 시간({st.session_state.selected_schedule}) 기준으로 예약 흐름을 이어갑니다."
         st.rerun()
-
-    if not st.session_state.get("schedule_recommendations"):
-        st.session_state.schedule_recommendations = make_schedule_recommendations(days, time_range)
-
-    cols = st.columns(3)
-    for idx, item in enumerate(st.session_state.schedule_recommendations):
-        with cols[idx]:
-            soft_card("추천 시간", item["title"], f"{item['date']} · {item['reason']}", ["김포 반다비체육센터"])
-            if st.button("이 시간으로 예약 이어가기", key=f"schedule_pick_{idx}", type="primary"):
-                st.session_state.selected_schedule = f"{item['date']} {item['title']}"
-                st.session_state.current_page = "main"
-                st.session_state.main_step = "start"
-                st.session_state.notice = f"선택한 시간({st.session_state.selected_schedule}) 기준으로 예약 흐름을 이어갑니다."
-                st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def mock_accessibility_result(report_type: str) -> dict[str, Any]:
