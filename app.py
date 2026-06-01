@@ -134,6 +134,18 @@ def init_state() -> None:
     for key, value in defaults.items():
         st.session_state.setdefault(key, value)
 
+    qp = st.query_params
+    if qp.get("resume") == "1":
+        st.session_state.logged_in = True
+        st.session_state.authenticated = True
+        st.session_state.user_name = qp.get("user", st.session_state.get("user_name", "")) or "안소연"
+        st.session_state.user_email = qp.get("email", st.session_state.get("user_email", ""))
+        st.session_state.role = ADMIN_ROLE if qp.get("role") == ADMIN_ROLE else USER_ROLE
+        page = qp.get("page", "main")
+        st.session_state.current_page = page if page in {"main", "schedule", "accessibility", "dashboard"} else "main"
+        step = qp.get("step", "start")
+        st.session_state.main_step = step if step in {"start", "route", "buddy", "class", "report", "guardian"} else "start"
+
     if st.session_state.get("destination") == UNAVAILABLE_DESTINATION:
         st.session_state.destination = DEFAULT_DESTINATION
     if st.session_state.get("destination_choice") == UNAVAILABLE_DESTINATION:
@@ -1284,10 +1296,24 @@ def inject_css() -> None:
         .st-key-btn_ai_start > button {{
             min-height: 82px;
             border-radius: 20px;
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
+        }}
+        .st-key-btn_ai_start > button p {{
+            font-size: 18px;
+            font-weight: 900;
+            margin: 0;
+            line-height: 1;
+        }}
+        .st-key-btn_ai_start > button::before {{
+            content: "⚡";
+            display: inline-block;
+            font-size: 18px;
+            font-weight: 900;
+            margin-right: 7px;
+            transform: translateY(1px);
         }}
         .start-footnote {{
             color: #b8acd8;
@@ -1702,9 +1728,10 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M10.7 5.2a3.1 3.1 0 0 0-5.9 1.2 2.7 2.7 0 0 0-.4 4.9c.4.4.9.7 1.5.8v.9a2.8 2.8 0 0 0 2.8 2.8h2V5.2Z" fill="currentColor"/>
-                <path d="M13.3 5.2a3.1 3.1 0 0 1 5.9 1.2 2.7 2.7 0 0 1 .4 4.9c-.4.4-.9.7-1.5.8v.9a2.8 2.8 0 0 1-2.8 2.8h-2V5.2Z" fill="currentColor"/>
-                <path d="M12 5.6v10.1" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".95"/>
+                <path d="M8 6.4a3 3 0 0 0-4.5 3.8 3.1 3.1 0 0 0 2.9 5h1.1v-8.8H8Z" fill="currentColor"/>
+                <path d="M16 6.4a3 3 0 0 1 4.5 3.8 3.1 3.1 0 0 1-2.9 5h-1.1v-8.8h-.5Z" fill="currentColor"/>
+                <rect x="9.1" y="5.2" width="5.8" height="10.9" rx="2.2" fill="currentColor"/>
+                <path d="M12 7.1v7.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
@@ -1747,6 +1774,12 @@ def handle_user_chrome_query() -> None:
         st.session_state.pending_confirm = None
         st.session_state.auth_name = ""
         st.session_state.auth_email = ""
+        for key in ("resume", "page", "step", "role", "user", "email"):
+            if key in st.query_params:
+                try:
+                    del st.query_params[key]
+                except Exception:
+                    pass
         changed = True
     for key in ("nav_tab", "action"):
         if key in st.query_params:
@@ -1756,6 +1789,19 @@ def handle_user_chrome_query() -> None:
                 pass
     if changed:
         st.rerun()
+
+
+def sync_resume_query_params() -> None:
+    if not st.session_state.get("logged_in"):
+        return
+    st.query_params["resume"] = "1"
+    st.query_params["page"] = st.session_state.get("current_page", "main")
+    st.query_params["step"] = st.session_state.get("main_step", "start")
+    st.query_params["role"] = st.session_state.get("role", USER_ROLE)
+    if st.session_state.get("user_name"):
+        st.query_params["user"] = st.session_state.get("user_name")
+    if st.session_state.get("user_email"):
+        st.query_params["email"] = st.session_state.get("user_email")
 
 
 def render_user_topbar() -> None:
@@ -2167,7 +2213,7 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("⚡︎ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
                 start_analysis()
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -2740,8 +2786,10 @@ def render_app() -> None:
 
     if st.session_state.get("role") == USER_ROLE:
         handle_user_chrome_query()
+        sync_resume_query_params()
         render_user_topbar()
     else:
+        sync_resume_query_params()
         render_header()
         render_nav()
 
