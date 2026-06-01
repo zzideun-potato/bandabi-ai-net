@@ -1103,9 +1103,9 @@ def inject_css() -> None:
             transition: background .15s ease, color .15s ease, box-shadow .15s ease;
         }}
         .app-tab svg {{
-            flex: 0 0 18px;
-            width: 18px;
-            height: 18px;
+            flex: 0 0 17px;
+            width: 17px;
+            height: 17px;
         }}
         .app-tab.active {{
             background: #4a2d7a;
@@ -1294,8 +1294,8 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 86px;
-            border-radius: 20px;
+            min-height: 96px;
+            border-radius: 21px;
             font-size: 20px;
             font-weight: 900;
             letter-spacing: 0;
@@ -1308,11 +1308,11 @@ def inject_css() -> None:
             line-height: 1;
         }}
         .st-key-btn_ai_start > button::before {{
-            content: "⚡";
+            content: "⚡︎";
             display: inline-block;
-            font-size: 24px;
+            font-size: 23px;
             font-weight: 900;
-            margin-right: 8px;
+            margin-right: 9px;
             transform: translateY(2px);
             color: #ffffff;
         }}
@@ -1729,9 +1729,9 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9.5 6a3.5 3.5 0 0 0-6.8 1.3c0 1 .4 1.9 1.1 2.5A3.8 3.8 0 0 0 7 16h2.5V6Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14.5 6a3.5 3.5 0 0 1 6.8 1.3c0 1-.4 1.9-1.1 2.5A3.8 3.8 0 0 1 17 16h-2.5V6Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 6v10M9.6 9.3h.1M14.3 9.3h.1M9.6 12.2h.1M14.3 12.2h.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M9.5 3a3.5 3.5 0 0 0-3.5 3.5v1a2.5 2.5 0 0 0-2.5 2.5 3.5 3.5 0 0 0 3.5 3.5V15a3 3 0 0 0 3 3h.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.5 3a3.5 3.5 0 0 1 3.5 3.5v1a2.5 2.5 0 0 1 2.5 2.5 3.5 3.5 0 0 1-3.5 3.5V15a3 3 0 0 1-3 3h-.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
