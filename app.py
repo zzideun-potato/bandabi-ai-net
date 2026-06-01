@@ -1255,11 +1255,10 @@ def inject_css() -> None:
         }}
         .start-greeting {{
             color: #4a2d7a;
-            font-size: clamp(54px, 4.5vw, 62px);
-            font-weight: 920;
+            font-size: 52px;
+            font-weight: 900;
             line-height: 1.08;
             margin: 14px 0 0;
-            -webkit-text-stroke: .2px #3d2b66;
         }}
         .start-lead {{
             color: #7868a0;
@@ -1386,10 +1385,10 @@ def inject_css() -> None:
         }}
         .schedule-title {{
             color: #332456;
-            font-size: clamp(52px, 3.8vw, 64px);
+            font-size: 42px;
             font-weight: 900;
             margin: 4px 0 0;
-            line-height: 1.02;
+            line-height: 1.05;
         }}
         .schedule-sub {{
             margin: 12px 0 0;
@@ -1401,9 +1400,23 @@ def inject_css() -> None:
         .st-key-schedule_find_btn > button {{
             min-height: 60px;
             border-radius: 16px;
-            font-size: 16px;
-            font-weight: 800;
+            font-size: 18px;
+            font-weight: 900;
             white-space: nowrap;
+            box-shadow: 0 10px 22px rgba(74,45,122,.22);
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 8px !important;
+        }}
+        .st-key-schedule_find_btn > button::before {{
+            content: "";
+            width: 18px;
+            height: 18px;
+            flex: 0 0 18px;
+            background-color: #fff;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
         }}
         .st-key-schedule_pref_card,
         .st-key-schedule_criteria_card,
@@ -1414,12 +1427,27 @@ def inject_css() -> None:
             padding: 20px;
             box-shadow: 0 3px 10px rgba(74,45,122,.06);
         }}
+        .st-key-schedule_criteria_card {{
+            margin-top: 14px;
+        }}
+        .st-key-schedule_result_card {{
+            min-height: 218px;
+        }}
         .schedule-card-title {{
             margin: 0 0 14px;
             color: #2f2350;
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 900;
             line-height: 1.2;
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+        }}
+        .schedule-card-title svg {{
+            width: 20px;
+            height: 20px;
+            color: #4a2d7a;
+            flex: 0 0 20px;
         }}
         .schedule-label {{
             display: block;
@@ -1458,7 +1486,7 @@ def inject_css() -> None:
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin: 2px 0 12px;
+            margin: 2px 0 14px;
         }}
         .schedule-status-chip {{
             display: inline-flex;
@@ -1479,10 +1507,18 @@ def inject_css() -> None:
             text-align: center;
             color: #4c3b74;
         }}
+        .schedule-empty-icon {{
+            width: 44px;
+            height: 44px;
+            margin: 0 auto 12px;
+            color: #344154;
+        }}
         .schedule-empty .big {{
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 900;
             line-height: 1.35;
+            color: #2f2350;
+            max-width: 520px;
         }}
         .schedule-empty .small {{
             margin-top: 8px;
@@ -2719,6 +2755,32 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 
 def render_schedule_page() -> None:
+    sliders_icon = """
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M1.5 14h5M9.5 8h5M17.5 16h5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+    """
+    calendar_check_icon = """
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4" y="5.5" width="16" height="15" rx="3" stroke="currentColor" stroke-width="2.4"/>
+            <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M9 15.5l2 2 4-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    """
+    info_icon = """
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" fill="currentColor"/>
+            <path d="M12 10.5v6M12 7.4h.01" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+    """
+    calendar_plus_icon = """
+        <svg class="schedule-empty-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="4" y="5.5" width="16" height="15" rx="3" fill="currentColor"/>
+            <path d="M8 3.5v4M16 3.5v4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M8 12.5h8M12 8.5v8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>
+    """
     with st.container(key="schedule_shell"):
         head_left, head_right = st.columns([1.7, 0.6], gap="medium")
         with head_left:
@@ -2730,13 +2792,13 @@ def render_schedule_page() -> None:
             )
         with head_right:
             with st.container(key="schedule_find_btn"):
-                find_clicked = st.button("🔎 가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
+                find_clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
 
         left_col, right_col = st.columns([1, 1.35], gap="large")
 
         with left_col:
             with st.container(key="schedule_pref_card"):
-                st.markdown("<h3 class='schedule-card-title'>🎛️ 선호 조건</h3>", unsafe_allow_html=True)
+                st.markdown(f"<h3 class='schedule-card-title'>{sliders_icon}선호 조건</h3>", unsafe_allow_html=True)
                 st.markdown("<div class='schedule-fields'>", unsafe_allow_html=True)
                 st.markdown("<span class='schedule-label'>선호 요일</span>", unsafe_allow_html=True)
                 day_label = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0, label_visibility="collapsed")
@@ -2752,7 +2814,7 @@ def render_schedule_page() -> None:
 
             with st.container(key="schedule_criteria_card"):
                 st.markdown(
-                    "<h3 class='schedule-card-title'>ℹ️ 추천 기준</h3>"
+                    f"<h3 class='schedule-card-title'>{info_icon}추천 기준</h3>"
                     "<p class='schedule-criteria-list'>"
                     "<b>1</b> 지도자 가능 시간과 프로그램 정원<br>"
                     "<b>2</b> 이동지원 연계 가능성과 시간대 혼잡도<br>"
@@ -2763,7 +2825,7 @@ def render_schedule_page() -> None:
 
         with right_col:
             st.markdown(
-                "<div class='schedule-result-head'><h3 class='schedule-card-title' style='margin:0'>📅 참여 가능 시간 후보</h3><span class='schedule-status-chip'>분석 대기</span></div>",
+                f"<div class='schedule-result-head'><h3 class='schedule-card-title' style='margin:0'>{calendar_check_icon}참여 가능 시간 후보</h3><span class='schedule-status-chip'>분석 대기</span></div>",
                 unsafe_allow_html=True,
             )
             with st.container(key="schedule_result_card"):
@@ -2785,7 +2847,7 @@ def render_schedule_page() -> None:
                 else:
                     st.markdown(
                         "<div class='schedule-empty'>"
-                        "<div><div style='font-size:46px;line-height:1'>📅</div>"
+                        f"<div>{calendar_plus_icon}"
                         "<div class='big'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
                         "<div class='small'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>"
                         "</div>",
