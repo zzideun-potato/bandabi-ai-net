@@ -206,10 +206,18 @@ def init_state() -> None:
             st.session_state.role = ADMIN_ROLE
         elif role_qp == USER_ROLE:
             st.session_state.role = USER_ROLE
-        page = qp.get("page", "main")
-        st.session_state.current_page = page if page in {"main", "schedule", "accessibility", "dashboard"} else "main"
-        step = qp.get("step", "start")
-        st.session_state.main_step = step if step in {"start", "route", "buddy", "class", "report", "guardian"} else "start"
+        if not st.session_state.get("_resume_nav_loaded"):
+            st.session_state._resume_nav_loaded = True
+            page = qp.get("page", "main")
+            st.session_state.current_page = (
+                page if page in {"main", "schedule", "accessibility", "dashboard"} else "main"
+            )
+            step = qp.get("step", "start")
+            if step == "buddy":
+                step = "care"
+            st.session_state.main_step = (
+                step if step in {"start", "route", "care", "class", "report", "guardian"} else "start"
+            )
 
     if st.session_state.get("destination") == UNAVAILABLE_DESTINATION:
         st.session_state.destination = DEFAULT_DESTINATION
@@ -1236,6 +1244,37 @@ def inject_css() -> None:
             min-height: 48px;
             border-radius: 16px !important;
             font-weight: 800 !important;
+        }}
+        .st-key-pending_confirm_shell {{
+            margin-bottom: 8px;
+        }}
+        .st-key-pending_confirm_shell .pending-confirm-card {{
+            margin-bottom: 0;
+        }}
+        .st-key-pending_confirm_shell .st-key-pending_action_row {{
+            margin-top: 14px;
+        }}
+        .st-key-pending_confirm_shell .st-key-pending_action_row [data-testid="stHorizontalBlock"] {{
+            justify-content: flex-end;
+            gap: 10px;
+        }}
+        .st-key-pending_confirm_shell .st-key-pending_confirm_cancel > button {{
+            background: #ffffff !important;
+            color: #4a2d7a !important;
+            border: 1px solid var(--bandabi-line) !important;
+            box-shadow: none !important;
+            min-height: 46px;
+            border-radius: 12px !important;
+            font-weight: 800 !important;
+        }}
+        .st-key-pending_confirm_shell .st-key-pending_confirm_ok > button {{
+            background: #6d28d9 !important;
+            color: #ffffff !important;
+            border: 0 !important;
+            box-shadow: 0 6px 18px rgba(109,40,217,.24) !important;
+            min-height: 46px;
+            border-radius: 12px !important;
+            font-weight: 900 !important;
         }}
         .st-key-care_action_row,
         .st-key-class_action_row,
@@ -4606,32 +4645,40 @@ def render_step_action_buttons(
     primary_key: str,
     on_secondary: Any,
     on_primary: Any,
+    align: str = "end",
 ) -> None:
     """HTML `flex justify-end gap-3` — secondary + confirm on the right."""
     with st.container(key=container_key):
-        spacer, actions = st.columns([1.35, 1], gap="small")
-        with spacer:
-            pass
-        with actions:
+        if align == "end":
+            spacer, actions = st.columns([1.65, 1], gap="small")
+            with spacer:
+                pass
+            target = actions
+        else:
+            target = st.container()
+        with target:
             btn_cols = st.columns(2, gap="small")
             with btn_cols[0]:
-                if st.button(secondary_label, key=secondary_key, use_container_width=True):
-                    on_secondary()
+                st.button(
+                    secondary_label,
+                    key=secondary_key,
+                    use_container_width=True,
+                    on_click=on_secondary,
+                )
             with btn_cols[1]:
                 st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
-                if st.button(
+                st.button(
                     primary_label,
                     key=primary_key,
                     type="primary",
                     use_container_width=True,
-                ):
-                    on_primary()
+                    on_click=on_primary,
+                )
                 st.markdown("</div>", unsafe_allow_html=True)
 
 
 def _cancel_pending_confirm() -> None:
     st.session_state.pending_confirm = None
-    st.rerun()
 
 
 def apply_pending_confirm() -> None:
@@ -4643,35 +4690,37 @@ def apply_pending_confirm() -> None:
     if pending.get("confirm_class"):
         st.session_state.class_confirmed = True
     st.session_state.main_step = pending.get("next_step", st.session_state.get("main_step", "start"))
+    st.session_state.current_page = "main"
     st.session_state.notice = pending.get("toast", "")
     st.session_state.pending_confirm = None
-    st.rerun()
+    sync_resume_query_params()
 
 
 def render_pending_confirm() -> None:
     pending = st.session_state.get("pending_confirm")
     if not pending:
         return
-    st.markdown(
-        f"""
-        <div class="section-card">
-            <p class="tiny-label">Confirm</p>
-            <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;">{esc(pending.get("title", "확정 요청"))}</h2>
-            <p class="section-copy">{esc(pending.get("subtitle", ""))}</p>
-            <div class="notice-box" style="margin-top:16px;">{esc(pending.get("message", ""))}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    render_step_action_buttons(
-        container_key="pending_action_row",
-        secondary_label="취소",
-        secondary_key="pending_confirm_cancel",
-        primary_label="확인",
-        primary_key="pending_confirm_ok",
-        on_secondary=_cancel_pending_confirm,
-        on_primary=apply_pending_confirm,
-    )
+    with st.container(key="pending_confirm_shell"):
+        st.markdown(
+            f"""
+            <div class="section-card pending-confirm-card">
+                <p class="tiny-label">Confirm</p>
+                <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;">{esc(pending.get("title", "확정 요청"))}</h2>
+                <p class="section-copy">{esc(pending.get("subtitle", ""))}</p>
+                <div class="notice-box" style="margin-top:16px;">{esc(pending.get("message", ""))}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        render_step_action_buttons(
+            container_key="pending_action_row",
+            secondary_label="취소",
+            secondary_key="pending_confirm_cancel",
+            primary_label="확인",
+            primary_key="pending_confirm_ok",
+            on_secondary=_cancel_pending_confirm,
+            on_primary=apply_pending_confirm,
+        )
 
 
 def render_start() -> None:
@@ -4885,7 +4934,6 @@ def render_route() -> None:
             point_key="route_points_awarded",
             toast="경로가 확정되었습니다. 버디 추천 화면으로 이동합니다.",
         )
-        st.rerun()
 
     with st.container(key="route_plan_banner"):
         copy_col, action_col = st.columns([1.45, 1], gap="medium")
@@ -4904,8 +4952,13 @@ def render_route() -> None:
                     _route_retry()
             with btn_cols[1]:
                 st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
-                if st.button("확정하기", key="route_confirm", type="primary", use_container_width=True):
-                    _route_confirm()
+                st.button(
+                    "확정하기",
+                    key="route_confirm",
+                    type="primary",
+                    use_container_width=True,
+                    on_click=_route_confirm,
+                )
                 st.markdown("</div>", unsafe_allow_html=True)
 
 
@@ -4950,7 +5003,7 @@ def render_buddy() -> None:
         st.session_state.buddy_confirmed = False
         st.session_state.main_step = "class"
         st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
-        st.rerun()
+        sync_resume_query_params()
 
     def _care_confirm() -> None:
         open_confirm(
@@ -4961,7 +5014,6 @@ def render_buddy() -> None:
             confirm_buddy=True,
             toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
         )
-        st.rerun()
 
     render_step_action_buttons(
         container_key="care_action_row",
@@ -5005,7 +5057,6 @@ def render_class() -> None:
 
     def _class_next() -> None:
         st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
-        st.rerun()
 
     def _class_confirm() -> None:
         open_confirm(
@@ -5016,7 +5067,6 @@ def render_class() -> None:
             confirm_class=True,
             toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
         )
-        st.rerun()
 
     render_step_action_buttons(
         container_key="class_action_row",
@@ -5115,7 +5165,11 @@ def render_guardian_summary() -> None:
 def render_main_page() -> None:
     st.markdown('<div class="journey-shell">', unsafe_allow_html=True)
     render_flow_steps()
-    render_pending_confirm()
+    pending = st.session_state.get("pending_confirm")
+    if pending:
+        render_pending_confirm()
+        st.markdown("</div>", unsafe_allow_html=True)
+        return
 
     step = st.session_state.get("main_step", "start")
     if step not in {"start", "route", "care", "class", "report", "guardian"}:
