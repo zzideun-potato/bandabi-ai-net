@@ -146,6 +146,10 @@ def init_state() -> None:
         "schedule_time_label": "오전 10시 전후",
         "schedule_selected_time": "",
         "schedule_top_pick": "",
+        "dashboard_log_lines": [
+            "[10:04:01] 김포 반다비 운영 데이터 수집 완료",
+            "[10:04:04] 지도자 유휴·이동지원 지연·접근성 제보 통합 분석 대기",
+        ],
         "pending_confirm": None,
         "center_warning": False,
         "notice": "",
@@ -2542,6 +2546,197 @@ def inject_css() -> None:
             font-size: 13px;
             font-weight: 600;
         }}
+        .st-key-access_photo_upload_wrap {{
+            margin: 0 0 4px;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] label {{
+            display: none !important;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzone"] {{
+            background: transparent;
+            border: none;
+            padding: 0;
+            min-height: 0;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderDropzoneInstructions"] {{
+            display: none !important;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button {{
+            min-height: 42px !important;
+            border-radius: 14px !important;
+            padding: 0 16px !important;
+            background: #4a2d7a !important;
+            color: #ffffff !important;
+            border: none !important;
+            font-weight: 900 !important;
+            box-shadow: 0 10px 22px rgba(74,45,122,.18) !important;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button span {{
+            display: none !important;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] button::after {{
+            content: "사진 선택";
+            font-size: 14px;
+            font-weight: 900;
+        }}
+        .st-key-access_photo_upload_wrap [data-testid="stFileUploader"] [data-testid="stFileUploaderFileName"] {{
+            color: #7a6aa1;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 8px;
+        }}
+        .topbar-badge-admin {{
+            background: rgba(74,45,122,.10);
+            border-color: rgba(109,40,217,.22);
+            color: #6b4fa0;
+        }}
+        .admin-tab-track {{
+            flex-wrap: wrap;
+        }}
+        .dashboard-native-shell {{
+            display: grid;
+            gap: 20px;
+            margin-top: 8px;
+        }}
+        .dashboard-kpi-grid {{
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }}
+        @media (max-width: 980px) {{
+            .dashboard-kpi-grid {{
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }}
+        }}
+        .dashboard-kpi-card {{
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.28);
+            border-radius: 24px;
+            padding: 18px 18px 16px;
+            box-shadow: 0 1px 8px rgba(109,40,217,.06);
+        }}
+        .dashboard-kpi-icon {{
+            width: 22px;
+            height: 22px;
+            color: #6b4fa0;
+        }}
+        .dashboard-kpi-label {{
+            margin: 12px 0 0;
+            color: #7a6aa1;
+            font-size: 12px;
+            font-weight: 700;
+        }}
+        .dashboard-kpi-value {{
+            margin: 6px 0 0;
+            color: #2d2040;
+            font-size: 28px;
+            font-weight: 900;
+            line-height: 1.1;
+        }}
+        .dashboard-kpi-value.purple {{ color: #6b4fa0; }}
+        .dashboard-kpi-value.amber {{ color: #b07a20; }}
+        .dashboard-kpi-value.blue {{ color: #5b7fd4; }}
+        .dashboard-chart-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+        }}
+        @media (max-width: 980px) {{
+            .dashboard-chart-grid {{
+                grid-template-columns: 1fr;
+            }}
+        }}
+        .dashboard-panel {{
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.28);
+            border-radius: 32px;
+            padding: 22px 22px 20px;
+            box-shadow: 0 2px 20px rgba(109,40,217,.07);
+        }}
+        .dashboard-panel-title {{
+            margin: 0;
+            color: #2d2040;
+            font-size: 20px;
+            font-weight: 900;
+        }}
+        .dashboard-board-head {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }}
+        .dashboard-dispatch-link {{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 46px;
+            border-radius: 16px;
+            padding: 0 16px;
+            background: #4a2d7a;
+            color: #fff !important;
+            font-size: 14px;
+            font-weight: 900;
+            text-decoration: none !important;
+            box-shadow: 0 10px 22px rgba(74,45,122,.22);
+            white-space: nowrap;
+        }}
+        .dashboard-table-wrap {{
+            margin-top: 18px;
+            overflow-x: auto;
+        }}
+        .dashboard-table {{
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }}
+        .dashboard-table th {{
+            text-align: left;
+            color: #7a6aa1;
+            font-weight: 800;
+            padding: 12px;
+            border-bottom: 1px solid rgba(184,172,216,.28);
+        }}
+        .dashboard-table td {{
+            padding: 12px;
+            color: #4a2d7a;
+            border-bottom: 1px solid rgba(184,172,216,.16);
+        }}
+        .dashboard-table td.status-warn {{ color: #b07a20; text-align: right; font-weight: 800; }}
+        .dashboard-table td.status-danger {{ color: #b4234a; text-align: right; font-weight: 900; }}
+        .dashboard-log-feed {{
+            margin-top: 16px;
+            padding: 16px 18px;
+            border-radius: 24px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.28);
+            min-height: 112px;
+            max-height: 112px;
+            overflow-y: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 11px;
+            line-height: 1.7;
+            color: #7a6aa1;
+        }}
+        .dashboard-api-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 14px;
+        }}
+        .dashboard-api-item {{
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.24);
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: #7a6aa1;
+        }}
+        .dashboard-api-item b {{
+            color: #4a2d7a;
+            font-weight: 900;
+        }}
         .access-detail-native {{
             margin-top: 16px;
             padding: 18px 18px 16px;
@@ -3345,6 +3540,11 @@ USER_TABS: list[tuple[str, str, str]] = [
     ("accessibility", "AI 기반 접근성 점검 보조", "eye"),
 ]
 
+ADMIN_TABS: list[tuple[str, str, str]] = [
+    *USER_TABS,
+    ("dashboard", "기관용 대시보드", "chart_pie"),
+]
+
 
 def tab_icon_svg(kind: str) -> str:
     if kind == "brain":
@@ -3365,6 +3565,13 @@ def tab_icon_svg(kind: str) -> str:
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M2.5 12C4.6 7.8 8 5.5 12 5.5s7.4 2.3 9.5 6.5c-2.1 4.2-5.5 6.5-9.5 6.5S4.6 16.2 2.5 12Z" stroke="currentColor" stroke-width="2"/>
                 <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+        """,
+        "chart_pie": """
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 3v9h9a9 9 0 0 0-9-9Z" fill="currentColor" opacity=".35"/>
+                <path d="M12 3a9 9 0 0 1 9 9h-9V3Z" fill="currentColor"/>
+                <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/>
             </svg>
         """,
     }
@@ -3398,7 +3605,10 @@ def handle_user_chrome_query() -> None:
         )
 
     nav_tab = st.query_params.get("nav_tab")
-    if nav_tab in {"main", "schedule", "accessibility"}:
+    allowed_tabs = {"main", "schedule", "accessibility"}
+    if st.session_state.get("role") == ADMIN_ROLE:
+        allowed_tabs.add("dashboard")
+    if nav_tab in allowed_tabs:
         st.session_state.current_page = nav_tab
         if nav_tab != "main":
             st.session_state.pending_confirm = None
@@ -3448,6 +3658,19 @@ def handle_user_chrome_query() -> None:
         if selected:
             st.session_state.schedule_selected_time = selected
             st.session_state.current_page = "schedule"
+            changed = True
+    elif action == "dashboard_dispatch":
+        if st.session_state.get("role") == ADMIN_ROLE:
+            logs = list(st.session_state.get("dashboard_log_lines") or [])
+            logs.extend(
+                [
+                    "[10:08:21] 노쇼 공백 감지 · 대기자 2명 알림 발송",
+                    "[10:08:28] 1순위 대기자 수락 · 슬롯 임시 확정",
+                ]
+            )
+            st.session_state.dashboard_log_lines = logs[-8:]
+            st.session_state.current_page = "dashboard"
+            st.session_state.notice = "대체 매칭 알림 mock 로그가 추가되었습니다."
             changed = True
     elif action == "schedule_continue":
         st.session_state.selected_schedule = st.session_state.get("schedule_selected_time") or st.session_state.get("schedule_top_pick")
@@ -3640,6 +3863,89 @@ def render_user_topbar() -> None:
 
                     <nav class="user-topbar-nav" aria-label="주요 메뉴">
                         <div class="app-tab-track">
+                            {"".join(tab_links)}
+                        </div>
+                    </nav>
+
+                    <div class="user-topbar-tools">
+                        <a class="app-tool-btn" href="?action=high_contrast" target="_self" aria-label="고대비">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M12 3a9 9 0 0 1 0 18" fill="currentColor" opacity=".45"/>
+                                <path d="M12 3a9 9 0 0 0 0 18" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            고대비
+                        </a>
+                        <a class="app-tool-btn" href="?action=voice" target="_self" aria-label="음성">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <rect x="9" y="4" width="6" height="11" rx="3" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 11a6 6 0 0 0 12 0M12 17v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                            음성
+                        </a>
+                        <a class="app-tool-btn icon-only" href="?action=logout" target="_self" aria-label="로그아웃">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 3v9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M8.5 6.5a7.5 7.5 0 1 0 9.7 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </header>
+        </div>
+        """),
+        unsafe_allow_html=True,
+    )
+
+
+def render_admin_topbar() -> None:
+    current_page = st.session_state.get("current_page", "dashboard")
+    icon_src = bandabi_icon_data_uri()
+    logo_html = (
+        f'<img class="brand-logo-img" src="{icon_src}" alt="반다비">'
+        if icon_src
+        else '<span class="brand-mark" style="margin:0;width:48px;height:48px;border-radius:18px;">B</span>'
+    )
+
+    tab_links = []
+    base_query = {
+        "resume": "1",
+        "role": ADMIN_ROLE,
+        "user": st.session_state.get("user_name", ""),
+        "email": st.session_state.get("user_email", ""),
+        "step": st.session_state.get("main_step", "start"),
+    }
+    for page, label, icon_kind in ADMIN_TABS:
+        active = " active" if current_page == page else ""
+        q = dict(base_query)
+        q["nav_tab"] = page
+        q["page"] = page
+        href = "?" + urlencode({k: v for k, v in q.items() if v != ""})
+        tab_links.append(
+            f'<a class="app-tab{active}" href="{href}" target="_self">'
+            f"{tab_icon_svg(icon_kind)}{esc(label)}</a>"
+        )
+
+    st.markdown(
+        html_block(f"""
+        <div class="user-topbar-shell admin-topbar-shell">
+            <header class="user-topbar admin-topbar" aria-label="반다비 AI 관리자 헤더">
+                <div class="user-topbar-inner">
+                    <div class="user-topbar-brand">
+                        <div class="brand-logo-shell">{logo_html}</div>
+                        <div class="user-topbar-copy">
+                            <div class="user-topbar-title" role="heading" aria-level="1">
+                                <span class="user-topbar-title-main">반다비 AI</span>
+                                <span class="user-topbar-title-user">(Admin)</span>
+                            </div>
+                            <div class="user-topbar-badges">
+                                <span class="topbar-badge topbar-badge-admin">기관 관리자</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <nav class="user-topbar-nav" aria-label="관리자 주요 메뉴">
+                        <div class="app-tab-track admin-tab-track">
                             {"".join(tab_links)}
                         </div>
                     </nav>
@@ -4985,6 +5291,41 @@ def render_accessibility_page() -> None:
         for value in ACCESS_ISSUE_OPTIONS
     )
 
+    st.markdown(
+        html_block(f"""
+        <section class="access-native-grid">
+            <div class="access-native-card">
+                <div class="access-native-head">
+                    <div>
+                        <p class="access-kicker">AI Vision</p>
+                        <h2 class="access-native-heading">접근성 점검 보조</h2>
+                        <p class="access-sub">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p>
+                    </div>
+                    <a class="access-scan-link" href="{esc(access_href('access_scan'))}" target="_self">
+                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path d="M5 8.5h3l1.5-2h5L16 8.5h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="currentColor"/>
+                            <circle cx="12" cy="14" r="3.2" fill="#fff"/>
+                        </svg>
+                        스캔
+                    </a>
+                </div>
+                <div class="access-upload-native">
+                    <p class="access-upload-title">시설 사진 업로드</p>
+                    <p class="access-upload-copy">
+                        경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.<br>
+                        JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.
+                    </p>
+        """),
+        unsafe_allow_html=True,
+    )
+    with st.container(key="access_photo_upload_wrap"):
+        st.file_uploader(
+            "시설 사진",
+            type=["jpg", "jpeg", "png", "webp"],
+            key="access_photo_upload",
+            label_visibility="collapsed",
+        )
+
     uploaded = st.session_state.get("access_photo_upload")
     has_photo = uploaded is not None
     upload_file_label = uploaded.name if has_photo and getattr(uploaded, "name", None) else "선택된 파일 없음"
@@ -5023,37 +5364,7 @@ def render_accessibility_page() -> None:
 
     st.markdown(
         html_block(f"""
-        <section class="access-native-grid">
-            <div class="access-native-card">
-                <div class="access-native-head">
-                    <div>
-                        <p class="access-kicker">AI Vision</p>
-                        <h2 class="access-native-heading">접근성 점검 보조</h2>
-                        <p class="access-sub">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p>
-                    </div>
-                    <a class="access-scan-link" href="{esc(access_href('access_scan'))}" target="_self">
-                        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                            <path d="M5 8.5h3l1.5-2h5L16 8.5h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2Z" fill="currentColor"/>
-                            <circle cx="12" cy="14" r="3.2" fill="#fff"/>
-                        </svg>
-                        스캔
-                    </a>
-                </div>
-                <div class="access-upload-native">
-                    <p class="access-upload-title">시설 사진 업로드</p>
-                    <p class="access-upload-copy">
-                        경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.<br>
-                        JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.
-                    </p>
                     <div class="access-upload-action-row">
-                        <span class="access-upload-visual-btn">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M4 5h10l2 3h4v11H4V5Z" fill="currentColor"/>
-                                <path d="M8 15.5 10.4 13l1.8 1.8 2.7-3.1L18 15.5H8Z" fill="#fff"/>
-                                <circle cx="9.4" cy="10.1" r="1.35" fill="#fff"/>
-                            </svg>
-                            사진 선택
-                        </span>
                         <span class="access-upload-file-name">{esc(upload_file_label)}</span>
                     </div>
                 </div>
@@ -5347,64 +5658,189 @@ def render_dashboard_page() -> None:
         render_main_page()
         return
 
-    section_intro(
-        "B2G Dashboard",
-        "기관용 대시보드",
-        "예약, 이동지원, 피어 매칭, 접근성 제보 흐름을 한 화면에서 보는 mock 운영 보드입니다.",
-        ["실제 key 값 미표시", "FastAPI 호출 없음", "CSV/RAG/API status mock"],
+    dispatch_href = "?" + urlencode(
+        {
+            "resume": "1",
+            "page": "dashboard",
+            "role": ADMIN_ROLE,
+            "user": st.session_state.get("user_name", ""),
+            "email": st.session_state.get("user_email", ""),
+            "action": "dashboard_dispatch",
+        }
     )
-
-    cols = st.columns(4)
-    with cols[0]:
-        metric_card("출석률", "94.2%", "예약 대비 참여")
-    with cols[1]:
-        metric_card("배차 성공률", "88.7%", "이동지원 연계")
-    with cols[2]:
-        metric_card("피어 매칭률", "76.4%", "버디 후보 연결")
-    with cols[3]:
-        metric_card("접근성 제보 수", "18건", "검토 대기 4건")
+    log_lines = list(st.session_state.get("dashboard_log_lines") or [])
+    log_html = "".join(f"<p>{esc(line)}</p>" for line in log_lines)
+    api_items = [
+        ("VWorld 주소검색", "연결 성공 (mock geocode_vworld)"),
+        ("버스 노선 정보", "mock 사용 중 (fetchBusRoute)"),
+        ("버스 도착 정보", "mock · no_data fallback"),
+        ("기상 단기예보", "mock 사용 중"),
+        ("접근성 제보", "프론트 세션 저장"),
+        ("RAG 문서검색", "mock 응답"),
+        ("SendGrid", "payload 미리보기만"),
+    ]
+    api_html = "".join(
+        f'<div class="dashboard-api-item"><b>{esc(label)}</b><br>{esc(status)}</div>'
+        for label, status in api_items
+    )
 
     st.markdown(
-        """
-        <div class="section-card">
-            <p class="tiny-label">공공데이터 연결 상태</p>
-            <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;">운영 데이터 상태 카드</h2>
-            <p class="section-copy">아래 상태는 화면 검증용입니다. API Key나 secrets 값은 읽거나 표시하지 않습니다.</p>
-        </div>
-        """,
+        html_block(f"""
+        <section class="dashboard-native-shell">
+            <div class="dashboard-kpi-grid">
+                <div class="dashboard-kpi-card">
+                    <svg class="dashboard-kpi-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M9 12.5 11 14.5 15.5 10" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2.2"/>
+                        <path d="M6 20c.8-3.2 3.2-5 6-5s5.2 1.8 6 5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                    <p class="dashboard-kpi-label">예약 대비 출석률</p>
+                    <p class="dashboard-kpi-value">94.2%</p>
+                </div>
+                <div class="dashboard-kpi-card">
+                    <svg class="dashboard-kpi-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <rect x="3" y="8" width="12" height="8" rx="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M15 11h3l2 2v3h-5v-5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <circle cx="7" cy="18" r="1.6" fill="currentColor"/>
+                        <circle cx="17" cy="18" r="1.6" fill="currentColor"/>
+                    </svg>
+                    <p class="dashboard-kpi-label">이동지원 연계 성공</p>
+                    <p class="dashboard-kpi-value purple">88.7%</p>
+                </div>
+                <div class="dashboard-kpi-card">
+                    <svg class="dashboard-kpi-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M7 12h4l2-2 4 4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 18c2-2 4-3 8-3s6 1 8 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                    <p class="dashboard-kpi-label">피어 매칭 성공</p>
+                    <p class="dashboard-kpi-value amber">76.4%</p>
+                </div>
+                <div class="dashboard-kpi-card">
+                    <svg class="dashboard-kpi-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M8 6h8M8 10h8M8 14h5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+                        <rect x="5" y="4" width="14" height="16" rx="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    <p class="dashboard-kpi-label">지도자 부족률</p>
+                    <p class="dashboard-kpi-value blue">24%</p>
+                </div>
+            </div>
+        </section>
+        """),
         unsafe_allow_html=True,
     )
-    cols = st.columns(4)
-    with cols[0]:
-        metric_card("CSV", "준비됨", "data/ 배치 기준 mock")
-    with cols[1]:
-        metric_card("RAG", "대기", "docs/ 문서 연결 예정")
-    with cols[2]:
-        metric_card("공공 API", "키 미표시", "실제 호출 없음")
-    with cols[3]:
-        metric_card("SendGrid", "발송 비활성", "payload preview only")
 
-    if pd is not None:
-        st.markdown("<div class='notice-box'>접근성 지원 필요 유형별 이용 비율</div>", unsafe_allow_html=True)
-        chart_df = pd.DataFrame(
-            {
-                "유형": ["보행 보조", "시각 안내", "청각 안내", "단계별 안내"],
-                "이용률": [48, 18, 12, 22],
-            }
-        ).set_index("유형")
-        st.bar_chart(chart_df, use_container_width=True)
+    st.components.v1.html(
+        """
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+        <style>
+          body { margin: 0; font-family: "Pretendard Variable", Pretendard, sans-serif; background: transparent; }
+          .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+          .panel {
+            background: #ffffff;
+            border: 1px solid rgba(184,172,216,.28);
+            border-radius: 32px;
+            padding: 22px 22px 16px;
+            box-shadow: 0 2px 20px rgba(109,40,217,.07);
+          }
+          h3 { margin: 0; color: #2d2040; font-size: 20px; font-weight: 900; }
+          .chart-box { height: 288px; margin-top: 16px; position: relative; }
+          @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } }
+        </style>
+        <div class="wrap">
+          <div class="panel">
+            <h3>접근성 지원 필요 유형별 이용률</h3>
+            <div class="chart-box"><canvas id="bandabi-disability-chart"></canvas></div>
+          </div>
+          <div class="panel">
+            <h3>시간대별 혼잡·이동지원 지연</h3>
+            <div class="chart-box"><canvas id="bandabi-traffic-chart"></canvas></div>
+          </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+        new Chart(document.getElementById('bandabi-disability-chart'), {
+          type: 'doughnut',
+          data: {
+            labels: ['보행 보조', '음성 안내', '단계별 안내', '기타'],
+            datasets: [{ data: [48, 18, 22, 12], backgroundColor: ['#8b5cf6', '#a78bfa', '#6d28d9', '#4c1d95'], borderWidth: 0 }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: '#7868a0' } } }
+          }
+        });
+        new Chart(document.getElementById('bandabi-traffic-chart'), {
+          type: 'bar',
+          data: {
+            labels: ['09시', '11시', '13시', '15시', '17시', '19시'],
+            datasets: [
+              { label: '예약', data: [35, 68, 42, 95, 50, 20], backgroundColor: '#6366f1', borderRadius: 8 },
+              { label: '이동지원 지연', data: [5, 18, 8, 28, 12, 2], type: 'line', borderColor: '#ef4444', borderWidth: 2, fill: false, tension: 0.25 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: { ticks: { color: '#7868a0' }, grid: { display: false } },
+              y: { ticks: { color: '#7868a0' }, grid: { color: 'rgba(184,172,216,.24)' } }
+            },
+            plugins: { legend: { position: 'bottom', labels: { color: '#7868a0' } } }
+          }
+        });
+        </script>
+        """,
+        height=380,
+    )
 
-        action_df = pd.DataFrame(
-            [
-                ["노쇼 공백", "수중 생활체육 10:00 슬롯", "대기자 2명 삽입 가능", "알림 대기"],
-                ["접근성", "점자블록 단절 제보", "현장 확인 및 조치 검토", "검토 요청"],
-                ["이동지원", "오후 배차 지연 가능성", "예약 15분 앞당김 권장", "운영 확인"],
-            ],
-            columns=["구분", "내용", "AI 추천", "상태"],
-        )
-        st.dataframe(action_df, use_container_width=True, hide_index=True)
-    else:
-        st.info("pandas를 사용할 수 없어 차트와 표는 생략되었습니다.")
+    st.markdown(
+        html_block(f"""
+        <section class="dashboard-native-shell">
+            <div class="dashboard-panel">
+                <div class="dashboard-board-head">
+                    <div>
+                        <p class="access-kicker">B2G Operating Board</p>
+                        <h2 class="dashboard-panel-title" style="font-size:28px;margin-top:6px;">기관 운영 액션 보드</h2>
+                    </div>
+                    <a class="dashboard-dispatch-link" href="{esc(dispatch_href)}" target="_self">대체 매칭 알림</a>
+                </div>
+                <div class="dashboard-table-wrap">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>구분</th>
+                                <th>내용</th>
+                                <th>AI 추천</th>
+                                <th style="text-align:right;">상태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>노쇼 공백</td>
+                                <td>수중 생활체육 10:00 슬롯</td>
+                                <td>대기자 2명 삽입 가능</td>
+                                <td class="status-warn">알림 대기</td>
+                            </tr>
+                            <tr>
+                                <td>접근성</td>
+                                <td>점자블록 단절</td>
+                                <td>개선 필요 가능성 높음</td>
+                                <td class="status-danger">검토 요청 필요</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="dashboard-panel" style="margin-top:16px;padding:18px 20px;box-shadow:none;">
+                    <p class="dashboard-panel-title" style="font-size:16px;">공공데이터 연동 상태 (mock)</p>
+                    <div class="dashboard-api-grid">{api_html}</div>
+                </div>
+                <div class="dashboard-log-feed">{log_html}</div>
+            </div>
+        </section>
+        """),
+        unsafe_allow_html=True,
+    )
 
 
 def render_app() -> None:
@@ -5420,18 +5856,13 @@ def render_app() -> None:
         sync_resume_query_params()
         render_user_topbar()
     else:
+        handle_user_chrome_query()
         sync_resume_query_params()
-        render_header()
-        render_nav()
+        render_admin_topbar()
 
     render_notice()
 
     page = st.session_state.get("current_page", "main")
-    if st.session_state.get("role") == ADMIN_ROLE:
-        st.session_state.current_page = "dashboard"
-        render_dashboard_page()
-        return
-
     if page == "main":
         render_main_page()
     elif page == "schedule":
@@ -5445,8 +5876,11 @@ def render_app() -> None:
     elif page == "dashboard":
         render_dashboard_page()
     else:
-        st.session_state.current_page = "main"
-        render_main_page()
+        st.session_state.current_page = "dashboard" if st.session_state.get("role") == ADMIN_ROLE else "main"
+        if st.session_state.get("role") == ADMIN_ROLE:
+            render_dashboard_page()
+        else:
+            render_main_page()
 
 
 render_app()
