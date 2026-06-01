@@ -2782,12 +2782,34 @@ def inject_css() -> None:
             font-size: 18px;
             font-weight: 900;
         }}
+        .dashboard-board-shell,
+        .dashboard-board-shell h2,
+        .dashboard-board-shell p,
+        .dashboard-board-shell th,
+        .dashboard-board-shell td,
+        .dashboard-board-shell a,
+        .dashboard-board-shell b,
+        .dashboard-board-shell span,
+        .dashboard-board-shell div {{
+            font-family: {PRETENDARD_STACK} !important;
+            letter-spacing: 0;
+        }}
         .dashboard-board-title {{
             margin: 6px 0 0;
             color: #2d2040;
             font-size: 24px;
             font-weight: 900;
             line-height: 1.2;
+            font-family: {PRETENDARD_STACK} !important;
+        }}
+        .dashboard-board-kicker {{
+            color: #6b4fa0;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            margin: 0;
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .dashboard-board-head {{
             display: flex;
@@ -2810,6 +2832,7 @@ def inject_css() -> None:
             text-decoration: none !important;
             box-shadow: 0 10px 22px rgba(74,45,122,.22);
             white-space: nowrap;
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .dashboard-table-wrap {{
             margin-top: 20px;
@@ -2819,6 +2842,7 @@ def inject_css() -> None:
             width: 100%;
             border-collapse: collapse;
             font-size: 14px;
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .dashboard-table th {{
             text-align: left;
@@ -2826,11 +2850,13 @@ def inject_css() -> None:
             font-weight: 800;
             padding: 12px;
             border-bottom: 1px solid rgba(184,172,216,.28);
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .dashboard-table td {{
             padding: 12px;
             color: #4a2d7a;
             border-bottom: 1px solid rgba(184,172,216,.16);
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .dashboard-table td.status-warn {{ color: #b07a20; text-align: right; font-weight: 800; }}
         .dashboard-table td.status-danger {{ color: #b4234a; text-align: right; font-weight: 900; }}
@@ -2883,8 +2909,12 @@ def inject_css() -> None:
             border: 0;
         }}
         div[data-testid="stHtml"] {{
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
+            margin-top: 24px !important;
+            margin-bottom: 20px !important;
+        }}
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell * {{
+            font-family: {PRETENDARD_STACK} !important;
         }}
         .access-detail-native {{
             margin-top: 16px;
@@ -5903,6 +5933,23 @@ def render_dashboard_page() -> None:
         render_main_page()
         return
 
+    st.markdown(
+        f"""
+        <style>
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell h2,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell p,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell th,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell td,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell a,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell b {{
+            font-family: {PRETENDARD_STACK} !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
     dispatch_href = "?" + urlencode(
         {
             "resume": "1",
@@ -5945,7 +5992,7 @@ def render_dashboard_page() -> None:
 
     st.markdown(
         html_block(f"""
-        <section class="dashboard-native-shell">
+        <section class="dashboard-native-shell dashboard-kpi-shell">
             <div class="dashboard-kpi-grid">
                 <div class="dashboard-kpi-card">
                     <svg class="dashboard-kpi-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -5995,6 +6042,7 @@ def render_dashboard_page() -> None:
           {chart_font_face}
           body {{
             margin: 0;
+            padding-top: 4px;
             font-family: "Pretendard Local", "Pretendard Variable", Pretendard, sans-serif;
             background: transparent;
           }}
@@ -6079,11 +6127,11 @@ def render_dashboard_page() -> None:
 
     st.markdown(
         html_block(f"""
-        <section class="dashboard-native-shell">
+        <section class="dashboard-native-shell dashboard-board-shell">
             <div class="dashboard-panel">
                 <div class="dashboard-board-head">
                     <div>
-                        <p class="access-kicker">B2G Operating Board</p>
+                        <p class="dashboard-board-kicker">B2G Operating Board</p>
                         <h2 class="dashboard-board-title">기관 운영 액션 보드</h2>
                     </div>
                     <a class="dashboard-dispatch-link" href="{esc(dispatch_href)}" target="_self">대체 매칭 알림</a>
