@@ -77,20 +77,45 @@ def _normalize_api_status(status: Any) -> str:
     return text
 
 
+_LONG_DISTANCE_TOKENS = (
+    "성남",
+    "신흥",
+    "분당",
+    "수원",
+    "서울",
+    "인천",
+    "부천",
+    "안양",
+    "의정부",
+    "노원",
+    "강남",
+    "판교",
+    "광명",
+    "부평",
+    "일산",
+    "고양",
+)
+_GIMPO_TOKENS = ("김포", "구래", "장기", "운양", "마산", "양촌", "통진", "사우")
+
+
 def _estimate_route_timing(
     origin_text: str,
     origin_coord: dict[str, Any],
     destination_coord: dict[str, Any],
 ) -> tuple[int, int, int, str, str, str, str]:
     normalized = (origin_text or "").replace(" ", "")
-    long_distance = any(token in normalized for token in ["성남", "신흥역", "분당", "수원", "서울역"])
-    near_gimpo = any(token in normalized for token in ["김포", "구래", "장기", "운양", "마산"])
+    long_distance = any(token in normalized for token in _LONG_DISTANCE_TOKENS)
+    near_gimpo = any(token in normalized for token in _GIMPO_TOKENS)
     distance_km = _haversine_km(
         float(origin_coord["lat"]),
         float(origin_coord["lon"]),
         float(destination_coord["lat"]),
         float(destination_coord["lon"]),
     )
+    origin_fallback = _normalize_api_status(origin_coord.get("data_status")) != "real_api"
+    dest_fallback = _normalize_api_status(destination_coord.get("data_status")) != "real_api"
+    both_fallback = origin_fallback and dest_fallback
+
     if long_distance or distance_km >= 35:
         total = max(70, min(95, int(distance_km * 1.4 + 22)))
         walk, transfers = max(14, int(total * 0.18)), 2
@@ -101,7 +126,17 @@ def _estimate_route_timing(
             "출발지가 성남권 또는 신흥역 권역으로 보입니다. 김포 반다비체육센터까지는 "
             "장거리 이동에 해당하므로 환승 여유와 이동지원센터 연계 검토가 필요합니다."
         )
-    elif near_gimpo or distance_km < 18:
+    elif both_fallback and not near_gimpo:
+        total = max(70, min(90, 78))
+        walk, transfers = 15, 2
+        alternative = "장거리 · 좌표 재확인 및 이동지원 검토"
+        risk = "중간 이상"
+        route = "출발지(대체좌표) → 광역 환승 → 김포 반다비체육센터"
+        opinion = (
+            "출발지·목적지 좌표가 시연용 대체값일 수 있어 직선 거리만으로는 시간을 추정하기 어렵습니다. "
+            "성남·수도권 권역에서 출발한다면 장거리 이동으로 보고 환승·이동지원 여유를 두는 것이 안전합니다."
+        )
+    elif near_gimpo or (distance_km < 18 and not origin_fallback):
         total = max(10, min(30, int(distance_km * 2.0 + 12)))
         walk, transfers = max(6, int(total * 0.28)), 1
         alternative = "저상버스·센터 주변 보행 연계 가능"
