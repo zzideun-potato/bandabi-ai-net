@@ -279,8 +279,8 @@ def inject_css() -> None:
         }}
         .block-container:has(.auth-entry-page),
         .block-container:has(.auth-form-page) {{
-            padding-top: 0.2rem;
-            padding-bottom: 2rem;
+            padding-top: 0.5rem;
+            padding-bottom: 2.5rem;
         }}
         h1, h2, h3, p, label, span, div, a, button, input, select, textarea, li, td, th {{
             font-family: "Pretendard Local", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo",
@@ -506,10 +506,12 @@ def inject_css() -> None:
             margin-top: 0;
         }}
         .auth-entry-page {{
+            min-height: calc(100vh - 96px);
             display: flex;
+            align-items: center;
             justify-content: center;
-            padding: 8px 0 32px;
-            margin-top: -0.65rem;
+            padding: 24px 0 40px;
+            box-sizing: border-box;
         }}
         .auth-entry-card {{
             box-sizing: border-box;
@@ -669,10 +671,12 @@ def inject_css() -> None:
             font-family: {PRETENDARD_STACK};
         }}
         .auth-form-page {{
+            min-height: calc(100vh - 96px);
             display: flex;
+            align-items: center;
             justify-content: center;
-            padding: 8px 0 32px;
-            margin-top: -0.65rem;
+            padding: 24px 0 40px;
+            box-sizing: border-box;
         }}
         .auth-form-head {{
             display: flex;
