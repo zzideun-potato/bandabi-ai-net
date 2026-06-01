@@ -4022,12 +4022,41 @@ def handle_user_chrome_query() -> None:
             )
         st.session_state.access_show_draft = True
         st.session_state.current_page = "accessibility"
-        st.session_state.notice = "SendGrid 발송용 payload가 준비되었습니다. 실제 이메일 발송은 실행하지 않습니다."
+        st.session_state.notice = "SendGrid payload 미리보기를 갱신했습니다."
+        changed = True
+    elif action == "access_send_draft":
+        facility_type, focus, issues = sync_access_controls_from_query()
+        report = st.session_state.get("access_analysis")
+        if not report:
+            report = access_run_scan(
+                facility_type,
+                focus,
+                issues,
+                st.session_state.get("access_photo_upload") is not None,
+            )
+        send_result = engine_bridge.send_access_official_email(
+            report, default_destination=DEFAULT_DESTINATION
+        )
+        st.session_state.access_show_draft = True
+        st.session_state.access_last_send = {
+            "ok": send_result.get("ok"),
+            "data_status": send_result.get("data_status"),
+        }
+        st.session_state.current_page = "accessibility"
+        if send_result.get("ok"):
+            st.session_state.notice = (
+                "SendGrid로 공문 초안 발송을 요청했습니다. "
+                "담당자 확인 후 공식 절차로 이어질 수 있습니다."
+            )
+        else:
+            st.session_state.notice = str(
+                send_result.get("message", "SendGrid 발송에 실패했습니다. 설정과 수신 주소를 확인해 주세요.")
+            )
         changed = True
     elif action == "access_submit_draft":
         st.session_state.access_show_draft = False
         st.session_state.current_page = "accessibility"
-        st.session_state.notice = "수정한 공문 초안과 이메일 payload가 검토 요청으로 저장되었습니다. 실제 외부 발송은 실행하지 않았습니다."
+        st.session_state.notice = "공문 초안 검토 요청이 등록되었습니다. 발송은 발송 준비 버튼에서 시도할 수 있습니다."
         changed = True
     elif action == "logout":
         st.session_state.logged_in = False
@@ -5869,7 +5898,7 @@ def render_accessibility_page() -> None:
                         </p>
                         <pre class="access-draft-pre">{esc(payload_text)}</pre>
                     </div>
-                    <p class="access-draft-warning">※ 본 문서는 관리자 검토용 초안이며, 실제 이메일 발송은 SendGrid API 키와 인증된 발신자 설정을 연결한 뒤 가능합니다. 이 화면에서는 API Key를 표시하거나 발송하지 않습니다.</p>
+                    <p class="access-draft-warning">※ 관리자 검토용 초안입니다. ENABLE_SENDGRID_SEND=true 이고 Secrets가 설정되면 발송 준비 버튼으로 SendGrid 전송을 시도합니다. API Key는 표시하지 않습니다.</p>
                     <div class="access-draft-actions">
                         <a class="access-draft-action neutral" href="{esc(access_href('access_prepare_draft'))}" target="_self">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -5878,7 +5907,7 @@ def render_accessibility_page() -> None:
                             </svg>
                             미리보기 갱신
                         </a>
-                        <a class="access-draft-action ready" href="{esc(access_href('access_prepare_draft'))}" target="_self">
+                        <a class="access-draft-action ready" href="{esc(access_href('access_send_draft'))}" target="_self">
                             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                                 <path d="M4 6h16v12H4V6Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
                                 <path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>

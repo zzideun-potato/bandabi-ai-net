@@ -15,11 +15,14 @@ from modules.api_clients import (
     test_vworld_geocode_connection,
     vworld_status,
 )
+from modules.config import get_secret
 from modules.data_loader import load_csv_inventory
 from modules.emailer import (
     build_official_draft as email_build_official_draft,
+    can_send_email,
     email_status,
     improve_draft_with_llm,
+    send_email_with_sendgrid,
 )
 from modules.rag_bm25 import answer_with_rag, build_index
 from modules.scoring import calculate_viable_path_score
@@ -323,14 +326,19 @@ def prepare_access_email_draft(report: dict[str, Any], *, default_destination: s
     subject = title
     to_email = "facility@gimpo.go.kr"
     from_name = "김포 반다비 AI 운영팀"
-    from_email = "no-reply@bandabi-ai.kr"
-    send_state = email_status()
+    send_state = can_send_email()
+    configured_sender = get_secret("EMAIL_ADDRESS", "")
+    from_email = str(configured_sender) if configured_sender not in (None, "") else "EMAIL_ADDRESS 미설정"
     payload = {
         "personalizations": [{"to": [{"email": to_email}], "subject": subject}],
         "from": {"email": from_email, "name": from_name},
         "content": [{"type": "text/plain", "value": draft_text}],
-        "send_disabled": True,
-        "note": "실제 SendGrid 발송은 비활성화 상태입니다. 담당자 확인 후 공식 절차 전환 가능합니다.",
+        "send_disabled": not bool(send_state.get("can_send")),
+        "note": (
+            "ENABLE_SENDGRID_SEND=true 이고 키·발신 주소가 있으면 발송 준비 버튼으로 SendGrid 전송을 시도합니다."
+            if send_state.get("can_send")
+            else "SendGrid 발송 조건 미충족 · payload 미리보기만 제공합니다."
+        ),
         "email_status": send_state.get("data_status", "disabled"),
     }
     return {
@@ -341,6 +349,32 @@ def prepare_access_email_draft(report: dict[str, Any], *, default_destination: s
         "to_email": to_email,
         "from_name": from_name,
         "from_email": from_email,
+        "can_send": bool(send_state.get("can_send")),
+    }
+
+
+def send_access_official_email(report: dict[str, Any], *, default_destination: str) -> dict[str, Any]:
+    """Send official draft via SendGrid when ENABLE_SENDGRID_SEND and credentials are set."""
+    prepared = prepare_access_email_draft(report, default_destination=default_destination)
+    send_state = can_send_email()
+    if not send_state.get("can_send"):
+        return {
+            "ok": False,
+            "message": "SendGrid 발송 조건이 충족되지 않아 전송하지 않았습니다.",
+            "data_status": str(send_state.get("data_status", "disabled")),
+            "prepared": prepared,
+        }
+
+    result = send_email_with_sendgrid(
+        str(prepared["to_email"]),
+        str(prepared["subject"]),
+        str(prepared["body"]),
+    )
+    return {
+        "ok": bool(result.ok),
+        "message": str(result.message),
+        "data_status": str(result.data_status),
+        "prepared": prepared,
     }
 
 
