@@ -1050,6 +1050,10 @@ def inject_css() -> None:
             font-size: 10px;
             font-weight: 700;
         }}
+        .topbar-badge-token svg {{
+            width: 15px;
+            height: 15px;
+        }}
         .user-topbar-nav {{
             overflow-x: auto;
             padding: 2px 0;
@@ -1087,7 +1091,9 @@ def inject_css() -> None:
             transition: background .15s ease, color .15s ease, box-shadow .15s ease;
         }}
         .app-tab svg {{
-            flex: 0 0 15px;
+            flex: 0 0 18px;
+            width: 18px;
+            height: 18px;
         }}
         .app-tab.active {{
             background: #4a2d7a;
@@ -1132,6 +1138,8 @@ def inject_css() -> None:
         }}
         .app-tool-btn svg {{
             display: block;
+            width: 17px;
+            height: 17px;
         }}
         @media (min-width: 981px) {{
             .user-topbar-inner {{
@@ -1399,7 +1407,7 @@ def render_auth() -> None:
             (st.session_state.get("auth_name") or "").strip()
             or (st.session_state.get("login_name") or "").strip()
             or (st.session_state.get("user_name") or "").strip()
-            or "반다비"
+            or "안소연"
         )
         resolved_email = (
             (st.session_state.get("auth_email") or "").strip()
@@ -1426,7 +1434,7 @@ def render_auth() -> None:
             (st.session_state.get("auth_name") or "").strip()
             or (st.session_state.get("login_name") or "").strip()
             or (st.session_state.get("user_name") or "").strip()
-            or "반다비"
+            or "안소연"
         )
         resolved_email = (
             (st.session_state.get("auth_email") or "").strip()
@@ -2120,7 +2128,12 @@ def render_start() -> None:
                 label_visibility="collapsed",
             )
             st.markdown('<span class="start-label">출발지</span>', unsafe_allow_html=True)
-            st.text_input("출발지", key="origin", label_visibility="collapsed")
+            st.text_input(
+                "출발지",
+                key="origin",
+                label_visibility="collapsed",
+                placeholder="예: 김포 구래역 1번 출구",
+            )
             st.markdown('<span class="start-label">목적지</span>', unsafe_allow_html=True)
             st.selectbox(
                 "목적지",
