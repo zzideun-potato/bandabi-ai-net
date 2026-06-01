@@ -91,6 +91,16 @@ def pretendard_font_data_uri() -> str:
     return "data:font/ttf;base64," + base64.b64encode(raw).decode("ascii")
 
 
+def zap_icon_data_uri() -> str:
+    svg_path = Path(__file__).resolve().parent / "assets" / "img" / "zap.svg"
+    try:
+        svg = svg_path.read_text(encoding="utf-8")
+    except OSError:
+        return ""
+    svg = svg.replace("currentColor", "#ffffff")
+    return "data:image/svg+xml;charset=utf-8," + quote(svg)
+
+
 def html_block(markup: str) -> str:
     return " ".join(line.strip() for line in dedent(markup).splitlines() if line.strip())
 
@@ -185,6 +195,7 @@ def inject_css() -> None:
         else ""
     )
 
+    zap_uri = zap_icon_data_uri()
     st.markdown(
         f"""
         <style>
@@ -1244,8 +1255,8 @@ def inject_css() -> None:
         }}
         .start-greeting {{
             color: #4a2d7a;
-            font-size: clamp(46px, 3.8vw, 54px);
-            font-weight: 820;
+            font-size: clamp(50px, 4.1vw, 58px);
+            font-weight: 900;
             line-height: 1.08;
             margin: 14px 0 0;
         }}
@@ -1319,7 +1330,7 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 116px;
+            min-height: 232px;
             border-radius: 22px;
             font-size: 25px;
             font-weight: 900;
@@ -1331,6 +1342,18 @@ def inject_css() -> None:
             font-weight: 900;
             margin: 0;
             line-height: 1;
+        }}
+        .st-key-btn_ai_start > button::before {{
+            content: "";
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+            background-image: url("{zap_uri}");
+            background-repeat: no-repeat;
+            background-size: contain;
+            background-position: center;
         }}
         .start-footnote {{
             color: #b8acd8;
