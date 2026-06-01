@@ -1,0 +1,8 @@
+streamlit>=1.36
+pandas
+numpy
+requests
+rank_bm25
+python-dotenv
+sendgrid
+openai

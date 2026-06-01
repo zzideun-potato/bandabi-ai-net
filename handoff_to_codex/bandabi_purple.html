@@ -1,0 +1,2012 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>반다비 AI - 김포 생활체육 참여지원</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.0/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
+  <style>
+    /* ── PURPLE SYSTEM ─────────────────────────────────────────
+       4색만 사용:
+       --ink     : #3d3355  (찐보라/거의 검정 — 주요 텍스트)
+       --mid     : #7c6ea8  (미드 퍼플 — 서브 텍스트, 레이블)
+       --lavender: #c4b5fd  (연보라 — 액센트, 배지, 아이콘)
+       --surface : #f4f0ff  (연보라 표면 — 카드/패널 배경)
+       --base    : #ede8ff  (페이지 배경)
+       --white   : #ffffff  (카드 흰 표면)
+    ──────────────────────────────────────────────────────────── */
+
+    :root {
+      --ink:      #2d2040;
+      --mid:      #7868a0;
+      --lav:      #b8acd8;
+      --lav-dim:  rgba(184,172,216,.20);
+      --lav-line: rgba(184,172,216,.28);
+      --surface:  #f0ecf8;
+      --base:     #e8e2f4;
+      --white:    #ffffff;
+      --accent:   #4a2d7a;
+      --accent-2: #6b4fa0;
+    }
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body, button, input, select, textarea, th, td {
+      font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+      color: var(--ink);
+    }
+
+    html, body {
+      min-height: 100%;
+      overflow-y: auto;
+    }
+    body {
+      margin: 0;
+      background: var(--base) !important;
+      color: var(--ink) !important;
+    }
+    main.app-shell,
+    .tab-content.active,
+    .flow-screen.active {
+      min-height: 0;
+      overflow-y: visible;
+    }
+
+    /* ── Weight ── */
+    h1, h2, h3, h4, .font-black { font-weight: 900 !important; letter-spacing: -.03em; color: var(--ink) !important; }
+    .font-bold  { font-weight: 700 !important; }
+    .font-medium { font-weight: 500 !important; }
+    p, li, td, span { font-weight: 400; }
+
+    /* ── Header ── */
+    header {
+      background: rgba(237,232,255,.88) !important;
+      border-bottom: 1px solid var(--lav-line) !important;
+      backdrop-filter: blur(20px) !important;
+      box-shadow: none !important;
+    }
+
+    /* ── Glass → off-white card ── */
+    .glass {
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      box-shadow: 0 2px 20px rgba(109,40,217,.07) !important;
+      backdrop-filter: none !important;
+    }
+
+    /* ── Toss card ── */
+    .toss-card {
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      box-shadow: 0 1px 8px rgba(109,40,217,.06) !important;
+      transition: border-color .15s, box-shadow .15s !important;
+    }
+    .toss-card:hover {
+      transform: none !important;
+      border-color: rgba(196,181,253,.55) !important;
+      box-shadow: 0 4px 20px rgba(109,40,217,.12) !important;
+    }
+
+    /* ── Soft panels ── */
+    .soft {
+      background: var(--surface) !important;
+      border: 1px solid var(--lav-line) !important;
+      box-shadow: none !important;
+    }
+
+    /* ── Nav ── */
+    nav .inline-flex {
+      background: var(--surface) !important;
+      border: 1px solid var(--lav-line) !important;
+      padding: 4px !important;
+    }
+    .tab-btn {
+      border-radius: 10px !important;
+      color: var(--mid) !important;
+      font-weight: 500 !important;
+    }
+    .tab-btn.active {
+      background: var(--accent) !important;
+      color: #fff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 14px rgba(109,40,217,.22) !important;
+    }
+
+    /* ── Flow steps ── */
+    .flow-step {
+      background: var(--surface) !important;
+      border-color: var(--lav-line) !important;
+      color: var(--mid) !important;
+      font-weight: 500 !important;
+    }
+    .flow-step.active {
+      background: var(--accent) !important;
+      color: #fff !important;
+      border-color: rgba(109,40,217,.4) !important;
+      box-shadow: 0 4px 14px rgba(109,40,217,.22) !important;
+    }
+    .flow-step.done {
+      background: rgba(196,181,253,.18) !important;
+      color: var(--accent) !important;
+      border-color: var(--lav-line) !important;
+    }
+
+    /* ── Pulse ── */
+    .pulse { animation: purplePulse 3s ease-in-out infinite !important; }
+    @keyframes purplePulse {
+      0%,100% { box-shadow: 0 4px 20px rgba(109,40,217,.18); }
+      50%      { box-shadow: 0 6px 30px rgba(109,40,217,.32); }
+    }
+
+    /* ── Animations ── */
+    .tab-content { display: none; animation: fadeUp .28s ease both; }
+    .tab-content.active { display: block; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .flow-screen { display: none; animation: slideIn .24s ease both; }
+    .flow-screen.active { display: block; }
+    @keyframes slideIn { from { opacity:0; transform:translateX(12px); } to { opacity:1; transform:translateX(0); } }
+    .spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .route-line { stroke-dasharray:14 10; animation:dash 1.3s linear infinite; }
+    @keyframes dash { to { stroke-dashoffset:-48; } }
+    .scan-line { animation: scan 2s ease-in-out infinite; }
+    @keyframes scan { 0%{top:0%;opacity:.9;} 50%{top:100%;opacity:1;} 100%{top:0%;opacity:.9;} }
+    .progress-dot.active { width:28px; background:var(--lav); }
+
+    /* ── Buttons ── */
+    button {
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity .13s ease, transform .13s ease !important;
+    }
+    button:hover  { opacity: .84; transform: none !important; }
+    button:active { opacity: .70 !important; transform: scale(.98) !important; }
+    button::before, button::after { content:none !important; display:none !important; }
+
+    [class*="bg-blue-600"], [class*="bg-purple-600"] {
+      background: var(--accent) !important;
+      box-shadow: 0 4px 14px rgba(109,40,217,.24) !important;
+      border: none !important;
+      color: #fff !important;
+    }
+    [class*="bg-emerald-600"] {
+      background: #5b21b6 !important;
+      box-shadow: 0 4px 14px rgba(91,33,182,.22) !important;
+      border: none !important;
+      color: #fff !important;
+    }
+    [class*="bg-rose-500"] {
+      background: #7c3aed !important;
+      box-shadow: 0 4px 14px rgba(124,58,237,.22) !important;
+      border: none !important;
+      color: #fff !important;
+    }
+    [class*="bg-amber-600"] {
+      background: var(--mid) !important;
+      box-shadow: none !important;
+      border: 1px solid var(--lav-line) !important;
+      color: #fff !important;
+    }
+    [class*="bg-red-600"] {
+      background: #6d28d9 !important;
+      border: none !important;
+      color: #fff !important;
+    }
+    [class*="bg-slate-800"], [class*="bg-slate-900"] {
+      background: var(--surface) !important;
+      border: 1px solid var(--lav-line) !important;
+      color: var(--ink) !important;
+    }
+
+    /* ── Inputs ── */
+    input, textarea {
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      color: var(--ink) !important;
+    }
+    select {
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      color: var(--ink) !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      padding-right: 40px !important;
+      width: 100%;
+    }
+    .select-wrap { position: relative; display: block; }
+    .select-wrap svg {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    input::placeholder, textarea::placeholder { color: var(--lav) !important; }
+    input:focus, textarea:focus, select:focus {
+      outline: none !important;
+      border-color: rgba(109,40,217,.45) !important;
+      box-shadow: 0 0 0 3px rgba(109,40,217,.10) !important;
+    }
+
+    /* ── Checkboxes ── */
+    input[type="checkbox"] {
+      appearance: none !important; -webkit-appearance: none !important;
+      width: 16px !important; height: 16px !important; min-width: 16px !important;
+      border-radius: 5px !important;
+      display: inline-grid !important; place-content: center !important;
+      background: var(--white) !important;
+      border: 1.5px solid var(--lav-line) !important;
+      margin: 0 !important; cursor: pointer;
+    }
+    input[type="checkbox"]::before {
+      content: "" !important;
+      width: 8px !important; height: 8px !important;
+      border-radius: 2px !important;
+      transform: scale(0) !important;
+      transition: transform .13s ease !important;
+      background: var(--accent) !important;
+    }
+    input[type="checkbox"]:checked { border-color: rgba(109,40,217,.5) !important; }
+    input[type="checkbox"]:checked::before { transform: scale(1) !important; }
+
+    /* ── 텍스트 색: 모든 Tailwind color override ── */
+    /* 어두운 텍스트 → ink */
+    [class*="text-white"]      { color: var(--ink) !important; }
+    [class*="text-slate-100"],
+    [class*="text-slate-200"],
+    [class*="text-slate-300"]  { color: var(--ink) !important; }
+    /* 중간 텍스트 → mid */
+    [class*="text-slate-400"]  { color: var(--mid) !important; }
+    [class*="text-slate-500"]  { color: var(--mid) !important; }
+    /* 액센트 컬러 → lavender or accent */
+    [class*="text-blue-300"], [class*="text-cyan-300"]  { color: var(--accent) !important; }
+    [class*="text-purple-300"]  { color: var(--accent-2) !important; }
+    [class*="text-lav"]  { color: var(--lav) !important; }
+    [class*="text-amber-300"]   { color: var(--mid) !important; }
+    [class*="text-emerald-300"] { color: var(--accent) !important; }
+    [class*="text-red-300"]     { color: #7c3aed !important; }
+    [class*="text-accent"] { color: var(--accent) !important; }
+    [class*="text-accent"]    { color: var(--accent) !important; }
+    [class*="text-mid"]   { color: var(--mid) !important; }
+
+    /* ── Background tints ── */
+    [class*="bg-blue-950"], [class*="bg-purple-950"], [class*="bg-indigo-950"],
+    [class*="bg-slate-950"], [class*="bg-slate-900\/"] {
+      background-color: var(--surface) !important;
+    }
+    [class*="bg-emerald-950"] { background-color: rgba(196,181,253,.15) !important; }
+    [class*="bg-amber-950"]   { background-color: var(--surface) !important; }
+    [class*="bg-blue-950\/"], [class*="bg-purple-950\/"] { background-color: var(--surface) !important; }
+    [class*="border-slate-800"], [class*="border-slate-700"] { border-color: var(--lav-line) !important; }
+    [class*="border-blue-700"], [class*="border-purple-700"],
+    [class*="border-cyan-800"], [class*="border-amber-800"] { border-color: var(--lav-line) !important; }
+    [class*="border-emerald-700"], [class*="border-emerald-800"] { border-color: var(--lav-line) !important; }
+    [class*="border-purple-800"] { border-color: var(--lav-line) !important; }
+
+    /* ── Tiny label ── */
+    .tiny-label {
+      letter-spacing: .12em !important;
+      font-size: 10px !important;
+      font-weight: 600 !important;
+      color: var(--lav) !important;
+    }
+
+    /* ── high-contrast (accessibility) ── */
+    .high-contrast-active, .high-contrast-active * {
+      background: #000 !important; color: #ffff00 !important;
+      border-color: #ffff00 !important; box-shadow: none !important;
+    }
+    .safe-table th, .safe-table td { white-space: nowrap; }
+
+    /* ── Modal ── */
+    .reward-modal-backdrop {
+      position:fixed; inset:0; z-index:60;
+      display:none; align-items:center; justify-content:center; padding:20px;
+      background: rgba(196,181,253,.30) !important;
+      backdrop-filter: blur(16px) !important;
+    }
+    .reward-modal-backdrop.open { display: flex; }
+    .reward-modal-card {
+      width: min(560px, calc(100vw - 40px));
+      border-radius: 20px;
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      box-shadow: 0 24px 64px rgba(109,40,217,.14) !important;
+      color: var(--ink);
+      padding: 28px;
+    }
+    .reward-modal-icon {
+      width:52px; height:52px; border-radius:14px;
+      display:flex; align-items:center; justify-content:center;
+      background: var(--lav-dim) !important;
+      border: 1px solid var(--lav-line) !important;
+      color: var(--accent) !important;
+      font-size:22px; flex-shrink:0;
+    }
+    .reward-modal-title { font-size:20px; font-weight:900; color:var(--ink) !important; letter-spacing:-.03em; }
+    .reward-modal-subtitle { margin-top:6px; font-size:13px; color:var(--mid) !important; font-weight:400; }
+    .reward-modal-message {
+      margin-top:20px; border-radius:12px;
+      background: var(--surface) !important;
+      border: 1px solid var(--lav-line) !important;
+      padding:16px; color:var(--ink) !important;
+      font-size:14px; line-height:1.75;
+    }
+    .reward-modal-message strong { font-weight:900; color:var(--accent) !important; }
+    .reward-modal-actions { margin-top:22px; display:flex; justify-content:flex-end; gap:10px; }
+    .reward-modal-confirm {
+      min-width:104px; height:46px; border:0; border-radius:12px;
+      background: var(--accent) !important;
+      color:#fff; font-size:15px; font-weight:900; cursor:pointer;
+      box-shadow: 0 6px 18px rgba(109,40,217,.24);
+    }
+
+    /* ── Toast ── */
+    .app-toast {
+      position:fixed; left:50%; bottom:28px;
+      transform:translateX(-50%) translateY(14px);
+      z-index:70; max-width:min(440px, calc(100vw - 32px));
+      padding:13px 18px; border-radius:14px;
+      background: var(--white) !important;
+      border: 1px solid var(--lav-line) !important;
+      box-shadow: 0 8px 32px rgba(109,40,217,.12) !important;
+      color: var(--ink) !important;
+      font-size:13px; font-weight:700;
+      opacity:0; pointer-events:none;
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .app-toast.open { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* ── Brand logo ── */
+    .brand-logo-img { display:block; width:100%; height:100%; object-fit:contain; border-radius:inherit; }
+    .brand-logo-shell { background:transparent !important; border:0; overflow:hidden; }
+
+    /* ── Decorative icons ── */
+    .absolute[class*="text-[8rem]"] { opacity:.06 !important; color:var(--accent) !important; filter:none !important; }
+
+    /* ── Radius ── */
+    .glass, .toss-card, [class*="rounded-\[2rem\]"] { border-radius:18px !important; }
+    [class*="rounded-3xl"]  { border-radius:16px !important; }
+    [class*="rounded-2xl"]  { border-radius:12px !important; }
+    [class*="rounded-xl"]   { border-radius:9px !important; }
+
+    /* ── app shell ── */
+    .app-shell { max-width:1180px; margin:0 auto; }
+
+
+    /* ── 직접 클래스 override ── */
+    .text-mid   { color: var(--mid) !important; }
+    .text-accent { color: var(--accent) !important; }
+    .text-lav   { color: var(--lav) !important; }
+    .bg-surface-input { background: var(--white) !important; }
+    .bg-surface { background: var(--surface) !important; }
+    .border-lav-line { border-color: var(--lav-line) !important; }
+
+    /* text-white: 흰 배경이므로 ink로 */
+    .text-white { color: var(--ink) !important; }
+    /* 아주 밝은 컬러들 */
+    .text-blue-100, .text-blue-200, .text-purple-100, .text-purple-200,
+    .text-emerald-100, .text-emerald-200, .text-amber-100, .text-amber-200,
+    .text-red-100, .text-red-200, .text-cyan-100, .text-cyan-200,
+    .text-slate-100, .text-slate-200, .text-slate-300 { color: var(--ink) !important; }
+    /* 중간 컬러 → mid */
+    .text-slate-400, .text-slate-500 { color: var(--mid) !important; }
+    /* 액센트 컬러 */
+    .text-blue-300, .text-cyan-300, .text-purple-300,
+    .text-emerald-300, .text-red-300, .text-amber-300 { color: var(--accent) !important; }
+    /* 어두운 배경 위 흰 글씨가 필요한 요소 → 버튼들은 color:#fff 인라인으로 이미 처리됨 */
+
+    /* 어두운 배경 클래스 → surface */
+    .bg-slate-800, .bg-slate-900, .bg-slate-950,
+    [class*="bg-slate-800"], [class*="bg-slate-900"] {
+      background-color: var(--surface) !important;
+      color: var(--ink) !important;
+    }
+    /* gradient 배경 제거 */
+    [class*="bg-gradient-to-r"], [class*="bg-gradient-to"] {
+      background: var(--surface) !important;
+    }
+    /* 로그 피드 배경 */
+    #b2g-log-feed { background: var(--surface) !important; color: var(--mid) !important; }
+    #b2g-log-feed p { color: var(--mid) !important; }
+
+    /* SVG 텍스트 (route map) */
+    svg text { fill: var(--mid) !important; }
+
+    /* 선택 요소 내 option */
+    option { color: var(--ink) !important; background: var(--white) !important; }
+
+    /* 보라 배경 위 → 무조건 흰 글씨 */
+    [class*="bg-blue-600"], [class*="bg-blue-600"] *,
+    [class*="bg-purple-600"], [class*="bg-purple-600"] *,
+    [class*="bg-emerald-600"], [class*="bg-emerald-600"] *,
+    [class*="bg-rose-500"], [class*="bg-rose-500"] *,
+    [class*="bg-red-600"], [class*="bg-red-600"] *,
+    [class*="bg-amber-600"], [class*="bg-amber-600"] *,
+    .tab-btn.active, .tab-btn.active *,
+    .flow-step.active, .flow-step.active *,
+    .reward-modal-confirm, .reward-modal-confirm * {
+      color: #ffffff !important;
+    }
+    /* accent 색 변수로 칠한 요소도 */
+    [style*="background: var(--accent)"] * { color: #ffffff !important; }
+    [style*="background:#6d28d9"] * { color: #ffffff !important; }
+
+
+    /* ── Float shadow system ─────────────────────────────────── */
+
+    /* 기본 떠있는 느낌 */
+    .glass, .toss-card, .reward-modal-card {
+      box-shadow:
+        0 2px 6px rgba(109,40,217,.06),
+        0 8px 24px rgba(109,40,217,.09),
+        0 1px 0 rgba(255,255,255,.9) inset !important;
+      transition:
+        transform .28s cubic-bezier(.22,.68,0,1.2),
+        box-shadow .28s cubic-bezier(.22,.68,0,1.2) !important;
+    }
+
+    /* hover: 살짝 위로 뜨기 */
+    .glass:hover, .toss-card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow:
+        0 4px 10px rgba(109,40,217,.07),
+        0 16px 40px rgba(109,40,217,.14),
+        0 1px 0 rgba(255,255,255,.9) inset !important;
+    }
+
+    /* soft 패널은 살짝만 */
+    .soft {
+      box-shadow:
+        0 1px 4px rgba(109,40,217,.05),
+        0 4px 12px rgba(109,40,217,.07),
+        0 1px 0 rgba(255,255,255,.8) inset !important;
+      transition: transform .24s cubic-bezier(.22,.68,0,1.2), box-shadow .24s ease !important;
+    }
+    .soft:hover {
+      transform: translateY(-2px) !important;
+      box-shadow:
+        0 2px 8px rgba(109,40,217,.08),
+        0 8px 20px rgba(109,40,217,.11),
+        0 1px 0 rgba(255,255,255,.9) inset !important;
+    }
+
+    /* 버튼도 살짝 */
+    button {
+      transition:
+        transform .2s cubic-bezier(.22,.68,0,1.2),
+        box-shadow .2s ease,
+        opacity .12s ease !important;
+    }
+    button:hover {
+      transform: translateY(-2px) !important;
+      opacity: 1 !important;
+    }
+    button:active {
+      transform: translateY(0) scale(.97) !important;
+    }
+
+    /* 보라 버튼: 뜰 때 glow도 같이 */
+    [class*="bg-blue-600"]:hover,
+    [class*="bg-purple-600"]:hover {
+      box-shadow: 0 8px 24px rgba(109,40,217,.30) !important;
+    }
+
+    /* 초록 확정 버튼 */
+    [style*="a8e6c4"]:hover {
+      box-shadow: 0 8px 20px rgba(80,180,120,.22) !important;
+    }
+
+    /* 헤더는 고정돼있으니 float 없이 */
+    header { transform: none !important; }
+    header:hover { transform: none !important; }
+
+  </style>
+</head>
+<body id="main-body">
+  <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/82 backdrop-blur-xl p-4">
+    <div class="glass rounded-[2rem] p-7 w-full max-w-md">
+      <div class="flex items-start gap-5 mb-2">
+        <div class="flex-shrink-0">
+          <div class="brand-logo-shell w-20 h-20 rounded-[1.5rem] flex items-center justify-center">
+          <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTM4IiBoZWlnaHQ9IjEzOCIgdmlld0JveD0iMCAwIDEzOCAxMzgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xMV83NTcpIj4KPHJlY3Qgd2lkdGg9IjEzOCIgaGVpZ2h0PSIxMzgiIHJ4PSIyMCIgZmlsbD0iIzRhMmQ3YSIvPgo8cGF0aCBkPSJNMTIyLjgxMiA2NC4xNTYySDEyMC42MjVWNTQuNzgxMkMxMjAuNjI1IDUzLjUzOCAxMjAuMTY0IDUyLjM0NTggMTE5LjM0NCA1MS40NjY3QzExOC41MjMgNTAuNTg3NiAxMTcuNDEgNTAuMDkzOCAxMTYuMjUgNTAuMDkzOEgxMTEuODc1VjQ3Ljc1QzExMS44NzUgNDYuNTA2OCAxMTEuNDE0IDQ1LjMxNDUgMTEwLjU5NCA0NC40MzU0QzEwOS43NzMgNDMuNTU2NCAxMDguNjYgNDMuMDYyNSAxMDcuNSA0My4wNjI1SDEwMC45MzhDOTkuNzc3MiA0My4wNjI1IDk4LjY2NDQgNDMuNTU2NCA5Ny44NDM5IDQ0LjQzNTRDOTcuMDIzNCA0NS4zMTQ1IDk2LjU2MjUgNDYuNTA2OCA5Ni41NjI1IDQ3Ljc1VjY0LjE1NjJIODMuNDM3NVY0Ny43NUM4My40Mzc1IDQ2LjUwNjggODIuOTc2NiA0NS4zMTQ1IDgyLjE1NjEgNDQuNDM1NEM4MS4zMzU2IDQzLjU1NjQgODAuMjIyOCA0My4wNjI1IDc5LjA2MjUgNDMuMDYyNUg3Mi41QzcxLjMzOTcgNDMuMDYyNSA3MC4yMjY5IDQzLjU1NjQgNjkuNDA2NCA0NC40MzU0QzY4LjU4NTkgNDUuMzE0NSA2OC4xMjUgNDYuNTA2OCA2OC4xMjUgNDcuNzVWNTAuMDkzOEg2My43NUM2Mi41ODk3IDUwLjA5MzggNjEuNDc2OSA1MC41ODc2IDYwLjY1NjQgNTEuNDY2N0M1OS44MzU5IDUyLjM0NTggNTkuMzc1IDUzLjUzOCA1OS4zNzUgNTQuNzgxMlY2NC4xNTYySDU3LjE4NzVDNTYuNjA3MyA2NC4xNTYyIDU2LjA1MDkgNjQuNDAzMiA1NS42NDA3IDY0Ljg0MjdDNTUuMjMwNSA2NS4yODIzIDU1IDY1Ljg3ODQgNTUgNjYuNUM1NSA2Ny4xMjE2IDU1LjIzMDUgNjcuNzE3NyA1NS42NDA3IDY4LjE1NzNDNTYuMDUwOSA2OC41OTY4IDU2LjYwNzMgNjguODQzOCA1Ny4xODc1IDY4Ljg0MzhINTkuMzc1Vjc4LjIxODhDNTkuMzc1IDc5LjQ2MiA1OS44MzU5IDgwLjY1NDIgNjAuNjU2NCA4MS41MzMzQzYxLjQ3NjkgODIuNDEyNCA2Mi41ODk3IDgyLjkwNjIgNjMuNzUgODIuOTA2Mkg2OC4xMjVWODUuMjVDNjguMTI1IDg2LjQ5MzIgNjguNTg1OSA4Ny42ODU1IDY5LjQwNjQgODguNTY0NkM3MC4yMjY5IDg5LjQ0MzYgNzEuMzM5NyA4OS45Mzc1IDcyLjUgODkuOTM3NUg3OS4wNjI1QzgwLjIyMjggODkuOTM3NSA4MS4zMzU2IDg5LjQ0MzYgODIuMTU2MSA4OC41NjQ2QzgyLjk3NjYgODcuNjg1NSA4My40Mzc1IDg2LjQ5MzIgODMuNDM3NSA4NS4yNVY2OC44NDM4SDk2LjU2MjVWODUuMjVDOTYuNTYyNSA4Ni40OTMyIDk3LjAyMzQgODcuNjg1NSA5Ny44NDM5IDg4LjU2NDZDOTguNjY0NCA4OS40NDM2IDk5Ljc3NzIgODkuOTM3NSAxMDAuOTM4IDg5LjkzNzVIMTA3LjVDMTA4LjY2IDg5LjkzNzUgMTA5Ljc3MyA4OS40NDM2IDExMC41OTQgODguNTY0NkMxMTEuNDE0IDg3LjY4NTUgMTExLjg3NSA4Ni40OTMyIDExMS44NzUgODUuMjVWODIuOTA2MkgxMTYuMjVDMTE3LjQxIDgyLjkwNjIgMTE4LjUyMyA4Mi40MTI0IDExOS4zNDQgODEuNTMzM0MxMjAuMTY0IDgwLjY1NDIgMTIwLjYyNSA3OS40NjIgMTIwLjYyNSA3OC4yMTg4VjY4Ljg0MzhIMTIyLjgxMkMxMjMuMzkzIDY4Ljg0MzggMTIzLjk0OSA2OC41OTY4IDEyNC4zNTkgNjguMTU3M0MxMjQuNzcgNjcuNzE3NyAxMjUgNjcuMTIxNiAxMjUgNjYuNUMxMjUgNjUuODc4NCAxMjQuNzcgNjUuMjgyMyAxMjQuMzU5IDY0Ljg0MjdDMTIzLjk0OSA2NC40MDMyIDEyMy4zOTMgNjQuMTU2MiAxMjIuODEyIDY0LjE1NjJaTTYzLjc1IDc4LjIxODhWNTQuNzgxMkg2OC4xMjVWNzguMjE4OEg2My43NVpNNzkuMDYyNSA4NS4yNUg3Mi41VjQ3Ljc1SDc5LjA2MjVWODUuMjVaTTEwNy41IDg1LjI1SDEwMC45MzhWNDcuNzVIMTA3LjVWODAuNTA5OEMxMDcuNSA4MC41MjczIDEwNy41IDgwLjU0NDkgMTA3LjUgODAuNTYyNUMxMDcuNSA4MC41ODAxIDEwNy41IDgwLjU5NzcgMTA3LjUgODAuNjE1MlY4NS4yNVpNMTE2LjI1IDc4LjIxODhIMTExLjg3NVY1NC43ODEySDExNi4yNVY3OC4yMTg4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM3LjIwMDggMTEyLjI4MkMzNS40NDIgMTE2LjUwMSAzMi43MzczIDExOS42NTEgMjkuMDg2OSAxMjEuNzMzQzI1LjUwNDggMTIzLjgyMiAyMS4zNjkzIDEyNC43NTQgMTYuNjgwMSAxMjQuNTI4TDE1LjE0MiAxMjQuMzQxQzEwLjk3MjEgMTIzLjgzNyA3LjIwMzIzIDEyMi41OTcgMy44MzU0OCAxMjAuNjIxQzIuNzU0NjUgMTE5LjgwOSAxLjY2NzM2IDExOS4zMzYgMC41NzM2MDEgMTE5LjIwNEMtMC41MjAxNTYgMTE5LjA3MiAtMS43OTEyOCAxMTkuMjU5IC0zLjIzOTc3IDExOS43NjZDLTYuOTgxNDYgMTIwLjg4MSAtMTAuOTcxNSAxMjEuMTgzIC0xNS4yMDk4IDEyMC42N0wtMTYuNjQ1MyAxMjAuNDk2Qy0yMS4yNTMyIDExOS41OTggLTI1LjA4MTUgMTE3LjcwMyAtMjguMTMwNCAxMTQuODExQy0zMS4xMTA5IDExMS45MjggLTMyLjk1MjIgMTA4LjIyOCAtMzMuNjU0MiAxMDMuNzExQy0zNC4zNTMgOTkuNzM5OCAtMzQuMzEzNiA5NS42ODc2IC0zMy41MzYyIDkxLjU1NDJDLTMyLjc1ODcgODcuNDIwOCAtMzEuMjkyIDgzLjYwOTQgLTI5LjEzNTkgODAuMTIwMUMtMjguNjg4NCA3OS4yODc4IC0yOC4xNzc0IDc5LjA3NjkgLTI3LjYwMjggNzkuNDg3NEwtMjQuOTQzOSA4MC43Mjk1Qy0yMi40NTE5IDgxLjkxNzMgLTE5Ljg3MjkgODIuNjcyNSAtMTcuMjA2OSA4Mi45OTVDLTEzLjU4MzggODMuNDMzMyAtOS45ODM2MyA4Mi45MTQyIC02LjQwNjM4IDgxLjQzNzhDLTMuNDc2ODggODAuMTU1NyAtMS4zNzEwMyA3OC4yMjg2IC0wLjA4ODgxODggNzUuNjU2M0MxLjI2MTc1IDczLjA5MjMgMS40MzYzNCA3MC4yMTU2IDAuNDM0OTUyIDY3LjAyNjFDMC4zMjI2MiA2Ni44MDggMC4wOTU1NTUzIDY2LjY3ODIgLTAuMjQ2MjQ1IDY2LjYzNjlDLTAuNTg4MDQ2IDY2LjU5NTUgLTAuOTE1OTg5IDY2LjcyNjMgLTEuMjMwMDcgNjcuMDI5M0MtMS41MzYwMyA2Ny4yNjUgLTEuNTk3IDY3Ljc2OSAtMS40MTI5OCA2OC41NDEzQy0wLjQyNjAwMiA3My41NyAtMi40NTM1MSA3Ny4xNDMgLTcuNDk1NTIgNzkuMjYwNUMtMTAuODY3NyA4MC43NjE3IC0xNC4yNjI4IDgxLjMwNTYgLTE3LjY4MDggODAuODkyMUMtMjAuODkzNyA4MC41MDM1IC0yMy44OTg0IDc5LjI1MzYgLTI2LjY5NDkgNzcuMTQyNUMtMjguNTM5MSA3NS43NjAzIC0yOS43MDk1IDc0LjI1NSAtMzAuMjA2MiA3Mi42MjY3Qy0zMC42MjYzIDcwLjkzOTUgLTMwLjUxMSA2OC44Mzk3IC0yOS44NjAzIDY2LjMyNzRDLTI5LjA4MSA2My44OTg4IC0yNy43MzY5IDYxLjY3NSAtMjUuODI4IDU5LjY1NThDLTIzLjg1MDggNTcuNjQ0OSAtMjEuMzU3NSA1Ni4yNDE5IC0xOC4zNDgyIDU1LjQ0NjhDLTE5LjMzOTYgNTMuODk1IC0yMC4wMTY5IDUyLjA0MDIgLTIwLjM4MDEgNDkuODgyNkMtMjAuNjc1IDQ3LjczMzIgLTIwLjc1NjcgNDUuNTQxNCAtMjAuNjI1MSA0My4zMDcyQy0yMC40OTM2IDQxLjA3MzEgLTIwLjE2OTEgMzguOTY0NSAtMTkuNjUxOCAzNi45ODE1Qy0xOS4wNTggMzQuOTM5NiAtMTguMzM4IDMzLjI4OCAtMTcuNDkxOCAzMi4wMjY3Qy0yMC4wODggMzAuNTUzNSAtMjEuODM4OCAyOC4zOTg1IC0yMi43NDQxIDI1LjU2MTZDLTIzLjU4MTEgMjIuNzMzIC0yMy40NDA3IDE5Ljg1MjEgLTIyLjMyMjkgMTYuOTE5Qy0yMS4yOTQ1IDE0LjcyNTEgLTE5Ljg0NDYgMTMuMDU5NSAtMTcuOTczIDExLjkyMjNDLTE2LjEwMTQgMTAuNzg1IC0xMy44NzY2IDEwLjE2NzcgLTExLjI5ODUgMTAuMDcwNUMtMTAuOTQ4NSAxMC4wNDQ2IC0xMC42MDI3IDEwLjA1MjQgLTEwLjI2MDkgMTAuMDkzN0MtOS45MTkwOCAxMC4xMzUgLTkuNTc3MjggMTAuMTc2NCAtOS4yMzU0OCAxMC4yMTc3Qy02LjUwMTA4IDEwLjU0ODUgLTQuMjMyMDggMTEuNTczIC0yLjQyODQ5IDEzLjI5MTNDLTAuNTU2NTMyIDE1LjAxNzggMC41MzI2MTIgMTcuMTk1MSAwLjgzODk0MiAxOS44MjMxQzIuOTAyNjcgMTkuMzkwOSA2LjEyMjA2IDE5LjQzOTQgMTAuNDk3MSAxOS45Njg3TDEyLjM0MjggMjAuMTkyQzE0LjkzMjQgMjAuNTczNCAxNy4xNzIgMjAuOTgwNyAxOS4wNjE3IDIxLjQxMzhDMjEuMDI3OCAyMS43ODggMjIuNTc1NyAyMi4xNzk4IDIzLjcwNTMgMjIuNTg5MkMyNC42Mjk1IDIwLjExIDI2LjE3MjIgMTguMjUxMSAyOC4zMzM1IDE3LjAxMjVDMzAuNTYzMSAxNS43ODIxIDMzLjA0NTEgMTUuMzMyMyAzNS43Nzk1IDE1LjY2MzFDMzYuMTIxMyAxNS43MDQ1IDM2LjQ2MzEgMTUuNzQ1OCAzNi44MDQ5IDE1Ljc4NzJDMzcuMTQ2NyAxNS44Mjg1IDM3LjQ4NDUgMTUuOTAzNSAzNy44MTgxIDE2LjAxMkM0MC4yOTg3IDE2LjcyMTIgNDIuMzEyMiAxNy44NTExIDQzLjg1ODYgMTkuNDAxOUM0NS40MDUgMjAuOTUyNyA0Ni40MTYgMjIuOTE1OSA0Ni44OTE2IDI1LjI5MTdDNDcuMjc3NyAyOC40MDY4IDQ2LjY1ODggMzEuMjI5NyA0NS4wMzQ4IDMzLjc2MDZDNDMuNDc5MSAzNi4yOTk4IDQxLjI2NSAzNy45NzUzIDM4LjM5MjQgMzguNzg2OUMzOC45MTM0IDQwLjIxMzYgMzkuMjE4OCA0MS45ODkzIDM5LjMwODYgNDQuMTEzOUMzOS40MDY1IDQ2LjE3MTIgMzkuMjUzIDQ4LjMwMDUgMzguODQ4IDUwLjUwMTZDMzguNTExNCA1Mi43MTA5IDM3LjkwOTUgNTQuODIgMzcuMDQyMiA1Ni44Mjg4QzM2LjE3NSA1OC44Mzc3IDM1LjEwOTEgNjAuNDgxNSAzMy44NDQ3IDYxLjc2MDRDMzYuNTc3NiA2My4yNTAyIDM4LjYzMDIgNjUuMjAzMSA0MC4wMDI2IDY3LjYxOTJDNDEuNDQzMyA3MC4wNDM2IDQyLjI1MjYgNzIuNTI3OSA0Mi40MzAzIDc1LjA3MjJDNDIuNDYzMiA3Ny42NjcyIDQyLjA0MDMgNzkuNzI5OCA0MS4xNjE2IDgxLjI1OTlDNDAuMzU5NCA4Mi43MzExIDM4Ljg5OCA4My45MTggMzYuNzc3MyA4NC44MjA2QzMzLjU1ODEgODYuMjA0IDMwLjM0MjEgODYuNzAxNCAyNy4xMjkyIDg2LjMxMjdDMjMuNzExMiA4NS44OTkyIDIwLjU0MzcgODQuNTYxNSAxNy42MjY4IDgyLjI5OTVDMTMuMTY2NyA3OS4wMzI2IDEyLjAxNTUgNzUuMDc1IDE0LjE3MzEgNzAuNDI2N0MxNC41MzU5IDY5LjcyMDYgMTQuNTk2OSA2OS4yMTY2IDE0LjM1NiA2OC45MTQ3QzE0LjE5MTYgNjguNTUzOSAxMy45Mzg0IDY4LjM1MjggMTMuNTk2NiA2OC4zMTE0QzEzLjE4NjUgNjguMjYxOCAxMi45MzUgNjguMzMzNyAxMi44NDIzIDY4LjUyN0MxMS4wNDkgNzEuMzEwMiAxMC41MDI1IDc0LjEwNzggMTEuMjAyOCA3Ni45MTk5QzExLjkwMyA3OS43MzIgMTMuNTE4NyA4Mi4xNDM1IDE2LjA0OTkgODQuMTU0M0MxOS4xNzE5IDg2LjQ0MTEgMjIuNTQ0NCA4Ny44MDM2IDI2LjE2NzUgODguMjQxOUMyOC44MzM1IDg4LjU2NDQgMzEuNTE4MiA4OC40NDYgMzQuMjIxNiA4Ny44ODY2QzM0LjU3MTUgODcuODYwOCAzNC45NTk3IDg3LjgwNTQgMzUuMzg2MSA4Ny43MjA3QzM1LjgyMDcgODcuNTY4NyAzNi4zNTc4IDg3LjQyOTEgMzYuOTk3NCA4Ny4zMDE5QzM3LjcxMzUgODcuMTE1OCAzOC4xOTM3IDg3LjQ0NjYgMzguNDM3OSA4OC4yOTQ0QzM5LjY5OTggOTIuMTk3MiA0MC4yMTU1IDk2LjI0ODMgMzkuOTg0OSAxMDAuNDQ4QzM5Ljc1NDMgMTA0LjY0NyAzOC44MjYzIDEwOC41OTIgMzcuMjAwOCAxMTIuMjgyWk0tMy4yMzk4MSAxMDAuODQ0Qy0zLjQ3OTI1IDk5LjM4MzUgLTQuMDUwNyA5OC4wODcgLTQuOTU0MTcgOTYuOTU1Qy01Ljc4OTI3IDk1LjgzMTIgLTYuODc5ODkgOTQuODEyOCAtOC4yMjYwMyA5My45Qy05LjEzNDI5IDkzLjM4MSAtMTAuMDkzIDkyLjk5MjMgLTExLjEwMjEgOTIuNzMzOEMtMTIuMDM0OCA5Mi40MTY1IC0xMi45Nzk2IDkyLjE5OTkgLTEzLjkzNjcgOTIuMDg0MUMtMTYuNzM5NCA5MS43NDUxIC0xOS40NzA1IDkxLjk2MDIgLTIyLjEyOTkgOTIuNzI5NEMtMjIuNzQxOCA5My4yMDA5IC0yMy4wNTAyIDkzLjc0MzIgLTIzLjA1NSA5NC4zNTYyQy0yMi44MDI2IDk1LjEzNjggLTIyLjI0MTggOTUuMzc1MSAtMjEuMzcyNyA5NS4wNzExQy0xOS4wMDMxIDk0LjQwMzIgLTE2LjY5MDMgOTQuMjA1NyAtMTQuNDM0NCA5NC40Nzg2Qy0xMi41MjAzIDk0LjcxMDEgLTEwLjg4MjEgOTUuMjE1MSAtOS41MTk2OSA5NS45OTM2Qy03LjQzNzg1IDk3LjEzMTggLTYuMTU5MTQgOTguODg4OCAtNS42ODM1OCAxMDEuMjY1Qy01LjEwNzEzIDEwMy4zOCAtNS4yNTkgMTA1Ljc4MiAtNi4xMzkxOCAxMDguNDcxQy02LjM4OTcxIDEwOS4zOTUgLTYuMTgxMyAxMDkuOTY2IC01LjUxMzk2IDExMC4xODNDLTUuMTgwMjkgMTEwLjI5MiAtNC44Njg2IDExMC4yOTUgLTQuNTc4OSAxMTAuMTk0Qy00LjIyMDg1IDExMC4xMDEgLTMuOTQwOTQgMTA5Ljc5NCAtMy43MzkxOSAxMDkuMjczQy0yLjkyMjU3IDEwNS45NjIgLTIuNzU2MTEgMTAzLjE1MyAtMy4yMzk4MSAxMDAuODQ0Wk04LjMyODkzIDExMS44NThDOS4wMjg3OSAxMTEuODA2IDkuMzY3MjYgMTExLjMwMiA5LjM0NDM1IDExMC4zNDRDOS4xMzA3NyAxMDcuNTIzIDkuNTU2MDcgMTA1LjE1NCAxMC42MjAzIDEwMy4yMzdDMTEuNjQ4NiAxMDEuMDQzIDEzLjMwOTQgOTkuNjQxNiAxNS42MDI2IDk5LjAzMjZDMTcuMTExMyA5OC42MDE0IDE4LjgyMjcgOTguNTAxNiAyMC43MzY4IDk4LjczMzFDMjIuOTkyNyA5OS4wMDYgMjUuMTkxNiA5OS43NDkzIDI3LjMzMzcgMTAwLjk2M0MyOC4xMDUzIDEwMS40NjUgMjguNzA2NiAxMDEuMzY4IDI5LjEzNzkgMTAwLjY3QzI5LjI3OTQgMTAwLjA3MyAyOS4xMDkyIDk5LjQ3MzIgMjguNjI3NCA5OC44Njk0QzI2LjIyODEgOTcuNDg4MyAyMy42MjcxIDk2LjYyODEgMjAuODI0NCA5Ni4yODkxQzE5Ljg2NzMgOTYuMTczMyAxOC44NjM5IDk2LjE1NDIgMTcuODE0MSA5Ni4yMzE4QzE2Ljg0MDggOTYuMjUwNCAxNS44NTEzIDk2LjQwMzQgMTQuODQ1NSA5Ni42OTA5QzEzLjMyMDUgOTcuMjU2NCAxMS45ODQzIDk3Ljk4MTIgMTAuODM3IDk4Ljg2NTJDOS43NTggOTkuNzU3NCA4LjkyODA4IDEwMC44ODQgOC4zNDcyMSAxMDIuMjQ2QzcuMzI2OTggMTA0LjM3MyA2LjgxODcyIDEwNy4xNDEgNi44MjI0MyAxMTAuNTVDNi44OTQxMSAxMTEuMTA1IDcuMDU4NTQgMTExLjQ2NSA3LjMxNTcyIDExMS42MzNDNy42NDEyNyAxMTEuODA5IDcuOTc5IDExMS44ODQgOC4zMjg5MyAxMTEuODU4Wk0tMTAuMjU0MiA0Mi43MjA4Qy0xMC4wMTg0IDQwLjc3MiAtMTAuMDAyNCAzOS4yMDU3IC0xMC4yMDYgMzguMDIxOUMtMTAuNDAxNCAzNi43NzA5IC0xMS4xODI4IDM2LjA2MjggLTEyLjU1IDM1Ljg5NzRDLTEzLjg0ODggMzUuNzQwMyAtMTQuOTI1NCAzNi4zMjYgLTE1Ljc3OTcgMzcuNjU0NUMtMTYuNjI1OSAzOC45MTU4IC0xNy4xNTQ3IDQwLjQyMDEgLTE3LjM2NiA0Mi4xNjczQy0xNy41Nzc0IDQzLjkxNDYgLTE3LjQxMDMgNDUuNDAwNyAtMTYuODY0OSA0Ni42MjU4Qy0xNi4zMTk1IDQ3Ljg1MSAtMTUuNDMxNiA0OC41Mzc5IC0xNC4yMDExIDQ4LjY4NjhDLTEyLjkwMjMgNDguODQzOSAtMTEuOTc4NyA0OC4zNzYxIC0xMS40MzAzIDQ3LjI4MzNDLTEwLjg4MiA0Ni4xOTA1IC0xMC40ODk5IDQ0LjY2OTYgLTEwLjI1NDIgNDIuNzIwOFpNLTkuMzI3NDIgNTMuOTgxMUMtOS4yMjk4NyA1My4xNzQ3IC05LjQyMjAyIDUyLjQ2OTYgLTkuOTAzODcgNTEuODY1OEMtMTAuMzE3NCA1MS4yNzAzIC0xMC45MDAxIDUwLjkyNzEgLTExLjY1MiA1MC44MzYxQy0xMi40MDQgNTAuNzQ1MiAtMTMuMTI0MiA1MC45NjQ5IC0xMy44MTI2IDUxLjQ5NTNDLTE0LjQzMjYgNTIuMDMzOSAtMTQuNzgzMyA1Mi42MzkzIC0xNC44NjQ2IDUzLjMxMTNDLTE0Ljk1NCA1NC4wNTA1IC0xNC43NTc4IDU0LjcyMiAtMTQuMjc1OSA1NS4zMjU3Qy0xMy43MjU3IDU1LjkzNzggLTEzLjA3NDYgNTYuMjg5MyAtMTIuMzIyNyA1Ni4zODAyQy0xMS42MzkxIDU2LjQ2MjkgLTEwLjk5MTMgNTYuMjY4NSAtMTAuMzc5NCA1NS43OTcxQy05Ljc2NzUxIDU1LjMyNTYgLTkuNDE2ODQgNTQuNzIwMyAtOS4zMjc0MiA1My45ODExWk0yLjc4NTAxIDQwLjcxODRDMi44OTA2OSAzOS44NDQ4IDIuNzAyNjEgMzkuMTA2MSAyLjIyMDc3IDM4LjUwMjRDMS43Mzg5MiAzNy44OTg2IDEuMDg3ODMgMzcuNTQ3MSAwLjI2NzUxNSAzNy40NDc5Qy0wLjQ4NDQ0NiAzNy4zNTY5IC0xLjE2NjM4IDM3LjU0NzIgLTEuNzc4MjkgMzguMDE4NkMtMi4zOTAyIDM4LjQ5MDEgLTIuNzQ5IDM5LjE2MjYgLTIuODU0NjggNDAuMDM2MkMtMi45NTIyMyA0MC44NDI2IC0yLjc2MDA4IDQxLjU0NzcgLTIuMjc4MjMgNDIuMTUxNUMtMS43ODgyNiA0Mi42ODggLTEuMTY3MyA0My4wMDE4IC0wLjQxNTMzNyA0My4wOTI4QzAuNDA0OTgzIDQzLjE5MiAxLjExNzA0IDQzLjAzOTUgMS43MjA4MiA0Mi42MzUyQzIuMzMyNzMgNDIuMTYzOCAyLjY4NzQ2IDQxLjUyNDkgMi43ODUwMSA0MC43MTg0Wk0xMy40NzkxIDQ2LjkyMTRDMTMuNjA5MiA0NS44NDYxIDEzLjMwNDcgNDQuOTIyOSAxMi41NjU3IDQ0LjE1MTdDMTEuODM0OCA0My4zMTMyIDEwLjgxOTkgNDIuODE1NCA5LjUyMTA2IDQyLjY1ODNDOC4zNTg5NCA0Mi41MTc3IDcuMjg4ODMgNDIuNzYzMyA2LjMxMDczIDQzLjM5NUM1LjM0MDc2IDQzLjk1OTUgNC43OTA3NCA0NC43Nzk0IDQuNjYwNjcgNDUuODU0NkM0LjU0Njg2IDQ2Ljc5NTQgNC44ODk1OSA0Ny42ODkyIDUuNjg4ODQgNDguNTM1OUM2LjQ4ODEgNDkuMzgyNiA3LjQ2ODc5IDQ5Ljg3NjMgOC42MzA5MSA1MC4wMTY5QzkuOTI5NzUgNTAuMTc0IDExLjAzNCA0OS45MzI1IDExLjk0MzggNDkuMjkyNkMxMi44NTM1IDQ4LjY1MjYgMTMuMzY1MyA0Ny44NjIyIDEzLjQ3OTEgNDYuOTIxNFpNMTYuODMzIDQyLjQxNzhDMTYuNzM1NCA0My4yMjQyIDE2LjkyNzYgNDMuOTI5MyAxNy40MDk0IDQ0LjUzMzFDMTcuODk5NCA0NS4wNjk2IDE4LjU1NDUgNDUuMzg3NSAxOS4zNzQ5IDQ1LjQ4NjhDMjAuMTI2OCA0NS41Nzc3IDIwLjgwNDcgNDUuNDIxMSAyMS40MDg1IDQ1LjAxNjhDMjIuMDIwNCA0NC41NDU0IDIyLjM3NTEgNDMuOTA2NCAyMi40NzI3IDQzLjFDMjIuNTc4NCA0Mi4yMjY0IDIyLjM5MDMgNDEuNDg3NyAyMS45MDg0IDQwLjg4MzlDMjEuNDI2NiA0MC4yODAyIDIwLjgwOTcgMzkuOTMyOCAyMC4wNTc3IDM5Ljg0MTlDMTkuMjM3NCAzOS43NDI2IDE4LjUyMTMgMzkuOTI4NyAxNy45MDk0IDQwLjQwMDJDMTcuMjk3NSA0MC44NzE2IDE2LjkzODcgNDEuNTQ0MiAxNi44MzMgNDIuNDE3OFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01NS45NjA5IDEwNy42ODhINjAuNDYwOUM2MS4yNjgyIDEwNy42ODggNjEuOTUzMSAxMDcuODEgNjIuNTE1NiAxMDguMDU1QzYzLjA3ODEgMTA4LjI5NCA2My41IDEwOC42MzMgNjMuNzgxMiAxMDkuMDdDNjQuMDY3NyAxMDkuNTAzIDY0LjIxMDkgMTEwLjAxIDY0LjIxMDkgMTEwLjU5NEM2NC4yMTA5IDExMS4wMjEgNjQuMTIyNCAxMTEuNDAxIDYzLjk0NTMgMTExLjczNEM2My43NzM0IDExMi4wNjggNjMuNTMzOSAxMTIuMzQ0IDYzLjIyNjYgMTEyLjU2MkM2Mi45MjQ1IDExMi43NzYgNjIuNTcyOSAxMTIuOTI3IDYyLjE3MTkgMTEzLjAxNlYxMTMuMTI1QzYyLjYwNDIgMTEzLjE0NiA2My4wMTA0IDExMy4yNzEgNjMuMzkwNiAxMTMuNUM2My43NzA4IDExMy43MjkgNjQuMDc1NSAxMTQuMDQ5IDY0LjMwNDcgMTE0LjQ2MUM2NC41MzM5IDExNC44NjcgNjQuNjQ4NCAxMTUuMzQxIDY0LjY0ODQgMTE1Ljg4M0M2NC42NDg0IDExNi40ODcgNjQuNSAxMTcuMDIzIDY0LjIwMzEgMTE3LjQ5MkM2My45MDYyIDExNy45NjEgNjMuNDYzNSAxMTguMzMxIDYyLjg3NSAxMTguNjAyQzYyLjI5MTcgMTE4Ljg2NyA2MS41ODU5IDExOSA2MC43NTc4IDExOUg1NS45NjA5VjEwNy42ODhaTTYwLjI4MTIgMTE3LjA3QzYwLjcyNCAxMTcuMDcgNjEuMDg4NSAxMTcuMDEzIDYxLjM3NSAxMTYuODk4QzYxLjY2NjcgMTE2Ljc3OSA2MS44ODAyIDExNi42MTUgNjIuMDE1NiAxMTYuNDA2QzYyLjE1MSAxMTYuMTkzIDYyLjIxODggMTE1Ljk0IDYyLjIxODggMTE1LjY0OEM2Mi4yMTg4IDExNS4zMzYgNjIuMTQzMiAxMTUuMDU1IDYxLjk5MjIgMTE0LjgwNUM2MS44NDExIDExNC41NTUgNjEuNjIyNCAxMTQuMzY1IDYxLjMzNTkgMTE0LjIzNEM2MS4wNTQ3IDExNC4wOTkgNjAuNzI0IDExNC4wMzEgNjAuMzQzOCAxMTQuMDMxSDU4LjMwNDdWMTE3LjA3SDYwLjI4MTJaTTYwLjEwOTQgMTEyLjQzQzYwLjQzNzUgMTEyLjQzIDYwLjczMTggMTEyLjM3IDYwLjk5MjIgMTEyLjI1QzYxLjI1NzggMTEyLjEzIDYxLjQ2MzUgMTExLjk2MSA2MS42MDk0IDExMS43NDJDNjEuNzYwNCAxMTEuNTIzIDYxLjgzNTkgMTExLjI2NiA2MS44MzU5IDExMC45NjlDNjEuODM1OSAxMTAuNjg4IDYxLjc3MDggMTEwLjQ0NSA2MS42NDA2IDExMC4yNDJDNjEuNTEwNCAxMTAuMDM0IDYxLjMxNzcgMTA5Ljg3NSA2MS4wNjI1IDEwOS43NjZDNjAuODEyNSAxMDkuNjUxIDYwLjUxMDQgMTA5LjU5NCA2MC4xNTYyIDEwOS41OTRINTguMzA0N1YxMTIuNDNINjAuMTA5NFpNNjUuNTE1NiAxMTlMNjkuNDIxOSAxMDcuNjg4SDcyLjQzNzVMNzYuMzUxNiAxMTlINzMuODI4MUw3MC45NzY2IDExMC4yNDJINzAuODgyOEw2OC4wMjM0IDExOUg2NS41MTU2Wk03My45Mzc1IDExNC41NTVWMTE2LjM5MUg2Ny44OTg0VjExNC41NTVINzMuOTM3NVpNODcuMDYyNSAxMTlIODUuMDMxMkw4MC4wNjI1IDExMS44MTJINzkuOTc2NlYxMTlINzcuNjMyOFYxMDcuNjg4SDc5LjY5NTNMODQuNjI1IDExNC44NjdIODQuNzI2NlYxMDcuNjg4SDg3LjA2MjVWMTE5Wk05MC4wMzkxIDExOVYxMTYuOTg0SDkyLjg3NUM5My42MDQyIDExNi45ODQgOTQuMjEwOSAxMTYuODU0IDk0LjY5NTMgMTE2LjU5NEM5NS4xNzk3IDExNi4zMzMgOTUuNTQ0MyAxMTUuOTM1IDk1Ljc4OTEgMTE1LjM5OEM5Ni4wMzM5IDExNC44NTcgOTYuMTU2MiAxMTQuMTY5IDk2LjE1NjIgMTEzLjMzNkM5Ni4xNTYyIDExMi41MDMgOTYuMDMzOSAxMTEuODE4IDk1Ljc4OTEgMTExLjI4MUM5NS41NDk1IDExMC43NCA5NS4xODc1IDExMC4zNDEgOTQuNzAzMSAxMTAuMDg2Qzk0LjIxODggMTA5LjgzMSA5My42MTQ2IDEwOS43MDMgOTIuODkwNiAxMDkuNzAzSDg5Ljk4NDRWMTA3LjY4OEg5My4wMDc4Qzk0LjE0MzIgMTA3LjY4OCA5NS4xMjI0IDEwNy45MTQgOTUuOTQ1MyAxMDguMzY3Qzk2Ljc3MzQgMTA4LjgxNSA5Ny40MDYyIDEwOS40NjQgOTcuODQzOCAxMTAuMzEyQzk4LjI4NjUgMTExLjE2MSA5OC41MDc4IDExMi4xNjkgOTguNTA3OCAxMTMuMzM2Qzk4LjUwNzggMTE0LjUwOCA5OC4yODY1IDExNS41MTggOTcuODQzOCAxMTYuMzY3Qzk3LjQwMSAxMTcuMjE2IDk2Ljc2MyAxMTcuODY3IDk1LjkyOTcgMTE4LjMyQzk1LjEwMTYgMTE4Ljc3MyA5NC4xMTcyIDExOSA5Mi45NzY2IDExOUg5MC4wMzkxWk05MS4zMzU5IDExOUg4OC45OTIyVjEwNy42ODhIOTEuMzM1OVYxMTlaTTk4Ljk1MzEgMTE5TDEwMi44NTkgMTA3LjY4OEgxMDUuODc1TDEwOS43ODkgMTE5SDEwNy4yNjZMMTA0LjQxNCAxMTAuMjQySDEwNC4zMkwxMDEuNDYxIDExOUg5OC45NTMxWk0xMDcuMzc1IDExNC41NTVWMTE2LjM5MUgxMDEuMzM2VjExNC41NTVIMTA3LjM3NVpNMTExLjA3IDEwNy42ODhIMTE1LjU3QzExNi4zNzggMTA3LjY4OCAxMTcuMDYyIDEwNy44MSAxMTcuNjI1IDEwOC4wNTVDMTE4LjE4OCAxMDguMjk0IDExOC42MDkgMTA4LjYzMyAxMTguODkxIDEwOS4wN0MxMTkuMTc3IDEwOS41MDMgMTE5LjMyIDExMC4wMSAxMTkuMzIgMTEwLjU5NEMxMTkuMzIgMTExLjAyMSAxMTkuMjMyIDExMS40MDEgMTE5LjA1NSAxMTEuNzM0QzExOC44ODMgMTEyLjA2OCAxMTguNjQzIDExMi4zNDQgMTE4LjMzNiAxMTIuNTYyQzExOC4wMzQgMTEyLjc3NiAxMTcuNjgyIDExMi45MjcgMTE3LjI4MSAxMTMuMDE2VjExMy4xMjVDMTE3LjcxNCAxMTMuMTQ2IDExOC4xMiAxMTMuMjcxIDExOC41IDExMy41QzExOC44OCAxMTMuNzI5IDExOS4xODUgMTE0LjA0OSAxMTkuNDE0IDExNC40NjFDMTE5LjY0MyAxMTQuODY3IDExOS43NTggMTE1LjM0MSAxMTkuNzU4IDExNS44ODNDMTE5Ljc1OCAxMTYuNDg3IDExOS42MDkgMTE3LjAyMyAxMTkuMzEyIDExNy40OTJDMTE5LjAxNiAxMTcuOTYxIDExOC41NzMgMTE4LjMzMSAxMTcuOTg0IDExOC42MDJDMTE3LjQwMSAxMTguODY3IDExNi42OTUgMTE5IDExNS44NjcgMTE5SDExMS4wN1YxMDcuNjg4Wk0xMTUuMzkxIDExNy4wN0MxMTUuODMzIDExNy4wNyAxMTYuMTk4IDExNy4wMTMgMTE2LjQ4NCAxMTYuODk4QzExNi43NzYgMTE2Ljc3OSAxMTYuOTkgMTE2LjYxNSAxMTcuMTI1IDExNi40MDZDMTE3LjI2IDExNi4xOTMgMTE3LjMyOCAxMTUuOTQgMTE3LjMyOCAxMTUuNjQ4QzExNy4zMjggMTE1LjMzNiAxMTcuMjUzIDExNS4wNTUgMTE3LjEwMiAxMTQuODA1QzExNi45NTEgMTE0LjU1NSAxMTYuNzMyIDExNC4zNjUgMTE2LjQ0NSAxMTQuMjM0QzExNi4xNjQgMTE0LjA5OSAxMTUuODMzIDExNC4wMzEgMTE1LjQ1MyAxMTQuMDMxSDExMy40MTRWMTE3LjA3SDExNS4zOTFaTTExNS4yMTkgMTEyLjQzQzExNS41NDcgMTEyLjQzIDExNS44NDEgMTEyLjM3IDExNi4xMDIgMTEyLjI1QzExNi4zNjcgMTEyLjEzIDExNi41NzMgMTExLjk2MSAxMTYuNzE5IDExMS43NDJDMTE2Ljg3IDExMS41MjMgMTE2Ljk0NSAxMTEuMjY2IDExNi45NDUgMTEwLjk2OUMxMTYuOTQ1IDExMC42ODggMTE2Ljg4IDExMC40NDUgMTE2Ljc1IDExMC4yNDJDMTE2LjYyIDExMC4wMzQgMTE2LjQyNyAxMDkuODc1IDExNi4xNzIgMTA5Ljc2NkMxMTUuOTIyIDEwOS42NTEgMTE1LjYyIDEwOS41OTQgMTE1LjI2NiAxMDkuNTk0SDExMy40MTRWMTEyLjQzSDExNS4yMTlaTTEyMy42MDIgMTE5SDEyMS4yNThWMTA3LjY4OEgxMjMuNjAyVjExOVoiIGZpbGw9IiNEQUQ4RkYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMV83NTciPgo8cmVjdCB3aWR0aD0iMTM4IiBoZWlnaHQ9IjEzOCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt="반다비 로고" class="brand-logo-img" />
+          </div>
+        </div>
+        <div class="flex-1 flex flex-col justify-between" style="height:80px;">
+          <h1 class="text-2xl font-black leading-tight" style="color:var(--ink);margin:0;">반다비 AI</h1>
+          <p id="login-modal-subtitle" class="text-xs" style="color:var(--mid);line-height:1.6;margin:0;">서비스 이용을 위해 로그인하거나<br/>회원가입을 진행하세요.</p>
+        </div>
+      </div>
+
+      <div id="auth-entry-panel" class="mt-7 space-y-3">
+        <button onclick="showAuthPanel('login')" class="w-full rounded-3xl bg-blue-600 hover:bg-blue-500 p-4 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-white/15 text-white flex items-center justify-center text-xl"><i class="fa-solid fa-right-to-bracket"></i></div>
+            <div><p class="font-black">로그인</p><p class="text-xs text-mid">기존 계정으로 서비스 이어가기</p></div>
+          </div>
+        </button>
+        <button onclick="showAuthPanel('signup')" class="w-full toss-card rounded-3xl p-4 flex items-center justify-between text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-300 flex items-center justify-center text-xl"><i class="fa-solid fa-user-plus"></i></div>
+            <div><p class="font-black">회원가입</p><p class="text-xs text-slate-400">접근성 지원 유형과 알림 설정을 시작</p></div>
+          </div>
+        </button>
+      </div>
+
+      <div id="auth-form-panel" class="hidden mt-7 space-y-4">
+        <!-- Chrome password manager UI is controlled by the browser. -->
+        <!-- Because this app is rendered inside a Streamlit iframe, password suggestions may still be limited. -->
+        <form id="login-form" autocomplete="on" onsubmit="return false;" class="space-y-4">
+          <div class="rounded-3xl bg-surface border border-lav-line p-4">
+            <p class="auth-form-title font-black">로그인</p>
+            <p class="auth-form-help mt-1 text-xs text-slate-400">프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.</p>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이름</span>
+                <input id="login-name" type="text" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이메일</span>
+                <input id="login-email" name="email" type="email" autocomplete="email" inputmode="email" value="" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호</span>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
+              </label>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
+            <button type="button" onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
+          </div>
+        </form>
+        <form id="signup-form" autocomplete="on" onsubmit="return false;" class="hidden space-y-4">
+          <div class="rounded-3xl bg-surface border border-lav-line p-4">
+            <p class="auth-form-title font-black">회원가입</p>
+            <p class="auth-form-help mt-1 text-xs text-slate-400">프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.</p>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이름</span>
+                <input id="signup-name" type="text" name="name" autocomplete="name" value="" oninput="updateUserGreeting(this.value)" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="예: 000" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">이메일</span>
+                <input id="signup-email" name="email" type="email" autocomplete="email" inputmode="email" value="" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="user@example.com" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호</span>
+                <input id="signup-password" name="new-password" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호" />
+              </label>
+              <label class="block">
+                <span class="text-xs font-bold text-slate-400">비밀번호 확인</span>
+                <input id="signup-password-confirm" name="new-password-confirm" type="password" autocomplete="new-password" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="비밀번호 확인" />
+              </label>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="backToAuthEntry()" class="rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">이전</button>
+            <button type="button" onclick="completeAuth()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 text-sm font-black">계속</button>
+          </div>
+        </form>
+      </div>
+
+      <div id="role-select-panel" class="hidden mt-7 space-y-3">
+        <p class="text-xs font-black text-blue-300 uppercase">Mode Select</p>
+        <button onclick="handleLogin('B2C')" class="w-full toss-card rounded-3xl p-4 flex items-center justify-between text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-blue-500/15 text-blue-300 flex items-center justify-center text-xl"><i class="fa-solid fa-user"></i></div>
+            <div><p class="font-black">이용자 모드</p><p class="text-xs text-slate-400">경로 · 동행 · 강습 · 리포트</p></div>
+          </div>
+        </button>
+        <button onclick="handleLogin('B2G')" class="w-full toss-card rounded-3xl p-4 flex items-center justify-between text-left">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-2xl bg-purple-500/15 text-purple-300 flex items-center justify-center text-xl"><i class="fa-solid fa-building-shield"></i></div>
+            <div><p class="font-black">기관 관리자 모드</p><p class="text-xs text-slate-400">스케줄 · 접근성 점검 보조 · 대시보드</p></div>
+          </div>
+        </button>
+        <button onclick="backToAuthEntry()" class="w-full rounded-2xl bg-slate-900 border border-slate-800 py-3 text-sm font-black text-slate-300">로그인/회원가입으로 돌아가기</button>
+      </div>
+
+      <div class="mt-5 rounded-2xl bg-surface border border-lav-line p-3 text-[11px] leading-relaxed text-slate-400">
+        <b class="text-slate-200"><i class="fa-solid fa-lock text-amber-300 mr-1"></i>민감정보 고지</b><br/>
+        본 서비스는 장애 진단명이나 이동 지원 난이도를 기준으로 이용자를 분류하지 않고, 생활체육 참여에 필요한 이동·안내·동행·접근성 지원 유형을 기준으로 맞춤 정보를 제공합니다.
+      </div>
+      <p class="mt-2 text-[10px] leading-relaxed text-slate-500 text-center">※ 계정·비밀번호는 데모용으로 브라우저 저장소에만 보관되며,<br>실제 서버 인증·암호화 보안을 제공하지 않습니다.</p>
+    </div>
+  </div>
+
+  <div id="reward-modal" class="reward-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="reward-modal-title">
+    <div class="reward-modal-card">
+      <div class="flex items-start gap-4">
+        <div class="reward-modal-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div>
+          <h2 id="reward-modal-title" class="reward-modal-title">운영 확정 요청이 등록되었습니다.</h2>
+          <p class="reward-modal-subtitle">예약·이동·동행 플랜이 다음 단계로 연결됩니다.</p>
+        </div>
+      </div>
+      <p id="reward-modal-message" class="reward-modal-message">
+        참여 인센티브 <strong>500BT</strong>가 적립되었습니다.<br />
+        현금 환급·양도·재판매는 불가하며, 협약된 생활체육 서비스 혜택으로만 사용할 수 있습니다.
+      </p>
+      <div class="reward-modal-actions">
+        <button type="button" class="reward-modal-confirm" onclick="confirmRewardModal()">확인</button>
+      </div>
+    </div>
+  </div>
+  <div id="app-toast" class="app-toast" role="status" aria-live="polite"></div>
+
+  <header class="sticky top-0 z-40 bg-slate-950/70 backdrop-blur-xl border-b border-slate-800/80">
+    <div class="app-shell px-4 py-4">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="brand-logo-shell w-12 h-12 rounded-[1.1rem] flex items-center justify-center shrink-0" onclick="goHomeWithGreeting()" style="cursor:pointer;" title="홈으로">
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTM4IiBoZWlnaHQ9IjEzOCIgdmlld0JveD0iMCAwIDEzOCAxMzgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxnIGNsaXAtcGF0aD0idXJsKCNjbGlwMF8xMV83NTcpIj4KPHJlY3Qgd2lkdGg9IjEzOCIgaGVpZ2h0PSIxMzgiIHJ4PSIyMCIgZmlsbD0iIzRhMmQ3YSIvPgo8cGF0aCBkPSJNMTIyLjgxMiA2NC4xNTYySDEyMC42MjVWNTQuNzgxMkMxMjAuNjI1IDUzLjUzOCAxMjAuMTY0IDUyLjM0NTggMTE5LjM0NCA1MS40NjY3QzExOC41MjMgNTAuNTg3NiAxMTcuNDEgNTAuMDkzOCAxMTYuMjUgNTAuMDkzOEgxMTEuODc1VjQ3Ljc1QzExMS44NzUgNDYuNTA2OCAxMTEuNDE0IDQ1LjMxNDUgMTEwLjU5NCA0NC40MzU0QzEwOS43NzMgNDMuNTU2NCAxMDguNjYgNDMuMDYyNSAxMDcuNSA0My4wNjI1SDEwMC45MzhDOTkuNzc3MiA0My4wNjI1IDk4LjY2NDQgNDMuNTU2NCA5Ny44NDM5IDQ0LjQzNTRDOTcuMDIzNCA0NS4zMTQ1IDk2LjU2MjUgNDYuNTA2OCA5Ni41NjI1IDQ3Ljc1VjY0LjE1NjJIODMuNDM3NVY0Ny43NUM4My40Mzc1IDQ2LjUwNjggODIuOTc2NiA0NS4zMTQ1IDgyLjE1NjEgNDQuNDM1NEM4MS4zMzU2IDQzLjU1NjQgODAuMjIyOCA0My4wNjI1IDc5LjA2MjUgNDMuMDYyNUg3Mi41QzcxLjMzOTcgNDMuMDYyNSA3MC4yMjY5IDQzLjU1NjQgNjkuNDA2NCA0NC40MzU0QzY4LjU4NTkgNDUuMzE0NSA2OC4xMjUgNDYuNTA2OCA2OC4xMjUgNDcuNzVWNTAuMDkzOEg2My43NUM2Mi41ODk3IDUwLjA5MzggNjEuNDc2OSA1MC41ODc2IDYwLjY1NjQgNTEuNDY2N0M1OS44MzU5IDUyLjM0NTggNTkuMzc1IDUzLjUzOCA1OS4zNzUgNTQuNzgxMlY2NC4xNTYySDU3LjE4NzVDNTYuNjA3MyA2NC4xNTYyIDU2LjA1MDkgNjQuNDAzMiA1NS42NDA3IDY0Ljg0MjdDNTUuMjMwNSA2NS4yODIzIDU1IDY1Ljg3ODQgNTUgNjYuNUM1NSA2Ny4xMjE2IDU1LjIzMDUgNjcuNzE3NyA1NS42NDA3IDY4LjE1NzNDNTYuMDUwOSA2OC41OTY4IDU2LjYwNzMgNjguODQzOCA1Ny4xODc1IDY4Ljg0MzhINTkuMzc1Vjc4LjIxODhDNTkuMzc1IDc5LjQ2MiA1OS44MzU5IDgwLjY1NDIgNjAuNjU2NCA4MS41MzMzQzYxLjQ3NjkgODIuNDEyNCA2Mi41ODk3IDgyLjkwNjIgNjMuNzUgODIuOTA2Mkg2OC4xMjVWODUuMjVDNjguMTI1IDg2LjQ5MzIgNjguNTg1OSA4Ny42ODU1IDY5LjQwNjQgODguNTY0NkM3MC4yMjY5IDg5LjQ0MzYgNzEuMzM5NyA4OS45Mzc1IDcyLjUgODkuOTM3NUg3OS4wNjI1QzgwLjIyMjggODkuOTM3NSA4MS4zMzU2IDg5LjQ0MzYgODIuMTU2MSA4OC41NjQ2QzgyLjk3NjYgODcuNjg1NSA4My40Mzc1IDg2LjQ5MzIgODMuNDM3NSA4NS4yNVY2OC44NDM4SDk2LjU2MjVWODUuMjVDOTYuNTYyNSA4Ni40OTMyIDk3LjAyMzQgODcuNjg1NSA5Ny44NDM5IDg4LjU2NDZDOTguNjY0NCA4OS40NDM2IDk5Ljc3NzIgODkuOTM3NSAxMDAuOTM4IDg5LjkzNzVIMTA3LjVDMTA4LjY2IDg5LjkzNzUgMTA5Ljc3MyA4OS40NDM2IDExMC41OTQgODguNTY0NkMxMTEuNDE0IDg3LjY4NTUgMTExLjg3NSA4Ni40OTMyIDExMS44NzUgODUuMjVWODIuOTA2MkgxMTYuMjVDMTE3LjQxIDgyLjkwNjIgMTE4LjUyMyA4Mi40MTI0IDExOS4zNDQgODEuNTMzM0MxMjAuMTY0IDgwLjY1NDIgMTIwLjYyNSA3OS40NjIgMTIwLjYyNSA3OC4yMTg4VjY4Ljg0MzhIMTIyLjgxMkMxMjMuMzkzIDY4Ljg0MzggMTIzLjk0OSA2OC41OTY4IDEyNC4zNTkgNjguMTU3M0MxMjQuNzcgNjcuNzE3NyAxMjUgNjcuMTIxNiAxMjUgNjYuNUMxMjUgNjUuODc4NCAxMjQuNzcgNjUuMjgyMyAxMjQuMzU5IDY0Ljg0MjdDMTIzLjk0OSA2NC40MDMyIDEyMy4zOTMgNjQuMTU2MiAxMjIuODEyIDY0LjE1NjJaTTYzLjc1IDc4LjIxODhWNTQuNzgxMkg2OC4xMjVWNzguMjE4OEg2My43NVpNNzkuMDYyNSA4NS4yNUg3Mi41VjQ3Ljc1SDc5LjA2MjVWODUuMjVaTTEwNy41IDg1LjI1SDEwMC45MzhWNDcuNzVIMTA3LjVWODAuNTA5OEMxMDcuNSA4MC41MjczIDEwNy41IDgwLjU0NDkgMTA3LjUgODAuNTYyNUMxMDcuNSA4MC41ODAxIDEwNy41IDgwLjU5NzcgMTA3LjUgODAuNjE1MlY4NS4yNVpNMTE2LjI1IDc4LjIxODhIMTExLjg3NVY1NC43ODEySDExNi4yNVY3OC4yMTg4WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTM3LjIwMDggMTEyLjI4MkMzNS40NDIgMTE2LjUwMSAzMi43MzczIDExOS42NTEgMjkuMDg2OSAxMjEuNzMzQzI1LjUwNDggMTIzLjgyMiAyMS4zNjkzIDEyNC43NTQgMTYuNjgwMSAxMjQuNTI4TDE1LjE0MiAxMjQuMzQxQzEwLjk3MjEgMTIzLjgzNyA3LjIwMzIzIDEyMi41OTcgMy44MzU0OCAxMjAuNjIxQzIuNzU0NjUgMTE5LjgwOSAxLjY2NzM2IDExOS4zMzYgMC41NzM2MDEgMTE5LjIwNEMtMC41MjAxNTYgMTE5LjA3MiAtMS43OTEyOCAxMTkuMjU5IC0zLjIzOTc3IDExOS43NjZDLTYuOTgxNDYgMTIwLjg4MSAtMTAuOTcxNSAxMjEuMTgzIC0xNS4yMDk4IDEyMC42N0wtMTYuNjQ1MyAxMjAuNDk2Qy0yMS4yNTMyIDExOS41OTggLTI1LjA4MTUgMTE3LjcwMyAtMjguMTMwNCAxMTQuODExQy0zMS4xMTA5IDExMS45MjggLTMyLjk1MjIgMTA4LjIyOCAtMzMuNjU0MiAxMDMuNzExQy0zNC4zNTMgOTkuNzM5OCAtMzQuMzEzNiA5NS42ODc2IC0zMy41MzYyIDkxLjU1NDJDLTMyLjc1ODcgODcuNDIwOCAtMzEuMjkyIDgzLjYwOTQgLTI5LjEzNTkgODAuMTIwMUMtMjguNjg4NCA3OS4yODc4IC0yOC4xNzc0IDc5LjA3NjkgLTI3LjYwMjggNzkuNDg3NEwtMjQuOTQzOSA4MC43Mjk1Qy0yMi40NTE5IDgxLjkxNzMgLTE5Ljg3MjkgODIuNjcyNSAtMTcuMjA2OSA4Mi45OTVDLTEzLjU4MzggODMuNDMzMyAtOS45ODM2MyA4Mi45MTQyIC02LjQwNjM4IDgxLjQzNzhDLTMuNDc2ODggODAuMTU1NyAtMS4zNzEwMyA3OC4yMjg2IC0wLjA4ODgxODggNzUuNjU2M0MxLjI2MTc1IDczLjA5MjMgMS40MzYzNCA3MC4yMTU2IDAuNDM0OTUyIDY3LjAyNjFDMC4zMjI2MiA2Ni44MDggMC4wOTU1NTUzIDY2LjY3ODIgLTAuMjQ2MjQ1IDY2LjYzNjlDLTAuNTg4MDQ2IDY2LjU5NTUgLTAuOTE1OTg5IDY2LjcyNjMgLTEuMjMwMDcgNjcuMDI5M0MtMS41MzYwMyA2Ny4yNjUgLTEuNTk3IDY3Ljc2OSAtMS40MTI5OCA2OC41NDEzQy0wLjQyNjAwMiA3My41NyAtMi40NTM1MSA3Ny4xNDMgLTcuNDk1NTIgNzkuMjYwNUMtMTAuODY3NyA4MC43NjE3IC0xNC4yNjI4IDgxLjMwNTYgLTE3LjY4MDggODAuODkyMUMtMjAuODkzNyA4MC41MDM1IC0yMy44OTg0IDc5LjI1MzYgLTI2LjY5NDkgNzcuMTQyNUMtMjguNTM5MSA3NS43NjAzIC0yOS43MDk1IDc0LjI1NSAtMzAuMjA2MiA3Mi42MjY3Qy0zMC42MjYzIDcwLjkzOTUgLTMwLjUxMSA2OC44Mzk3IC0yOS44NjAzIDY2LjMyNzRDLTI5LjA4MSA2My44OTg4IC0yNy43MzY5IDYxLjY3NSAtMjUuODI4IDU5LjY1NThDLTIzLjg1MDggNTcuNjQ0OSAtMjEuMzU3NSA1Ni4yNDE5IC0xOC4zNDgyIDU1LjQ0NjhDLTE5LjMzOTYgNTMuODk1IC0yMC4wMTY5IDUyLjA0MDIgLTIwLjM4MDEgNDkuODgyNkMtMjAuNjc1IDQ3LjczMzIgLTIwLjc1NjcgNDUuNTQxNCAtMjAuNjI1MSA0My4zMDcyQy0yMC40OTM2IDQxLjA3MzEgLTIwLjE2OTEgMzguOTY0NSAtMTkuNjUxOCAzNi45ODE1Qy0xOS4wNTggMzQuOTM5NiAtMTguMzM4IDMzLjI4OCAtMTcuNDkxOCAzMi4wMjY3Qy0yMC4wODggMzAuNTUzNSAtMjEuODM4OCAyOC4zOTg1IC0yMi43NDQxIDI1LjU2MTZDLTIzLjU4MTEgMjIuNzMzIC0yMy40NDA3IDE5Ljg1MjEgLTIyLjMyMjkgMTYuOTE5Qy0yMS4yOTQ1IDE0LjcyNTEgLTE5Ljg0NDYgMTMuMDU5NSAtMTcuOTczIDExLjkyMjNDLTE2LjEwMTQgMTAuNzg1IC0xMy44NzY2IDEwLjE2NzcgLTExLjI5ODUgMTAuMDcwNUMtMTAuOTQ4NSAxMC4wNDQ2IC0xMC42MDI3IDEwLjA1MjQgLTEwLjI2MDkgMTAuMDkzN0MtOS45MTkwOCAxMC4xMzUgLTkuNTc3MjggMTAuMTc2NCAtOS4yMzU0OCAxMC4yMTc3Qy02LjUwMTA4IDEwLjU0ODUgLTQuMjMyMDggMTEuNTczIC0yLjQyODQ5IDEzLjI5MTNDLTAuNTU2NTMyIDE1LjAxNzggMC41MzI2MTIgMTcuMTk1MSAwLjgzODk0MiAxOS44MjMxQzIuOTAyNjcgMTkuMzkwOSA2LjEyMjA2IDE5LjQzOTQgMTAuNDk3MSAxOS45Njg3TDEyLjM0MjggMjAuMTkyQzE0LjkzMjQgMjAuNTczNCAxNy4xNzIgMjAuOTgwNyAxOS4wNjE3IDIxLjQxMzhDMjEuMDI3OCAyMS43ODggMjIuNTc1NyAyMi4xNzk4IDIzLjcwNTMgMjIuNTg5MkMyNC42Mjk1IDIwLjExIDI2LjE3MjIgMTguMjUxMSAyOC4zMzM1IDE3LjAxMjVDMzAuNTYzMSAxNS43ODIxIDMzLjA0NTEgMTUuMzMyMyAzNS43Nzk1IDE1LjY2MzFDMzYuMTIxMyAxNS43MDQ1IDM2LjQ2MzEgMTUuNzQ1OCAzNi44MDQ5IDE1Ljc4NzJDMzcuMTQ2NyAxNS44Mjg1IDM3LjQ4NDUgMTUuOTAzNSAzNy44MTgxIDE2LjAxMkM0MC4yOTg3IDE2LjcyMTIgNDIuMzEyMiAxNy44NTExIDQzLjg1ODYgMTkuNDAxOUM0NS40MDUgMjAuOTUyNyA0Ni40MTYgMjIuOTE1OSA0Ni44OTE2IDI1LjI5MTdDNDcuMjc3NyAyOC40MDY4IDQ2LjY1ODggMzEuMjI5NyA0NS4wMzQ4IDMzLjc2MDZDNDMuNDc5MSAzNi4yOTk4IDQxLjI2NSAzNy45NzUzIDM4LjM5MjQgMzguNzg2OUMzOC45MTM0IDQwLjIxMzYgMzkuMjE4OCA0MS45ODkzIDM5LjMwODYgNDQuMTEzOUMzOS40MDY1IDQ2LjE3MTIgMzkuMjUzIDQ4LjMwMDUgMzguODQ4IDUwLjUwMTZDMzguNTExNCA1Mi43MTA5IDM3LjkwOTUgNTQuODIgMzcuMDQyMiA1Ni44Mjg4QzM2LjE3NSA1OC44Mzc3IDM1LjEwOTEgNjAuNDgxNSAzMy44NDQ3IDYxLjc2MDRDMzYuNTc3NiA2My4yNTAyIDM4LjYzMDIgNjUuMjAzMSA0MC4wMDI2IDY3LjYxOTJDNDEuNDQzMyA3MC4wNDM2IDQyLjI1MjYgNzIuNTI3OSA0Mi40MzAzIDc1LjA3MjJDNDIuNDYzMiA3Ny42NjcyIDQyLjA0MDMgNzkuNzI5OCA0MS4xNjE2IDgxLjI1OTlDNDAuMzU5NCA4Mi43MzExIDM4Ljg5OCA4My45MTggMzYuNzc3MyA4NC44MjA2QzMzLjU1ODEgODYuMjA0IDMwLjM0MjEgODYuNzAxNCAyNy4xMjkyIDg2LjMxMjdDMjMuNzExMiA4NS44OTkyIDIwLjU0MzcgODQuNTYxNSAxNy42MjY4IDgyLjI5OTVDMTMuMTY2NyA3OS4wMzI2IDEyLjAxNTUgNzUuMDc1IDE0LjE3MzEgNzAuNDI2N0MxNC41MzU5IDY5LjcyMDYgMTQuNTk2OSA2OS4yMTY2IDE0LjM1NiA2OC45MTQ3QzE0LjE5MTYgNjguNTUzOSAxMy45Mzg0IDY4LjM1MjggMTMuNTk2NiA2OC4zMTE0QzEzLjE4NjUgNjguMjYxOCAxMi45MzUgNjguMzMzNyAxMi44NDIzIDY4LjUyN0MxMS4wNDkgNzEuMzEwMiAxMC41MDI1IDc0LjEwNzggMTEuMjAyOCA3Ni45MTk5QzExLjkwMyA3OS43MzIgMTMuNTE4NyA4Mi4xNDM1IDE2LjA0OTkgODQuMTU0M0MxOS4xNzE5IDg2LjQ0MTEgMjIuNTQ0NCA4Ny44MDM2IDI2LjE2NzUgODguMjQxOUMyOC44MzM1IDg4LjU2NDQgMzEuNTE4MiA4OC40NDYgMzQuMjIxNiA4Ny44ODY2QzM0LjU3MTUgODcuODYwOCAzNC45NTk3IDg3LjgwNTQgMzUuMzg2MSA4Ny43MjA3QzM1LjgyMDcgODcuNTY4NyAzNi4zNTc4IDg3LjQyOTEgMzYuOTk3NCA4Ny4zMDE5QzM3LjcxMzUgODcuMTE1OCAzOC4xOTM3IDg3LjQ0NjYgMzguNDM3OSA4OC4yOTQ0QzM5LjY5OTggOTIuMTk3MiA0MC4yMTU1IDk2LjI0ODMgMzkuOTg0OSAxMDAuNDQ4QzM5Ljc1NDMgMTA0LjY0NyAzOC44MjYzIDEwOC41OTIgMzcuMjAwOCAxMTIuMjgyWk0tMy4yMzk4MSAxMDAuODQ0Qy0zLjQ3OTI1IDk5LjM4MzUgLTQuMDUwNyA5OC4wODcgLTQuOTU0MTcgOTYuOTU1Qy01Ljc4OTI3IDk1LjgzMTIgLTYuODc5ODkgOTQuODEyOCAtOC4yMjYwMyA5My45Qy05LjEzNDI5IDkzLjM4MSAtMTAuMDkzIDkyLjk5MjMgLTExLjEwMjEgOTIuNzMzOEMtMTIuMDM0OCA5Mi40MTY1IC0xMi45Nzk2IDkyLjE5OTkgLTEzLjkzNjcgOTIuMDg0MUMtMTYuNzM5NCA5MS43NDUxIC0xOS40NzA1IDkxLjk2MDIgLTIyLjEyOTkgOTIuNzI5NEMtMjIuNzQxOCA5My4yMDA5IC0yMy4wNTAyIDkzLjc0MzIgLTIzLjA1NSA5NC4zNTYyQy0yMi44MDI2IDk1LjEzNjggLTIyLjI0MTggOTUuMzc1MSAtMjEuMzcyNyA5NS4wNzExQy0xOS4wMDMxIDk0LjQwMzIgLTE2LjY5MDMgOTQuMjA1NyAtMTQuNDM0NCA5NC40Nzg2Qy0xMi41MjAzIDk0LjcxMDEgLTEwLjg4MjEgOTUuMjE1MSAtOS41MTk2OSA5NS45OTM2Qy03LjQzNzg1IDk3LjEzMTggLTYuMTU5MTQgOTguODg4OCAtNS42ODM1OCAxMDEuMjY1Qy01LjEwNzEzIDEwMy4zOCAtNS4yNTkgMTA1Ljc4MiAtNi4xMzkxOCAxMDguNDcxQy02LjM4OTcxIDEwOS4zOTUgLTYuMTgxMyAxMDkuOTY2IC01LjUxMzk2IDExMC4xODNDLTUuMTgwMjkgMTEwLjI5MiAtNC44Njg2IDExMC4yOTUgLTQuNTc4OSAxMTAuMTk0Qy00LjIyMDg1IDExMC4xMDEgLTMuOTQwOTQgMTA5Ljc5NCAtMy43MzkxOSAxMDkuMjczQy0yLjkyMjU3IDEwNS45NjIgLTIuNzU2MTEgMTAzLjE1MyAtMy4yMzk4MSAxMDAuODQ0Wk04LjMyODkzIDExMS44NThDOS4wMjg3OSAxMTEuODA2IDkuMzY3MjYgMTExLjMwMiA5LjM0NDM1IDExMC4zNDRDOS4xMzA3NyAxMDcuNTIzIDkuNTU2MDcgMTA1LjE1NCAxMC42MjAzIDEwMy4yMzdDMTEuNjQ4NiAxMDEuMDQzIDEzLjMwOTQgOTkuNjQxNiAxNS42MDI2IDk5LjAzMjZDMTcuMTExMyA5OC42MDE0IDE4LjgyMjcgOTguNTAxNiAyMC43MzY4IDk4LjczMzFDMjIuOTkyNyA5OS4wMDYgMjUuMTkxNiA5OS43NDkzIDI3LjMzMzcgMTAwLjk2M0MyOC4xMDUzIDEwMS40NjUgMjguNzA2NiAxMDEuMzY4IDI5LjEzNzkgMTAwLjY3QzI5LjI3OTQgMTAwLjA3MyAyOS4xMDkyIDk5LjQ3MzIgMjguNjI3NCA5OC44Njk0QzI2LjIyODEgOTcuNDg4MyAyMy42MjcxIDk2LjYyODEgMjAuODI0NCA5Ni4yODkxQzE5Ljg2NzMgOTYuMTczMyAxOC44NjM5IDk2LjE1NDIgMTcuODE0MSA5Ni4yMzE4QzE2Ljg0MDggOTYuMjUwNCAxNS44NTEzIDk2LjQwMzQgMTQuODQ1NSA5Ni42OTA5QzEzLjMyMDUgOTcuMjU2NCAxMS45ODQzIDk3Ljk4MTIgMTAuODM3IDk4Ljg2NTJDOS43NTggOTkuNzU3NCA4LjkyODA4IDEwMC44ODQgOC4zNDcyMSAxMDIuMjQ2QzcuMzI2OTggMTA0LjM3MyA2LjgxODcyIDEwNy4xNDEgNi44MjI0MyAxMTAuNTVDNi44OTQxMSAxMTEuMTA1IDcuMDU4NTQgMTExLjQ2NSA3LjMxNTcyIDExMS42MzNDNy42NDEyNyAxMTEuODA5IDcuOTc5IDExMS44ODQgOC4zMjg5MyAxMTEuODU4Wk0tMTAuMjU0MiA0Mi43MjA4Qy0xMC4wMTg0IDQwLjc3MiAtMTAuMDAyNCAzOS4yMDU3IC0xMC4yMDYgMzguMDIxOUMtMTAuNDAxNCAzNi43NzA5IC0xMS4xODI4IDM2LjA2MjggLTEyLjU1IDM1Ljg5NzRDLTEzLjg0ODggMzUuNzQwMyAtMTQuOTI1NCAzNi4zMjYgLTE1Ljc3OTcgMzcuNjU0NUMtMTYuNjI1OSAzOC45MTU4IC0xNy4xNTQ3IDQwLjQyMDEgLTE3LjM2NiA0Mi4xNjczQy0xNy41Nzc0IDQzLjkxNDYgLTE3LjQxMDMgNDUuNDAwNyAtMTYuODY0OSA0Ni42MjU4Qy0xNi4zMTk1IDQ3Ljg1MSAtMTUuNDMxNiA0OC41Mzc5IC0xNC4yMDExIDQ4LjY4NjhDLTEyLjkwMjMgNDguODQzOSAtMTEuOTc4NyA0OC4zNzYxIC0xMS40MzAzIDQ3LjI4MzNDLTEwLjg4MiA0Ni4xOTA1IC0xMC40ODk5IDQ0LjY2OTYgLTEwLjI1NDIgNDIuNzIwOFpNLTkuMzI3NDIgNTMuOTgxMUMtOS4yMjk4NyA1My4xNzQ3IC05LjQyMjAyIDUyLjQ2OTYgLTkuOTAzODcgNTEuODY1OEMtMTAuMzE3NCA1MS4yNzAzIC0xMC45MDAxIDUwLjkyNzEgLTExLjY1MiA1MC44MzYxQy0xMi40MDQgNTAuNzQ1MiAtMTMuMTI0MiA1MC45NjQ5IC0xMy44MTI2IDUxLjQ5NTNDLTE0LjQzMjYgNTIuMDMzOSAtMTQuNzgzMyA1Mi42MzkzIC0xNC44NjQ2IDUzLjMxMTNDLTE0Ljk1NCA1NC4wNTA1IC0xNC43NTc4IDU0LjcyMiAtMTQuMjc1OSA1NS4zMjU3Qy0xMy43MjU3IDU1LjkzNzggLTEzLjA3NDYgNTYuMjg5MyAtMTIuMzIyNyA1Ni4zODAyQy0xMS42MzkxIDU2LjQ2MjkgLTEwLjk5MTMgNTYuMjY4NSAtMTAuMzc5NCA1NS43OTcxQy05Ljc2NzUxIDU1LjMyNTYgLTkuNDE2ODQgNTQuNzIwMyAtOS4zMjc0MiA1My45ODExWk0yLjc4NTAxIDQwLjcxODRDMi44OTA2OSAzOS44NDQ4IDIuNzAyNjEgMzkuMTA2MSAyLjIyMDc3IDM4LjUwMjRDMS43Mzg5MiAzNy44OTg2IDEuMDg3ODMgMzcuNTQ3MSAwLjI2NzUxNSAzNy40NDc5Qy0wLjQ4NDQ0NiAzNy4zNTY5IC0xLjE2NjM4IDM3LjU0NzIgLTEuNzc4MjkgMzguMDE4NkMtMi4zOTAyIDM4LjQ5MDEgLTIuNzQ5IDM5LjE2MjYgLTIuODU0NjggNDAuMDM2MkMtMi45NTIyMyA0MC44NDI2IC0yLjc2MDA4IDQxLjU0NzcgLTIuMjc4MjMgNDIuMTUxNUMtMS43ODgyNiA0Mi42ODggLTEuMTY3MyA0My4wMDE4IC0wLjQxNTMzNyA0My4wOTI4QzAuNDA0OTgzIDQzLjE5MiAxLjExNzA0IDQzLjAzOTUgMS43MjA4MiA0Mi42MzUyQzIuMzMyNzMgNDIuMTYzOCAyLjY4NzQ2IDQxLjUyNDkgMi43ODUwMSA0MC43MTg0Wk0xMy40NzkxIDQ2LjkyMTRDMTMuNjA5MiA0NS44NDYxIDEzLjMwNDcgNDQuOTIyOSAxMi41NjU3IDQ0LjE1MTdDMTEuODM0OCA0My4zMTMyIDEwLjgxOTkgNDIuODE1NCA5LjUyMTA2IDQyLjY1ODNDOC4zNTg5NCA0Mi41MTc3IDcuMjg4ODMgNDIuNzYzMyA2LjMxMDczIDQzLjM5NUM1LjM0MDc2IDQzLjk1OTUgNC43OTA3NCA0NC43Nzk0IDQuNjYwNjcgNDUuODU0NkM0LjU0Njg2IDQ2Ljc5NTQgNC44ODk1OSA0Ny42ODkyIDUuNjg4ODQgNDguNTM1OUM2LjQ4ODEgNDkuMzgyNiA3LjQ2ODc5IDQ5Ljg3NjMgOC42MzA5MSA1MC4wMTY5QzkuOTI5NzUgNTAuMTc0IDExLjAzNCA0OS45MzI1IDExLjk0MzggNDkuMjkyNkMxMi44NTM1IDQ4LjY1MjYgMTMuMzY1MyA0Ny44NjIyIDEzLjQ3OTEgNDYuOTIxNFpNMTYuODMzIDQyLjQxNzhDMTYuNzM1NCA0My4yMjQyIDE2LjkyNzYgNDMuOTI5MyAxNy40MDk0IDQ0LjUzMzFDMTcuODk5NCA0NS4wNjk2IDE4LjU1NDUgNDUuMzg3NSAxOS4zNzQ5IDQ1LjQ4NjhDMjAuMTI2OCA0NS41Nzc3IDIwLjgwNDcgNDUuNDIxMSAyMS40MDg1IDQ1LjAxNjhDMjIuMDIwNCA0NC41NDU0IDIyLjM3NTEgNDMuOTA2NCAyMi40NzI3IDQzLjFDMjIuNTc4NCA0Mi4yMjY0IDIyLjM5MDMgNDEuNDg3NyAyMS45MDg0IDQwLjg4MzlDMjEuNDI2NiA0MC4yODAyIDIwLjgwOTcgMzkuOTMyOCAyMC4wNTc3IDM5Ljg0MTlDMTkuMjM3NCAzOS43NDI2IDE4LjUyMTMgMzkuOTI4NyAxNy45MDk0IDQwLjQwMDJDMTcuMjk3NSA0MC44NzE2IDE2LjkzODcgNDEuNTQ0MiAxNi44MzMgNDIuNDE3OFoiIGZpbGw9IndoaXRlIi8+CjxwYXRoIGQ9Ik01NS45NjA5IDEwNy42ODhINjAuNDYwOUM2MS4yNjgyIDEwNy42ODggNjEuOTUzMSAxMDcuODEgNjIuNTE1NiAxMDguMDU1QzYzLjA3ODEgMTA4LjI5NCA2My41IDEwOC42MzMgNjMuNzgxMiAxMDkuMDdDNjQuMDY3NyAxMDkuNTAzIDY0LjIxMDkgMTEwLjAxIDY0LjIxMDkgMTEwLjU5NEM2NC4yMTA5IDExMS4wMjEgNjQuMTIyNCAxMTEuNDAxIDYzLjk0NTMgMTExLjczNEM2My43NzM0IDExMi4wNjggNjMuNTMzOSAxMTIuMzQ0IDYzLjIyNjYgMTEyLjU2MkM2Mi45MjQ1IDExMi43NzYgNjIuNTcyOSAxMTIuOTI3IDYyLjE3MTkgMTEzLjAxNlYxMTMuMTI1QzYyLjYwNDIgMTEzLjE0NiA2My4wMTA0IDExMy4yNzEgNjMuMzkwNiAxMTMuNUM2My43NzA4IDExMy43MjkgNjQuMDc1NSAxMTQuMDQ5IDY0LjMwNDcgMTE0LjQ2MUM2NC41MzM5IDExNC44NjcgNjQuNjQ4NCAxMTUuMzQxIDY0LjY0ODQgMTE1Ljg4M0M2NC42NDg0IDExNi40ODcgNjQuNSAxMTcuMDIzIDY0LjIwMzEgMTE3LjQ5MkM2My45MDYyIDExNy45NjEgNjMuNDYzNSAxMTguMzMxIDYyLjg3NSAxMTguNjAyQzYyLjI5MTcgMTE4Ljg2NyA2MS41ODU5IDExOSA2MC43NTc4IDExOUg1NS45NjA5VjEwNy42ODhaTTYwLjI4MTIgMTE3LjA3QzYwLjcyNCAxMTcuMDcgNjEuMDg4NSAxMTcuMDEzIDYxLjM3NSAxMTYuODk4QzYxLjY2NjcgMTE2Ljc3OSA2MS44ODAyIDExNi42MTUgNjIuMDE1NiAxMTYuNDA2QzYyLjE1MSAxMTYuMTkzIDYyLjIxODggMTE1Ljk0IDYyLjIxODggMTE1LjY0OEM2Mi4yMTg4IDExNS4zMzYgNjIuMTQzMiAxMTUuMDU1IDYxLjk5MjIgMTE0LjgwNUM2MS44NDExIDExNC41NTUgNjEuNjIyNCAxMTQuMzY1IDYxLjMzNTkgMTE0LjIzNEM2MS4wNTQ3IDExNC4wOTkgNjAuNzI0IDExNC4wMzEgNjAuMzQzOCAxMTQuMDMxSDU4LjMwNDdWMTE3LjA3SDYwLjI4MTJaTTYwLjEwOTQgMTEyLjQzQzYwLjQzNzUgMTEyLjQzIDYwLjczMTggMTEyLjM3IDYwLjk5MjIgMTEyLjI1QzYxLjI1NzggMTEyLjEzIDYxLjQ2MzUgMTExLjk2MSA2MS42MDk0IDExMS43NDJDNjEuNzYwNCAxMTEuNTIzIDYxLjgzNTkgMTExLjI2NiA2MS44MzU5IDExMC45NjlDNjEuODM1OSAxMTAuNjg4IDYxLjc3MDggMTEwLjQ0NSA2MS42NDA2IDExMC4yNDJDNjEuNTEwNCAxMTAuMDM0IDYxLjMxNzcgMTA5Ljg3NSA2MS4wNjI1IDEwOS43NjZDNjAuODEyNSAxMDkuNjUxIDYwLjUxMDQgMTA5LjU5NCA2MC4xNTYyIDEwOS41OTRINTguMzA0N1YxMTIuNDNINjAuMTA5NFpNNjUuNTE1NiAxMTlMNjkuNDIxOSAxMDcuNjg4SDcyLjQzNzVMNzYuMzUxNiAxMTlINzMuODI4MUw3MC45NzY2IDExMC4yNDJINzAuODgyOEw2OC4wMjM0IDExOUg2NS41MTU2Wk03My45Mzc1IDExNC41NTVWMTE2LjM5MUg2Ny44OTg0VjExNC41NTVINzMuOTM3NVpNODcuMDYyNSAxMTlIODUuMDMxMkw4MC4wNjI1IDExMS44MTJINzkuOTc2NlYxMTlINzcuNjMyOFYxMDcuNjg4SDc5LjY5NTNMODQuNjI1IDExNC44NjdIODQuNzI2NlYxMDcuNjg4SDg3LjA2MjVWMTE5Wk05MC4wMzkxIDExOVYxMTYuOTg0SDkyLjg3NUM5My42MDQyIDExNi45ODQgOTQuMjEwOSAxMTYuODU0IDk0LjY5NTMgMTE2LjU5NEM5NS4xNzk3IDExNi4zMzMgOTUuNTQ0MyAxMTUuOTM1IDk1Ljc4OTEgMTE1LjM5OEM5Ni4wMzM5IDExNC44NTcgOTYuMTU2MiAxMTQuMTY5IDk2LjE1NjIgMTEzLjMzNkM5Ni4xNTYyIDExMi41MDMgOTYuMDMzOSAxMTEuODE4IDk1Ljc4OTEgMTExLjI4MUM5NS41NDk1IDExMC43NCA5NS4xODc1IDExMC4zNDEgOTQuNzAzMSAxMTAuMDg2Qzk0LjIxODggMTA5LjgzMSA5My42MTQ2IDEwOS43MDMgOTIuODkwNiAxMDkuNzAzSDg5Ljk4NDRWMTA3LjY4OEg5My4wMDc4Qzk0LjE0MzIgMTA3LjY4OCA5NS4xMjI0IDEwNy45MTQgOTUuOTQ1MyAxMDguMzY3Qzk2Ljc3MzQgMTA4LjgxNSA5Ny40MDYyIDEwOS40NjQgOTcuODQzOCAxMTAuMzEyQzk4LjI4NjUgMTExLjE2MSA5OC41MDc4IDExMi4xNjkgOTguNTA3OCAxMTMuMzM2Qzk4LjUwNzggMTE0LjUwOCA5OC4yODY1IDExNS41MTggOTcuODQzOCAxMTYuMzY3Qzk3LjQwMSAxMTcuMjE2IDk2Ljc2MyAxMTcuODY3IDk1LjkyOTcgMTE4LjMyQzk1LjEwMTYgMTE4Ljc3MyA5NC4xMTcyIDExOSA5Mi45NzY2IDExOUg5MC4wMzkxWk05MS4zMzU5IDExOUg4OC45OTIyVjEwNy42ODhIOTEuMzM1OVYxMTlaTTk4Ljk1MzEgMTE5TDEwMi44NTkgMTA3LjY4OEgxMDUuODc1TDEwOS43ODkgMTE5SDEwNy4yNjZMMTA0LjQxNCAxMTAuMjQySDEwNC4zMkwxMDEuNDYxIDExOUg5OC45NTMxWk0xMDcuMzc1IDExNC41NTVWMTE2LjM5MUgxMDEuMzM2VjExNC41NTVIMTA3LjM3NVpNMTExLjA3IDEwNy42ODhIMTE1LjU3QzExNi4zNzggMTA3LjY4OCAxMTcuMDYyIDEwNy44MSAxMTcuNjI1IDEwOC4wNTVDMTE4LjE4OCAxMDguMjk0IDExOC42MDkgMTA4LjYzMyAxMTguODkxIDEwOS4wN0MxMTkuMTc3IDEwOS41MDMgMTE5LjMyIDExMC4wMSAxMTkuMzIgMTEwLjU5NEMxMTkuMzIgMTExLjAyMSAxMTkuMjMyIDExMS40MDEgMTE5LjA1NSAxMTEuNzM0QzExOC44ODMgMTEyLjA2OCAxMTguNjQzIDExMi4zNDQgMTE4LjMzNiAxMTIuNTYyQzExOC4wMzQgMTEyLjc3NiAxMTcuNjgyIDExMi45MjcgMTE3LjI4MSAxMTMuMDE2VjExMy4xMjVDMTE3LjcxNCAxMTMuMTQ2IDExOC4xMiAxMTMuMjcxIDExOC41IDExMy41QzExOC44OCAxMTMuNzI5IDExOS4xODUgMTE0LjA0OSAxMTkuNDE0IDExNC40NjFDMTE5LjY0MyAxMTQuODY3IDExOS43NTggMTE1LjM0MSAxMTkuNzU4IDExNS44ODNDMTE5Ljc1OCAxMTYuNDg3IDExOS42MDkgMTE3LjAyMyAxMTkuMzEyIDExNy40OTJDMTE5LjAxNiAxMTcuOTYxIDExOC41NzMgMTE4LjMzMSAxMTcuOTg0IDExOC42MDJDMTE3LjQwMSAxMTguODY3IDExNi42OTUgMTE5IDExNS44NjcgMTE5SDExMS4wN1YxMDcuNjg4Wk0xMTUuMzkxIDExNy4wN0MxMTUuODMzIDExNy4wNyAxMTYuMTk4IDExNy4wMTMgMTE2LjQ4NCAxMTYuODk4QzExNi43NzYgMTE2Ljc3OSAxMTYuOTkgMTE2LjYxNSAxMTcuMTI1IDExNi40MDZDMTE3LjI2IDExNi4xOTMgMTE3LjMyOCAxMTUuOTQgMTE3LjMyOCAxMTUuNjQ4QzExNy4zMjggMTE1LjMzNiAxMTcuMjUzIDExNS4wNTUgMTE3LjEwMiAxMTQuODA1QzExNi45NTEgMTE0LjU1NSAxMTYuNzMyIDExNC4zNjUgMTE2LjQ0NSAxMTQuMjM0QzExNi4xNjQgMTE0LjA5OSAxMTUuODMzIDExNC4wMzEgMTE1LjQ1MyAxMTQuMDMxSDExMy40MTRWMTE3LjA3SDExNS4zOTFaTTExNS4yMTkgMTEyLjQzQzExNS41NDcgMTEyLjQzIDExNS44NDEgMTEyLjM3IDExNi4xMDIgMTEyLjI1QzExNi4zNjcgMTEyLjEzIDExNi41NzMgMTExLjk2MSAxMTYuNzE5IDExMS43NDJDMTE2Ljg3IDExMS41MjMgMTE2Ljk0NSAxMTEuMjY2IDExNi45NDUgMTEwLjk2OUMxMTYuOTQ1IDExMC42ODggMTE2Ljg4IDExMC40NDUgMTE2Ljc1IDExMC4yNDJDMTE2LjYyIDExMC4wMzQgMTE2LjQyNyAxMDkuODc1IDExNi4xNzIgMTA5Ljc2NkMxMTUuOTIyIDEwOS42NTEgMTE1LjYyIDEwOS41OTQgMTE1LjI2NiAxMDkuNTk0SDExMy40MTRWMTEyLjQzSDExNS4yMTlaTTEyMy42MDIgMTE5SDEyMS4yNThWMTA3LjY4OEgxMjMuNjAyVjExOVoiIGZpbGw9IiNEQUQ4RkYiLz4KPC9nPgo8ZGVmcz4KPGNsaXBQYXRoIGlkPSJjbGlwMF8xMV83NTciPgo8cmVjdCB3aWR0aD0iMTM4IiBoZWlnaHQ9IjEzOCIgZmlsbD0id2hpdGUiLz4KPC9jbGlwUGF0aD4KPC9kZWZzPgo8L3N2Zz4K" alt="반다비 로고" class="brand-logo-img" />
+          </div>
+          <div>
+            <h1 class="text-lg font-black">반다비 AI <span id="role-title" class="text-sm text-slate-400 font-bold">세션 대기</span></h1>
+            <div class="flex flex-wrap items-center gap-2 mt-1">
+              <span id="role-badge" class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-black text-slate-400">세션 대기</span>
+              <span id="token-wrapper" class="hidden rounded-full bg-amber-950/50 border border-amber-800/30 px-3 py-1 text-[11px] font-black text-amber-300">
+                <i class="fa-solid fa-coins mr-1"></i><span id="user-token-balance">3,500</span> BT <span class="text-[10px] text-mid/70">현금 환급·양도 불가</span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <nav class="overflow-x-auto">
+          <div class="inline-flex gap-1 bg-slate-900 border border-slate-800 rounded-2xl p-1 min-w-max">
+            <button id="tab-main-btn" onclick="switchTab('main-tab', this)" class="tab-btn active rounded-xl px-4 py-2.5 text-sm font-black"><i class="fa-solid fa-brain mr-2"></i>AI 추천 및 이동지원 연계</button>
+            <button id="tab-schedule-btn" onclick="switchTab('schedule-tab', this)" class="tab-btn rounded-xl px-4 py-2.5 text-sm font-black"><i class="fa-solid fa-calendar-check mr-2"></i>내 운동 일정 추천</button>
+            <button id="tab-vision-btn" onclick="switchTab('vision-tab', this)" class="tab-btn rounded-xl px-4 py-2.5 text-sm font-black"><i class="fa-solid fa-eye mr-2"></i>AI 기반 접근성 점검 보조</button>
+            <button id="tab-dashboard-btn" onclick="switchTab('dashboard-tab', this)" class="tab-btn rounded-xl px-4 py-2.5 text-sm font-black"><i class="fa-solid fa-chart-pie mr-2"></i>기관용 대시보드</button>
+          </div>
+        </nav>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleHighContrast()" class="rounded-2xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs font-bold text-slate-300"><i class="fa-solid fa-circle-half-stroke mr-1"></i>고대비</button>
+          <button onclick="voiceDemo()" class="rounded-2xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs font-bold text-slate-300"><i class="fa-solid fa-microphone text-blue-300 mr-1"></i><span id="voice-status">음성</span></button>
+          <button onclick="logout()" class="rounded-2xl bg-slate-900 border border-slate-800 px-3 py-2 text-xs text-slate-400 hover:text-red-300"><i class="fa-solid fa-power-off"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-shell px-4 py-6 pb-10">
+    <section id="main-tab" class="tab-content active">
+      <div class="max-w-[860px] mx-auto space-y-5">
+        <div id="user-flow-steps" class="hidden glass rounded-[1.5rem] p-3">
+          <div class="grid grid-cols-4 gap-2 text-xs">
+            <button class="flow-step active rounded-2xl border border-slate-800 bg-slate-900 p-3 font-black" data-step="route-screen" onclick="showFlow('route-screen')"><i class="fa-solid fa-route block mb-1"></i>경로</button>
+            <button class="flow-step rounded-2xl border border-slate-800 bg-slate-900 p-3 font-black" data-step="care-screen" onclick="showFlow('care-screen')"><i class="fa-solid fa-user-group block mb-1"></i>동행</button>
+            <button class="flow-step rounded-2xl border border-slate-800 bg-slate-900 p-3 font-black" data-step="class-screen" onclick="showFlow('class-screen')"><i class="fa-solid fa-person-chalkboard block mb-1"></i>강습</button>
+            <button class="flow-step rounded-2xl border border-slate-800 bg-slate-900 p-3 font-black" data-step="report-screen" onclick="showFlow('report-screen')"><i class="fa-solid fa-chart-line block mb-1"></i>리포트</button>
+          </div>
+        </div>
+
+        <div id="start-screen" class="flow-screen active">
+          <section class="glass rounded-[2rem] p-6 md:p-8">
+            <p class="tiny-label text-blue-300">Start</p>
+            <h2 id="start-greeting" class="mt-2 text-3xl md:text-4xl font-black text-white leading-tight">반갑습니다, 000님 :)</h2>
+            <p class="mt-3 text-lg text-slate-300">오늘 운동, 갈 수 있는 경로부터 확인해요.</p>
+            <p class="mt-2 text-xs text-slate-500">필요한 정보만 입력하면 경로·동행·강습·리포트 화면이 순서대로 이어집니다.</p>
+            <div class="mt-7 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="space-y-4">
+                <label class="block"><span class="text-xs font-bold text-slate-400">접근성 지원 필요 유형</span><div class="select-wrap"><select id="disability-type" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm"><option value="physical">휠체어 이용 또는 보행 보조 필요</option><option value="visual">음성 안내 또는 유도동선 필요</option><option value="developmental">보호자 동행 또는 단계별 안내 필요</option><option value="senior">일부 도움 필요 또는 저강도 안내 선호</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
+                <label class="block"><span class="text-xs font-bold text-slate-400">출발지</span><input id="origin" value="김포 구래역 1번 출구" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" /></label>
+                <label class="block"><span class="text-xs font-bold text-slate-400">목적지</span><div class="select-wrap"><select id="center-location" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" onchange="handleCenterLocationChange(this)"><option value="gimpo">김포 반다비체육센터</option><option value="gimpo2">김포 제2 반다비 교육거점</option></select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div></label>
+              </div>
+              <div class="grid grid-cols-2 gap-3 content-start text-sm">
+                <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">보호자 알림</div>
+                <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">버디 매칭</div>
+                <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">강습 추천</div>
+                <div class="soft rounded-2xl p-4 flex items-center justify-center gap-2 font-bold" style="color:var(--ink);">리포트 수신</div>
+                <button onclick="triggerAiEngine()" class="col-span-2 pulse mt-2 rounded-3xl bg-blue-600 hover:bg-blue-500 py-5 font-black text-lg shadow-lg shadow-blue-900/30" style="color:#ffffff !important;"><i class="fa-solid fa-bolt mr-2"></i>AI 추천 시작</button>
+              </div>
+            </div>
+            <p class="mt-7 text-[11px] text-slate-500">본 AI 결과는 이용자 편의를 위한 추천 정보이며, 최종 이용 여부와 운영 확정은 이용자 및 운영기관이 결정합니다.</p>
+          </section>
+        </div>
+
+        <div id="route-screen" class="flow-screen">
+          <section class="glass rounded-[2rem] p-6 md:p-8 overflow-hidden relative">
+            <div class="absolute right-8 top-8 text-blue-400/15 text-[8rem]"><i class="fa-solid fa-location-dot"></i></div>
+            <p class="tiny-label text-blue-300">MAIN 01</p>
+            <h2 class="mt-2 text-3xl font-black">AI 기반 도착 가능성 — 경로분석</h2>
+            <p class="mt-2 text-sm text-slate-400">공공데이터와 입력 정보를 기반으로 한 예측값이며, 실제 교통상황·시설 운영상황에 따라 달라질 수 있습니다.</p>
+            <div id="route-loading" class="mt-6 rounded-[2rem] border border-dashed border-slate-700 bg-surface p-10 text-center">
+              <i class="fa-solid fa-spinner spinner text-blue-300 text-3xl"></i>
+              <p class="mt-4 font-black">이동 가능성을 계산하고 있어요</p>
+            </div>
+            <div id="route-result" class="hidden mt-6 space-y-4">
+              <p id="route-source-status" class="text-[10px] text-slate-500 leading-relaxed"></p>
+              <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <div class="lg:col-span-8 rounded-[2rem] bg-surface border border-lav-line p-4">
+                  <div class="flex justify-between items-start gap-3 mb-2"><div><p class="text-xs text-slate-400">추천 경로</p><h3 id="route-title" class="text-xl font-black">김포 구래역 1번 출구 → 김포 반다비체육센터</h3></div><button onclick="simulateDispatch()" class="rounded-2xl bg-slate-800 hover:bg-slate-700 px-3 py-2 text-[11px] font-black">재계산</button></div>
+                  <svg viewBox="0 0 860 310" class="w-full h-auto">
+                    <defs><linearGradient id="routeGradient" x1="0" x2="1"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#818cf8"/></linearGradient></defs>
+                    <path d="M100 205 C205 205, 235 125, 345 125 S 520 195, 625 180 S 730 105, 790 105" fill="none" stroke="#334155" stroke-width="28" stroke-linecap="round"/>
+                    <path class="route-line" d="M100 205 C205 205, 235 125, 345 125 S 520 195, 625 180 S 730 105, 790 105" fill="none" stroke="url(#routeGradient)" stroke-width="10" stroke-linecap="round"/>
+                    <circle cx="90" cy="205" r="27" fill="#dcfce7"/><circle cx="340" cy="125" r="27" fill="#e0f2fe"/><circle cx="625" cy="180" r="27" fill="#f3e8ff"/><circle cx="790" cy="105" r="27" fill="#fef3c7"/>
+                    <text x="90" y="211" text-anchor="middle" fill="#166534" font-size="13" font-weight="900">출발</text><text x="340" y="131" text-anchor="middle" fill="#0e7490" font-size="13" font-weight="900">탑승</text><text x="625" y="186" text-anchor="middle" fill="#6d28d9" font-size="13" font-weight="900">하차</text><text x="790" y="111" text-anchor="middle" fill="#92400e" font-size="13" font-weight="900">센터</text>
+                    <text x="260" y="96" fill="#94a3b8" font-size="14">이동수단 31번 18분</text><text x="560" y="224" fill="#94a3b8" font-size="14">센터 진입 180m</text><text x="410" y="164" fill="#f59e0b" font-size="13">주의 지점</text>
+                  </svg>
+                </div>
+                <div class="lg:col-span-4 space-y-3">
+                  <div class="toss-card rounded-[2rem] p-5"><p class="text-xs text-slate-400">AI 종합 소견</p><p id="route-risk" class="mt-1 text-3xl font-black text-amber-300">주의</p><p id="route-action" class="mt-2 text-sm text-slate-400">강습 85~90분 전 출발하고, 이동지원 연계를 함께 준비하세요.</p></div>
+                  <div class="grid grid-cols-2 gap-2"><div class="soft rounded-2xl p-3"><p class="text-[11px] text-slate-400">총 시간</p><p id="route-total" class="font-black">35분</p></div><div class="soft rounded-2xl p-3"><p class="text-[11px] text-slate-400">도보</p><p id="route-walk" class="font-black">300m</p></div><div class="soft rounded-2xl p-3"><p class="text-[11px] text-slate-400">환승</p><p id="route-transfer" class="font-black">1회</p></div><div class="soft rounded-2xl p-3"><p class="text-[11px] text-slate-400">대체 이동수단 가능성</p><p id="route-reserve" class="font-black text-purple-300">74%</p></div></div>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3"><div class="soft rounded-2xl p-4"><i class="fa-solid fa-shoe-prints text-emerald-300"></i><p class="text-xs text-slate-400 mt-2">도보 위험도</p><p class="font-black">낮음~보통</p></div><div class="soft rounded-2xl p-4"><i class="fa-solid fa-cloud-sun-rain text-amber-300"></i><p class="text-xs text-slate-400 mt-2">날씨 보정</p><p id="route-weather" class="font-black">강풍 시 주의</p></div><div class="soft rounded-2xl p-4"><i class="fa-solid fa-door-open text-blue-300"></i><p class="text-xs text-slate-400 mt-2">버스 도착</p><p id="route-bus-arrival" class="font-black">배차 확인 필요</p></div></div>
+              <div class="rounded-[2rem] bg-gradient-to-r from-emerald-950/70 to-blue-950/50 border border-emerald-800/30 p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div><p class="font-black">예약·이동·동행 플랜이 준비됐어요</p><p class="text-sm text-slate-400">확정하면 버디 후보와 강습 추천으로 이어집니다.</p></div><div class="flex flex-col sm:flex-row gap-2 md:justify-end"><button onclick="restartRouteAnalysis()" class="rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-5 py-3 font-black">다시하기</button><button onclick="approveReservation()" class="rounded-2xl px-5 py-3 font-black" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">확정하기</button></div></div>
+            </div>
+          </section>
+        </div>
+
+        <div id="care-screen" class="flow-screen">
+          <section class="glass rounded-[2rem] p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute right-8 top-6 text-amber-400/15 text-[8rem]"><i class="fa-solid fa-people-arrows"></i></div>
+            <p class="tiny-label text-amber-300">MAIN 02</p><h2 class="mt-2 text-3xl font-black">인증 기반 — 버디 후보 추천</h2><p class="mt-2 text-sm text-slate-400">혼자 이동하는 부담을 줄이고, 버디와 함께 체육 시설을 이용합니다.</p>
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="toss-card rounded-[2rem] p-6"><p class="text-sm font-black text-amber-300">첫 방문 버디</p><p class="mt-8 text-3xl font-black"><span id="buddy-name">김지오</span> <span class="text-base text-slate-400">회원</span></p><p id="buddy-meta" class="mt-2 text-xs text-slate-500">같은 시간대, 같은 센터 이용</p></div>
+              <div class="toss-card rounded-[2rem] p-6"><p class="text-sm font-black text-blue-300">센터 도우미</p><p class="mt-6 text-3xl font-black">500m 전</p><p class="mt-2 text-right text-slate-400">대기</p></div>
+              <div class="toss-card rounded-[2rem] p-6"><p class="text-sm font-black text-emerald-300">보호자 모드</p><p class="mt-8 text-2xl font-black">출석 알림 공유</p><p class="mt-2 text-xs text-slate-500">확정 전 연락처 비공개</p></div>
+            </div>
+            <div id="care-msg" class="mt-5 rounded-2xl bg-surface border border-lav-line p-4 text-sm text-slate-400 leading-relaxed">버디 후보 추천은 기관 인증 이용자에 한해 제공되며, 상호 동의 및 관리자 확인 후 연결됩니다. 실명·연락처는 확정 전 비공개이며 신고/차단/긴급 연락 기능을 포함합니다.</div>
+            <div class="mt-5 flex justify-end gap-3"><button onclick="skipBuddy()" class="rounded-2xl bg-rose-500 hover:bg-rose-400 px-5 py-3 font-black">건너뛰기</button><button onclick="confirmBuddy()" class="rounded-2xl px-5 py-3 font-black" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">확정하기</button></div>
+          </section>
+        </div>
+
+        <div id="class-screen" class="flow-screen">
+          <section class="glass rounded-[2rem] p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute right-8 top-8 text-cyan-400/15 text-[8rem]"><i class="fa-solid fa-dumbbell"></i></div>
+            <p class="tiny-label text-cyan-300">Program AI</p><h2 class="mt-2 text-3xl font-black">인증 기반 — 강습·지도자 추천</h2><p class="mt-2 text-sm text-slate-400">접근성 지원 필요 유형, 운동 목적, 시간, 지도자 전문성을 함께 고려합니다.</p>
+            <div class="mt-10 max-w-md mx-auto"><div id="coach-card" class="toss-card rounded-[2rem] p-7"><p class="text-sm font-black text-cyan-300">추천 지도자</p><p class="mt-6 text-4xl font-black">박강훈 <span class="text-lg text-slate-400">지도자</span></p><p class="mt-3 text-sm text-slate-400">수중 생활체육 · 휠체어 이용 또는 보행 보조 필요 이용자 지도 경험</p><div class="mt-8 flex flex-wrap gap-2 text-xs"><span class="soft rounded-xl px-3 py-2">수중 생활체육</span><span class="soft rounded-xl px-3 py-2">화·목 10시</span><span class="soft rounded-xl px-3 py-2">4명 소그룹</span></div></div></div>
+            <div id="class-msg" class="mt-5 text-center text-sm text-slate-500">본 추천은 생활체육 참여 지원을 위한 참고자료이며, 최종 참여 여부는 이용자와 운영기관이 결정합니다.</div>
+            <div class="mt-5 flex justify-end gap-3"><button onclick="switchInstructor()" class="rounded-2xl bg-rose-500 hover:bg-rose-400 px-5 py-3 font-black">다른 지도자</button><button onclick="confirmClass()" class="rounded-2xl px-5 py-3 font-black" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">확정하기</button></div>
+          </section>
+        </div>
+
+        <div id="report-screen" class="flow-screen">
+          <section class="glass rounded-[2rem] p-6 md:p-8 relative overflow-hidden">
+            <div class="absolute right-8 top-8 text-emerald-400/15 text-[8rem]"><i class="fa-solid fa-file-waveform"></i></div>
+            <p class="tiny-label text-emerald-300">MAIN 03</p><h2 class="mt-2 text-3xl font-black">AI 생활체육 리포트</h2><p class="mt-2 text-sm text-slate-400">운동 후 변화와 다음 참여 가능성을 쉽게 확인해요.</p>
+            <div class="mt-7 grid grid-cols-2 md:grid-cols-4 gap-3"><div class="toss-card rounded-[2rem] p-5"><p class="text-xs text-slate-400">오늘 출석</p><p id="report-attendance" class="mt-3 text-xl font-black">출석 완료</p></div><div class="toss-card rounded-[2rem] p-5"><p class="text-xs text-slate-400">운동 성취도</p><p id="report-achievement" class="mt-3 text-2xl font-black text-amber-300">84점</p></div><div class="toss-card rounded-[2rem] p-5"><p class="text-xs text-slate-400">지속참여 점수</p><p id="report-streak" class="mt-3 text-2xl font-black text-emerald-300">91점</p></div><div class="toss-card rounded-[2rem] p-5"><p class="text-xs text-slate-400">참여 인센티브</p><p class="mt-3 text-2xl font-black text-blue-300">+300 BT</p></div></div>
+            <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4"><div class="soft rounded-[2rem] p-5"><p class="font-black"><i class="fa-solid fa-person-walking text-blue-300 mr-2"></i>수행 범위 변화</p><p id="report-range" class="mt-4 text-3xl font-black">78° → 82°</p><p id="report-range-note" class="mt-2 text-sm text-emerald-300">+4° 변화 · 지난 회차 대비 수행 범위가 소폭 개선되었습니다.</p></div><div class="soft rounded-[2rem] p-5"><p class="font-black"><i class="fa-solid fa-circle-check text-emerald-300 mr-2"></i>다음 생활체육 가이드</p><div id="report-guide-grid" class="mt-4 grid grid-cols-2 gap-2 text-xs"><div class="toss-card rounded-2xl p-3">추천 운동<br/><b class="text-white">수중 저항 운동 유지</b></div><div class="toss-card rounded-2xl p-3">강도<br/><b class="text-white">소폭 상향 검토</b></div><div class="toss-card rounded-2xl p-3">준비운동<br/><b class="text-white">8분 → 10분</b></div><div class="toss-card rounded-2xl p-3">주의<br/><b class="text-white">통증 시 지도자 확인</b></div></div></div></div>
+            <div class="mt-4 rounded-[2rem] bg-emerald-950/20 border border-emerald-800/25 p-4"><p class="font-black text-accent">지속참여 루프</p><div class="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs"><span class="soft rounded-xl p-3"><i class="fa-solid fa-check text-emerald-300 mr-1"></i>다음 예약</span><span class="soft rounded-xl p-3"><i class="fa-solid fa-check text-emerald-300 mr-1"></i>이동지원 연계</span><span class="soft rounded-xl p-3"><i class="fa-solid fa-check text-emerald-300 mr-1"></i>버디 동행</span><span class="soft rounded-xl p-3"><i class="fa-solid fa-check text-emerald-300 mr-1"></i>보호자 알림</span></div><p class="mt-3 text-[11px] text-amber-300">본 리포트는 의료적 진단·치료·처방 목적이 아닌 생활체육 참여 지원을 위한 참고자료입니다.</p></div>
+            <div id="report-msg" class="hidden mt-4 rounded-2xl bg-blue-950/40 border border-blue-800/30 p-3 text-sm text-accent"></div>
+            <div class="mt-5 flex flex-wrap justify-end gap-3"><button onclick="showFlow('class-screen')" class="rounded-2xl bg-slate-800 hover:bg-slate-700 px-5 py-3 font-black">다음 강습 추천 보기</button><button onclick="saveReport()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-5 py-3 font-black">리포트 저장 및 공유</button><button onclick="addMileage()" class="rounded-2xl px-5 py-3 font-black" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">참여 인센티브 확인</button></div>
+          </section>
+        </div>
+
+        <div id="guardian-summary-screen" class="flow-screen">
+          <section class="glass rounded-[2rem] p-6 md:p-8">
+            <p class="tiny-label text-purple-300">Guardian Share</p><h2 class="mt-2 text-3xl font-black">보호자 공유용 요약</h2><p class="mt-2 text-sm text-slate-400">출석, 이동, 운동 참여 결과를 간단히 공유합니다.</p>
+            <div class="mt-7 grid grid-cols-2 md:grid-cols-4 gap-3"><div class="toss-card rounded-2xl p-5"><p class="text-xs text-slate-400">출석</p><p class="font-black text-white mt-2">완료</p></div><div class="toss-card rounded-2xl p-5"><p class="text-xs text-slate-400">이동</p><p class="font-black text-white mt-2">이동지원 연계 완료</p></div><div class="toss-card rounded-2xl p-5"><p class="text-xs text-slate-400">버디</p><p class="font-black text-white mt-2">첫 방문 버디 연결</p></div><div class="toss-card rounded-2xl p-5"><p class="text-xs text-slate-400">운동</p><p class="font-black text-white mt-2">수중 생활체육 참여 완료</p></div></div>
+            <div id="guardian-summary-text" class="mt-5 soft rounded-[2rem] p-5 text-sm text-slate-300 leading-relaxed">오늘 김포 반다비체육센터 수중 생활체육 프로그램에 정상 참여했습니다. 이동지원 연계와 센터 도착 확인이 완료되었고, 다음 참여를 위한 생활체육 가이드가 생성되었습니다.</div>
+            <p class="mt-3 text-[11px] text-slate-500">공유 내용에는 민감한 진단명이나 상세 건강정보가 포함되지 않습니다. 보호자 공유는 이용자 동의 범위 안에서만 제공됩니다.</p>
+            <div id="guardian-msg" class="hidden mt-4 rounded-2xl bg-emerald-950/40 border border-emerald-800/30 p-3 text-sm text-accent"></div>
+            <div class="mt-5 flex justify-end gap-3"><button onclick="showFlow('report-screen')" class="rounded-2xl bg-slate-800 hover:bg-slate-700 px-5 py-3 font-black">리포트 화면으로 돌아가기</button><button onclick="shareGuardianSummary()" class="rounded-2xl px-5 py-3 font-black" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">보호자에게 공유</button></div>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section id="schedule-tab" class="tab-content">
+      <div class="glass rounded-[2rem] p-5 md:p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <p class="tiny-label text-purple-300">Personal Schedule AI</p>
+            <h2 class="text-2xl md:text-3xl font-black">내 운동 일정 추천</h2>
+            <p class="mt-2 text-sm text-slate-400 leading-relaxed">강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>
+          </div>
+          <button onclick="runScheduleOptimize()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-5 py-3 font-black text-white shrink-0"><i class="fa-solid fa-magnifying-glass-location mr-2"></i>가능한 시간 찾기</button>
+        </div>
+
+        <div class="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="lg:col-span-5 space-y-3">
+            <div class="soft rounded-[2rem] p-5">
+              <p class="font-black"><i class="fa-solid fa-sliders text-purple-300 mr-2"></i>선호 조건</p>
+              <div class="mt-4 grid grid-cols-1 gap-3 text-sm">
+                <label class="block">
+                  <span class="text-xs font-bold text-slate-400">선호 요일</span>
+                  <div class="select-wrap"><select id="schedule-preferred-day" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm">
+                    <option>화·목 중심</option>
+                    <option>월·수 중심</option>
+                    <option>주말 가능</option>
+                  </select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div>
+                </label>
+                <label class="block">
+                  <span class="text-xs font-bold text-slate-400">선호 시간대</span>
+                  <div class="select-wrap"><select id="schedule-preferred-time" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm">
+                    <option>오전 10시 전후</option>
+                    <option>오후 2시 전후</option>
+                    <option>오후 4시 전후</option>
+                  </select><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c5fb8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10L12 15L17 10"/></svg></div>
+                </label>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <label class="soft rounded-2xl p-3 flex items-center gap-2"><input type="checkbox" checked class="accent-purple-500" />이동지원 우선</label>
+                  <label class="soft rounded-2xl p-3 flex items-center gap-2"><input type="checkbox" checked class="accent-purple-500" />버디 후보 우선</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="soft rounded-[2rem] p-5">
+              <p class="font-black"><i class="fa-solid fa-circle-info text-blue-300 mr-2"></i>추천 기준</p>
+              <div class="mt-4 space-y-2 text-sm text-slate-400">
+                <p><span class="text-purple-300 font-black">1</span> 지도자 가능 시간과 프로그램 정원</p>
+                <p><span class="text-purple-300 font-black">2</span> 이동지원 연계 가능성과 시간대 혼잡도</p>
+                <p><span class="text-purple-300 font-black">3</span> 같은 센터·시간대 버디 후보 여부</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-black"><i class="fa-solid fa-calendar-check text-purple-300 mr-2"></i>참여 가능 시간 후보</h3>
+              <span id="optimize-badge" class="rounded-full bg-slate-800 px-3 py-1 text-[11px] font-mono text-slate-400">분석 대기</span>
+            </div>
+            <div id="after-schedule" class="space-y-3">
+              <div class="rounded-[2rem] border border-dashed border-slate-700 bg-surface p-10 text-center text-slate-500">
+                <i class="fa-solid fa-calendar-plus text-4xl mb-3 text-slate-700"></i>
+                <p class="font-black text-slate-300">가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</p>
+                <p class="mt-2 text-xs text-slate-500">강습·이동지원·버디 후보를 함께 계산합니다.</p>
+              </div>
+            </div>
+            <div id="optimize-result" class="hidden mt-4 rounded-2xl bg-purple-950/40 border border-purple-800/30 p-4 text-sm text-lav leading-relaxed">
+              가장 추천하는 시간은 <b class="text-white">화요일 10:00</b>입니다. 이동지원 연계 가능성이 높고, 같은 센터를 이용하는 버디 후보가 있습니다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="vision-tab" class="tab-content">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5"><div class="glass rounded-[2rem] p-5"><div class="flex items-center justify-between"><div><p class="tiny-label text-blue-300">AI Vision</p><h2 class="text-2xl font-black">접근성 점검 보조</h2><p class="mt-1 text-sm text-slate-400">사진 제보를 위험도 카드로 바꿔 보여줍니다.</p></div><button onclick="startVisionScan()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-4 py-3 font-black"><i class="fa-solid fa-camera mr-2"></i>스캔</button></div><div class="mt-4 rounded-3xl bg-surface border border-lav-line p-4"><p class="font-black text-sm">시설 사진 업로드</p><p class="mt-1 text-xs text-slate-400">경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.</p><p class="mt-1 text-[10px] text-slate-500">JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.</p><div class="mt-3 flex flex-wrap items-center gap-3"><label class="rounded-2xl bg-blue-600 hover:bg-blue-500 px-4 py-2 text-sm font-black cursor-pointer" style="color:#fff !important;"><i class="fa-solid fa-image mr-2"></i>사진 선택<input id="accessibility-photo-input" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handleAccessibilityPhotoUpload(event)" /></label><span id="vision-upload-filename" class="text-xs text-slate-400">선택된 파일 없음</span></div></div><div id="vision-stage" class="mt-5 rounded-[2rem] bg-slate-950 border border-slate-800 p-4 relative overflow-hidden"><svg id="vision-stage-svg" viewBox="0 0 500 250" class="w-full h-auto"><rect width="500" height="250" fill="#0f172a"/><rect x="55" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="130" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="205" y="110" width="58" height="58" rx="5" fill="none" stroke="#ef4444" stroke-width="4" stroke-dasharray="8 6"/><rect x="330" y="110" width="58" height="58" rx="5" fill="#eab308"/><rect x="405" y="110" width="58" height="58" rx="5" fill="#eab308"/><text x="250" y="205" text-anchor="middle" fill="#94a3b8" font-size="15">김포 반다비 1층 로비 점자블록</text></svg><div id="bbox-vision" class="hidden absolute border-4 border-red-500 bg-red-500/10 rounded-2xl" style="left:39%; top:43%; width:14%; height:24%;"><span class="absolute -top-8 left-0 bg-red-600 px-2 py-1 rounded-lg text-[10px] font-black">단절 96.8%</span></div><div id="scan-line" class="hidden absolute left-0 right-0 h-1 bg-cyan-400 shadow-lg shadow-cyan-400"></div></div><div id="vision-result" class="mt-4 rounded-2xl bg-slate-900 border border-slate-800 p-4 text-sm text-slate-400">스캔 실행 전입니다. AI 분석 결과는 접근성 점검 보조자료이며, 법적 인증·행정처분·시설 적합 판정을 대체하지 않습니다.</div><div class="mt-3 grid grid-cols-2 gap-2"><button onclick="processReward()" class="rounded-2xl bg-amber-600/20 border border-amber-700/30 py-3 text-sm font-black text-mid"><i class="fa-solid fa-coins mr-2"></i>제보 참여 인센티브</button><button onclick="openGovModal()" class="rounded-2xl bg-red-600 hover:bg-red-500 py-3 text-sm font-black"><i class="fa-solid fa-file-signature mr-2"></i>공문 초안 생성</button></div></div><div class="glass rounded-[2rem] p-5"><p class="tiny-label text-amber-300">Accessibility Map</p><h2 class="text-2xl font-black">접근성 제보 지도</h2><div class="mt-5 grid grid-cols-1 gap-3"><div class="toss-card rounded-[2rem] p-4 flex gap-3"><div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div><div><p class="font-black">점자블록 단절</p><p class="text-xs text-slate-400 mt-1">1층 로비 · 개선 필요 가능성 높음 · 검토 요청 대기</p></div></div><div class="toss-card rounded-[2rem] p-4 flex gap-3"><div class="w-11 h-11 rounded-2xl bg-emerald-500/15 text-emerald-300 flex items-center justify-center"><i class="fa-solid fa-circle-check"></i></div><div><p class="font-black">접근 가능한 화장실 개선 완료</p><p class="text-xs text-slate-400 mt-1">2층 · 조치 완료 · 운영기관 확인 완료</p></div></div></div></div></div>
+    </section>
+
+    <section id="dashboard-tab" class="tab-content">
+      <div class="space-y-5"><div class="grid grid-cols-2 lg:grid-cols-4 gap-3"><div class="toss-card rounded-[2rem] p-4"><i class="fa-solid fa-user-check text-emerald-300"></i><p class="text-xs text-slate-400 mt-3">예약 대비 출석률</p><p id="kpi-attendance" class="text-2xl font-black">94.2%</p></div><div class="toss-card rounded-[2rem] p-4"><i class="fa-solid fa-van-shuttle text-purple-300"></i><p class="text-xs text-slate-400 mt-3">이동지원 연계 성공</p><p id="kpi-mobility" class="text-2xl font-black text-purple-300">88.7%</p></div><div class="toss-card rounded-[2rem] p-4"><i class="fa-solid fa-handshake-angle text-amber-300"></i><p class="text-xs text-slate-400 mt-3">피어 매칭 성공</p><p id="kpi-buddy" class="text-2xl font-black text-amber-300">76.4%</p></div><div class="toss-card rounded-[2rem] p-4"><i class="fa-solid fa-person-chalkboard text-blue-300"></i><p class="text-xs text-slate-400 mt-3">지도자 부족률</p><p id="kpi-instructor" class="text-2xl font-black text-blue-300">24%</p></div></div><div class="grid grid-cols-1 lg:grid-cols-2 gap-5"><div class="glass rounded-[2rem] p-5"><h3 class="font-black">접근성 지원 필요 유형별 이용률</h3><div class="h-72 mt-4"><canvas id="disabilityChart"></canvas></div></div><div class="glass rounded-[2rem] p-5"><h3 class="font-black">시간대별 혼잡·이동지원 지연</h3><div class="h-72 mt-4"><canvas id="trafficChart"></canvas></div></div></div><div class="glass rounded-[2rem] p-5"><div class="flex items-center justify-between gap-3"><div><p class="tiny-label text-purple-300">B2G Operating Board</p><h2 class="text-2xl font-black">기관 운영 액션 보드</h2></div><button onclick="triggerForcedDispatch()" class="rounded-2xl bg-purple-600 hover:bg-purple-500 px-4 py-3 text-sm font-black"><i class="fa-solid fa-shuffle mr-2"></i>대체 매칭 알림</button></div><div class="mt-5 overflow-x-auto"><table class="safe-table w-full text-sm"><thead class="text-slate-400 border-b border-slate-800"><tr><th class="text-left p-3">구분</th><th class="text-left p-3">내용</th><th class="text-left p-3">AI 추천</th><th class="text-right p-3">상태</th></tr></thead><tbody class="divide-y divide-slate-800 text-slate-300"><tr><td class="p-3">노쇼 공백</td><td class="p-3">수중 생활체육 10:00 슬롯</td><td class="p-3">대기자 2명 삽입 가능</td><td class="p-3 text-right text-amber-300">알림 대기</td></tr><tr><td class="p-3">접근성</td><td class="p-3">점자블록 단절</td><td class="p-3">개선 필요 가능성 높음</td><td id="table-status-target-1" class="p-3 text-right text-red-300 font-bold">검토 요청 필요</td></tr></tbody></table></div><div class="mt-5 glass rounded-[2rem] p-5"><p class="font-black text-sm"><i class="fa-solid fa-plug text-purple-300 mr-2"></i>공공데이터·연동 상태 (mock)</p><div id="public-api-status-list" class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs"></div></div><div id="b2g-log-feed" class="mt-4 rounded-2xl bg-surface border border-lav-line p-4 font-mono text-[11px] text-slate-500 h-28 overflow-y-auto"><p>[10:04:01] 김포 반다비 운영 데이터 수집 완료</p><p>[10:04:04] 지도자 유휴·이동지원 지연·접근성 제보 통합 분석 대기</p></div></div></div>
+    </section>
+  </main>
+
+  <div id="gov-modal" class="hidden fixed inset-0 z-50 items-center justify-center bg-slate-950/84 backdrop-blur-xl p-4">
+    <div class="glass rounded-[2rem] p-6 w-full max-w-3xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-start justify-between border-b border-slate-800 pb-4 gap-4">
+        <div>
+          <p class="tiny-label text-red-300">Official Notice Draft</p>
+          <h2 class="text-xl font-black">접근성 개선 검토용 공문·이메일 초안</h2>
+          <p class="mt-1 text-xs text-slate-400">미리보기 내용을 수정한 뒤, 추후 SendGrid API와 연결할 수 있는 형태로 저장합니다.</p>
+        </div>
+        <button onclick="closeGovModal()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-slate-700 shrink-0"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+        <label class="block">
+          <span class="text-xs font-bold text-slate-400">받는 이메일 주소</span>
+          <input id="gov-to-email" type="email" value="facility@gimpo.go.kr" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="recipient@example.go.kr" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold text-slate-400">보내는 이 이름</span>
+          <input id="gov-from-name" value="김포 반다비 AI 운영팀" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="보내는 이 이름" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold text-slate-400">보내는 이메일 주소</span>
+          <input id="gov-from-email" type="email" value="no-reply@bandabi-ai.kr" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" placeholder="verified-sender@example.com" />
+        </label>
+        <label class="block">
+          <span class="text-xs font-bold text-slate-400">메일 제목</span>
+          <input id="gov-subject" value="김포 반다비체육센터 접근성 위험 요소 개선 검토 요청" class="mt-2 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm" />
+        </label>
+      </div>
+
+      <div class="mt-5 rounded-3xl bg-surface border border-lav-line p-4">
+        <div class="flex items-center justify-between gap-3">
+          <p class="font-black"><i class="fa-solid fa-pen-to-square text-blue-300 mr-2"></i>공문/이메일 본문 미리보기</p>
+          <button onclick="refreshSendGridPayload()" class="rounded-xl bg-slate-800 hover:bg-slate-700 px-3 py-2 text-xs font-black text-slate-200">Payload 갱신</button>
+        </div>
+        <textarea id="gov-body" rows="10" class="mt-3 w-full rounded-2xl bg-surface-input border border-lav-line px-4 py-3 text-sm text-slate-200 leading-relaxed" spellcheck="false">수신: 김포시 시설관리 담당부서
+
+제목: 김포 반다비체육센터 접근성 위험 요소 개선 검토 요청
+
+김포 반다비체육센터 1층 로비 구간에서 점자블록 단절 및 휠체어 회전 공간 부족이 의심되는 제보가 접수되었습니다.
+
+본 내용은 AI 기반 접근성 점검 보조 결과와 이용자 제보를 바탕으로 생성된 관리자 검토용 초안입니다. 실제 시설 적합 여부와 개선 필요성은 담당자 현장 확인 후 판단해 주시기 바랍니다.
+
+첨부 예정: AI 비전 분석 이미지, 현장 제보 요약, 접근성 위험 요소 리포트</textarea>
+      </div>
+
+      <div class="mt-4 rounded-3xl bg-surface border border-lav-line p-4">
+        <p class="font-black"><i class="fa-solid fa-code text-emerald-300 mr-2"></i>SendGrid 연동용 payload 미리보기</p>
+        <pre id="sendgrid-payload-preview" class="mt-3 overflow-x-auto rounded-2xl bg-black/30 border border-slate-800 p-3 text-[11px] leading-relaxed text-slate-300"></pre>
+      </div>
+
+      <p class="mt-3 text-[11px] text-amber-300">※ 본 문서는 관리자 검토용 초안이며, 실제 이메일 발송은 SendGrid API 키와 인증된 발신자 설정을 연결한 뒤 가능합니다.</p>
+      <div class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <button onclick="refreshSendGridPayload()" class="rounded-2xl bg-slate-800 hover:bg-slate-700 py-3 font-black"><i class="fa-solid fa-eye mr-2"></i>미리보기 갱신</button>
+        <button onclick="prepareSendGridEmail()" class="rounded-2xl bg-blue-600 hover:bg-blue-500 py-3 font-black"><i class="fa-solid fa-envelope-circle-check mr-2"></i>발송 준비</button>
+        <button onclick="submitGovModal()" class="rounded-2xl bg-red-600 hover:bg-red-500 py-3 font-black"><i class="fa-solid fa-paper-plane mr-2"></i>검토 요청 등록</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentRole = null;
+    let userTokens = 3500;
+    let chart1 = null;
+    let chart2 = null;
+    let instructorIndex = 0;
+    let pendingConfirmAction = null;
+    const flowOrder = ['route-screen','care-screen','class-screen','report-screen'];
+    const instructors = [
+      { name:'박강훈', meta:'수중 생활체육 · 휠체어 이용 또는 보행 보조 필요 이용자 지도 경험', tags:['수중 생활체육','화·목 10시','4명 소그룹'] },
+      { name:'이서연', meta:'소규모 생활체육 · 단계별 안내 선호 이용자 지도 경험', tags:['소규모 강습','월·수 14시','3명 소그룹'] }
+    ];
+
+    let authMode = 'login';
+    let latestSendGridPayload = null;
+
+    // Server data injected by app.py (Streamlit). Real-time button API calls need FastAPI/component bridge.
+    var BANDABI_API_BASE = '';
+    function getServerData(){
+      return window.BANDABI_SERVER_DATA || {};
+    }
+    function getApiBase(){
+      var meta = getServerData().meta || {};
+      if(meta.api_base) return String(meta.api_base).replace(/\/$/, '');
+      if(BANDABI_API_BASE) return String(BANDABI_API_BASE).replace(/\/$/, '');
+      try {
+        var host = window.location.hostname;
+        if(host === 'localhost' || host === '127.0.0.1') return 'http://127.0.0.1:8000';
+      } catch(_) {}
+      return '';
+    }
+    function refreshApiBase(){
+      BANDABI_API_BASE = getApiBase();
+      console.log('[Bandabi API base]', BANDABI_API_BASE);
+      return BANDABI_API_BASE;
+    }
+    async function debugBandabiApiStatus(){
+      refreshApiBase();
+      if(!BANDABI_API_BASE){
+        console.warn('[Bandabi API unreachable] no API base URL');
+        return null;
+      }
+      try {
+        const res = await fetch(BANDABI_API_BASE + '/api/status');
+        const data = await res.json();
+        console.log('[Bandabi API status]', data);
+        return data;
+      } catch(e){
+        console.warn('[Bandabi API unreachable]', e);
+        return null;
+      }
+    }
+    function setRouteSourceStatus(text){
+      const el = document.getElementById('route-source-status');
+      if(el) el.textContent = text || '';
+    }
+    function buildFallbackStatusLine(){
+      return 'API 연결 실패 · JS fallback 사용 · VWorld fallback · 버스 도착 no_data · scoring rule_engine';
+    }
+    function isUnavailableCenterValue(value){
+      return value === 'gimpo2';
+    }
+    function isUnavailableCenterLabel(label){
+      return /제2\s*반다비|gimpo2/i.test(String(label || ''));
+    }
+    function handleCenterLocationChange(selectEl){
+      if(!selectEl) return false;
+      if(isUnavailableCenterValue(selectEl.value)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        selectEl.value = 'gimpo';
+        return false;
+      }
+      return true;
+    }
+    function ensureValidCenterSelection(){
+      const sel = document.getElementById('center-location');
+      if(!sel) return true;
+      if(isUnavailableCenterValue(sel.value)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        sel.value = 'gimpo';
+        return false;
+      }
+      return true;
+    }
+    function applyRouteAnalysisPayload(data, originText, destLabel, sourceStatus){
+      document.getElementById('route-loading').classList.add('hidden');
+      document.getElementById('route-result').classList.remove('hidden');
+      injectRouteResults(
+        data.origin_label || originText,
+        data.dest_label || destLabel,
+        data.score,
+        data.grade,
+        data.action,
+        data.bus_route || {},
+        data.weather || {},
+        data.arrival || { status: 'no_data' }
+      );
+      setRouteSourceStatus(sourceStatus || data.status_line || 'FastAPI · python_modules');
+      console.log('[route-analysis source]', data.status_line || data.source || 'FastAPI');
+      flowProgress.routeAnalyzed = true;
+      saveFlowState();
+    }
+
+    // ── Storage keys (프로토타입용 로컬 인증 · mock 엔진) ──
+    // Chrome 비밀번호 추천 UI는 브라우저 판단 기능 — 코드로 강제 표시 불가.
+    // Streamlit iframe 내부에서는 Chrome 비밀번호 저장/추천이 제한될 수 있음.
+    // 비밀번호는 프로토타입용 로컬 인증(localStorage)이며 실제 서버 보안 인증이 아님.
+    const USERS_STORAGE_KEY = 'bandabi_users';
+    const SESSION_STORAGE_KEY = 'bandabi_session';
+    const TOKENS_SESSION_KEY = 'bandabi_tokens';
+    const FLOW_SESSION_KEY = 'bandabi_flow_state';
+    const SCHEDULE_SESSION_KEY = 'bandabi_selected_schedule';
+    let latestVisionAnalysis = null;
+    let instructorPool = [];
+
+    const flowProgress = {
+      routeAnalyzed: false, routeApproved: false, buddyDone: false,
+      classConfirmed: false, reportSaved: false, scheduleOptimized: false,
+      scheduleSelected: false, visionScanned: false,
+    };
+
+    function loadUsers(){ try { return JSON.parse(localStorage.getItem(USERS_STORAGE_KEY) || '[]'); } catch(_) { return []; } }
+    function saveUsers(users){ localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users)); }
+    function loadSession(){ try { return JSON.parse(sessionStorage.getItem(SESSION_STORAGE_KEY) || 'null'); } catch(_) { return null; } }
+    function saveSession(data){ if(data) sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(data)); else sessionStorage.removeItem(SESSION_STORAGE_KEY); }
+    function loadFlowState(){
+      try {
+        const s = JSON.parse(sessionStorage.getItem(FLOW_SESSION_KEY) || '{}');
+        Object.keys(flowProgress).forEach(function(k){ if(typeof s[k] === 'boolean') flowProgress[k] = s[k]; });
+      } catch(_) {}
+    }
+    function saveFlowState(){ sessionStorage.setItem(FLOW_SESSION_KEY, JSON.stringify(flowProgress)); }
+    function loadTokensFromSession(){ const v = sessionStorage.getItem(TOKENS_SESSION_KEY); if(v !== null && v !== '') userTokens = parseInt(v, 10) || 3500; updateToken(); }
+    function saveTokensToSession(){ sessionStorage.setItem(TOKENS_SESSION_KEY, String(userTokens)); updateToken(); }
+    function addTokens(amount, message){
+      userTokens += amount; saveTokensToSession();
+      if(message) showAppToast(message);
+    }
+
+    function resetFlowProgress(){
+      Object.keys(flowProgress).forEach(function(k){ flowProgress[k] = false; });
+      sessionStorage.removeItem(FLOW_SESSION_KEY);
+      sessionStorage.removeItem('bandabi_reservation');
+    }
+
+    function getUserProfile(){
+      ensureValidCenterSelection();
+      const centerEl = document.getElementById('center-location');
+      let center = centerEl?.value || 'gimpo';
+      if(isUnavailableCenterValue(center) || isUnavailableCenterLabel(center)){
+        if(centerEl) centerEl.value = 'gimpo';
+        center = 'gimpo';
+      }
+      return {
+        disability: document.getElementById('disability-type')?.value || 'physical',
+        origin: (document.getElementById('origin')?.value || '').trim(),
+        center: center,
+        centerLabel: '김포 반다비체육센터',
+        name: getUserDisplayName(),
+        email: (document.getElementById('login-email')?.value || document.getElementById('signup-email')?.value || loadSession()?.email || '').trim(),
+        schedule: sessionStorage.getItem(SCHEDULE_SESSION_KEY) || '',
+      };
+    }
+
+    // 실제 구현 시 VWorld 주소검색 API 연결 지점
+    function geocode_vworld(address){
+      const table = {
+        '김포 구래역 1번 출구': { lat: 37.6451, lng: 126.6287, label: '김포 구래역 1번 출구' },
+        '김포 반다비체육센터': { lat: 37.6428, lng: 126.6651, label: '김포 반다비체육센터' },
+      };
+      return table[address] || { lat: 37.64, lng: 126.65, label: address };
+    }
+
+    function calculateViablePathScore(payload){
+      let score = 86;
+      if(payload.disability === 'visual') score += 4;
+      if(payload.disability === 'developmental') score -= 3;
+      if(payload.weatherRisk === 'wind') score -= 6;
+      if(payload.walkDistance > 300) score -= 5;
+      if(payload.reserveMobility < 70) score -= 4;
+      return Math.max(0, Math.min(100, score));
+    }
+    function gradeScore(score){
+      if(score >= 90) return '원활';
+      if(score >= 80) return '주의';
+      if(score >= 70) return '지원 권장';
+      return '대체 경로 권장';
+    }
+    function explainScore(score, payload){
+      if(score >= 90) return '현재 조건에서는 이동 가능성이 높습니다. 센터 입구 안내만 확인하면 충분합니다.';
+      if(score >= 80) return '이동 가능성은 높지만, 날씨와 도보 구간을 고려해 여유 있게 출발하는 것이 좋습니다.';
+      if(score >= 70) return '이동지원 연계 또는 보호자·버디 동행을 함께 검토하는 것이 좋습니다.';
+      return '현재 조건에서는 대체 시간대나 가까운 시설을 다시 추천받는 것이 좋습니다.';
+    }
+    function gradeClass(score){
+      if(score >= 90) return 'text-emerald-300';
+      if(score >= 80) return 'text-amber-300';
+      if(score >= 70) return 'text-blue-300';
+      return 'text-purple-300';
+    }
+
+    function fetchBusRoute(origin, destination){
+      const o = String(origin.label || origin || '');
+      const d = String(destination.label || destination || '');
+      if(/성남|신흥/.test(o) && /김포|반다비/.test(d)){
+        return { routeId: 'LONG-DIST', routeName: '장거리', boarding: o, alighting: d, duration: '90분+ · 장거리', mode: '이동지원·대체 경로 검토', walk: '장거리 구간', transfer: '다회 가능' };
+      }
+      if(/김포|구래/.test(o) && /김포|반다비/.test(d)){
+        return { routeId: 'GIMPO-31', routeName: '김포 31번', boarding: o, alighting: d, duration: '22분', mode: '저상버스', walk: '230m', transfer: '1회' };
+      }
+      return { routeId: 'GIMPO-31', routeName: '참고', boarding: o, alighting: d, duration: '35분', mode: '대중교통', walk: '300m', transfer: '1회' };
+    }
+    function fetchBusArrival(routeId){
+      return { status: 'no_data', message: '실시간 도착 정보가 없어 배차 정보 확인이 필요합니다.' };
+    }
+    function fetchWeatherShortForecast(){
+      return { wind: '강풍 주의', rain: '없음', temp: '보통' };
+    }
+    function summarizeWeatherItems(weather){
+      if(weather.wind && weather.wind.includes('강풍')) return '강풍 시 주의';
+      if(weather.rain && weather.rain !== '없음') return '우천 시 미끄럼 주의';
+      return '날씨 영향 낮음';
+    }
+
+    function recommendBuddy(profile){
+      const map = {
+        physical: { name: '김지오', meta: '같은 시간대 · 수중 생활체육 이용 · 같은 센터' },
+        visual: { name: '이하늘', meta: '음성 안내 선호 · 같은 센터 · 오전 시간대' },
+        developmental: { name: '박서준', meta: '단계별 안내 선호 · 보호자 동행 경험 · 같은 센터' },
+        senior: { name: '최민재', meta: '저강도 안내 선호 · 같은 센터 · 오후 시간대' },
+      };
+      return map[profile.disability] || map.physical;
+    }
+    function renderBuddyCard(){
+      const buddy = recommendBuddy(getUserProfile());
+      const nameEl = document.getElementById('buddy-name');
+      const metaEl = document.getElementById('buddy-meta');
+      if(nameEl) nameEl.textContent = buddy.name;
+      if(metaEl) metaEl.textContent = buddy.meta;
+    }
+
+    function recommendInstructor(profile){
+      const pool = {
+        physical: [
+          { name:'박강훈', meta:'수중 생활체육 · 보행 보조·휠체어 이용자 지도 경험', tags:['수중 생활체육','화·목 10시','4명 소그룹'] },
+          { name:'정유진', meta:'저항 운동 · 이동 보조 필요 이용자 소그룹', tags:['저항 운동','화 11시','3명 소그룹'] },
+        ],
+        visual: [
+          { name:'이서연', meta:'소규모 생활체육 · 음성 안내·단계별 설명', tags:['소규모 강습','월·수 14시','3명 소그룹'] },
+        ],
+        developmental: [
+          { name:'한지민', meta:'단계별 안내 · 보호자 동행 연계 강습', tags:['단계별 안내','목 15시','2명 소그룹'] },
+        ],
+        senior: [
+          { name:'오세훈', meta:'저강도 생활체육 · 휴식 지점 안내', tags:['저강도','금 10시','5명 소그룹'] },
+        ],
+      };
+      instructorPool = pool[profile.disability] || pool.physical;
+      instructorIndex = 0;
+      return instructorPool[0];
+    }
+    function renderInstructorCard(data){
+      const card = document.getElementById('coach-card');
+      if(!card || !data) return;
+      card.innerHTML = '<p class="text-sm font-black text-cyan-300">추천 지도자</p><p class="mt-6 text-4xl font-black">'+data.name+' <span class="text-lg text-slate-400">지도자</span></p><p class="mt-3 text-sm text-slate-400">'+data.meta+'</p><div class="mt-8 flex flex-wrap gap-2 text-xs">'+data.tags.map(function(t){ return '<span class="soft rounded-xl px-3 py-2">'+t+'</span>'; }).join('')+'</div>';
+    }
+
+    function buildExerciseReport(){
+      const st = JSON.parse(sessionStorage.getItem('bandabi_reservation') || '{}');
+      const profile = getUserProfile();
+      const guide = answerNextExerciseGuide(profile);
+      return {
+        attendance: st.reservationConfirmed ? '출석 완료' : '참여 예정',
+        achievement: profile.disability === 'visual' ? 86 : 84,
+        streak: profile.disability === 'senior' ? 88 : 91,
+        range: '78° → 82°',
+        rangeNote: '+4° 변화 · 지난 회차 대비 수행 범위가 소폭 개선되었습니다.',
+        guideText: guide,
+        mobility: st.mobilityLinked ? '이동지원 연계 완료' : '이동지원 연계 예정',
+        buddy: st.buddyConfirmed ? '버디 연결 요청 등록' : (st.buddyPending ? '버디 후보 검토 중' : '버디 미연결'),
+        classDone: flowProgress.classConfirmed,
+      };
+    }
+    function renderExerciseReport(){
+      const r = buildExerciseReport();
+      const p = getUserProfile();
+      const set = function(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; };
+      set('report-attendance', r.attendance);
+      set('report-achievement', r.achievement + '점');
+      set('report-streak', r.streak + '점');
+      set('report-range', r.range);
+      set('report-range-note', r.rangeNote);
+      const grid = document.getElementById('report-guide-grid');
+      if(grid){
+        const parts = r.guideText.split('。').join('.').split('.').filter(Boolean);
+        grid.innerHTML = '<div class="toss-card rounded-2xl p-3 col-span-2">다음 가이드<br/><b class="text-white">'+r.guideText+'</b></div><div class="toss-card rounded-2xl p-3">이동<br/><b class="text-white">'+r.mobility+'</b></div><div class="toss-card rounded-2xl p-3">동행<br/><b class="text-white">'+r.buddy+'</b></div><div class="toss-card rounded-2xl p-3">강습<br/><b class="text-white">'+(r.classDone ? '확정됨' : '추천 중')+'</b></div><div class="toss-card rounded-2xl p-3">참고<br/><b class="text-white">지도자 확인 필요</b></div>';
+      }
+    }
+
+    // RAG: server modules/rag_bm25.py 우선, 없으면 mock fallback
+    function answerNextExerciseGuide(profile){
+      const guides = getServerData().rag && getServerData().rag.exercise_guides;
+      if(guides && guides[profile.disability]) return guides[profile.disability];
+      if(profile.disability === 'physical') return '수중 저항 운동을 유지하고, 준비운동 시간을 10분으로 늘리는 것을 권장합니다.';
+      if(profile.disability === 'visual') return '음성 안내가 가능한 소규모 프로그램을 우선 추천합니다.';
+      if(profile.disability === 'developmental') return '단계별 안내와 보호자·버디 동행이 가능한 소그룹 강습을 추천합니다.';
+      if(profile.disability === 'senior') return '저강도 프로그램과 휴식 지점 안내가 포함된 강습을 추천합니다.';
+      return '소그룹 강습과 단계별 안내가 있는 프로그램을 추천합니다.';
+    }
+
+    function buildGuardianSummaryText(){
+      const r = buildExerciseReport();
+      const center = getUserProfile().centerLabel;
+      return '오늘 '+center+' 생활체육 프로그램 참여가 '+r.attendance+'되었습니다. 이동: '+r.mobility+'. 동행: '+r.buddy+'. 본 요약에는 진단명·상세 건강정보·상세 주소가 포함되지 않습니다.';
+    }
+
+    function recommendSchedule(preferences){
+      const tue = formatDate(getNextWeekday(2));
+      const thu = formatDate(getNextWeekday(4));
+      const fri = formatDate(getNextWeekday(5));
+      return [
+        { rank: '1순위 추천', label: '화요일 10:00', date: tue, full: tue + ' 10:00', note: '지도자 가능 · 이동지원 가능성 높음 · 버디 후보 있음', badge: '추천', badgeClass: 'rounded-full bg-emerald-950/60 border border-emerald-700/30 px-3 py-1 text-xs font-black text-accent' },
+        { rank: '2순위 후보', label: '목요일 14:00', date: thu, full: thu + ' 14:00', note: '지도자 가능 · 이동지원 혼잡 가능성 있음', badge: '보통', badgeClass: 'rounded-full bg-blue-950/60 border border-blue-700/30 px-3 py-1 text-xs font-black text-accent' },
+        { rank: '대체 후보', label: '금요일 16:00', date: fri, full: fri + ' 16:00', note: '퇴근 시간대 혼잡 · 버디 후보 없음 · 이동지원 사전 확인 권장', badge: '주의', badgeClass: 'rounded-full bg-amber-950/60 border border-amber-700/30 px-3 py-1 text-xs font-black text-mid' },
+      ];
+    }
+
+    function analyzeAccessibilityImage(file){
+      const demo = getServerData().vision && getServerData().vision.demo_fallback;
+      if(demo && demo.detected_items && demo.detected_items.length){
+        const item = demo.detected_items[0];
+        return {
+          label: '개선 필요 가능성 · AI 점검 보조(참고)',
+          summary: item + ' · ' + (demo.recommended_next_step || '관리자 확인·검토 요청이 가능합니다.'),
+          confidenceNote: 'AI 탐지 참고값 · ' + (demo.source || 'server'),
+          bboxLabel: '검토 후보 · 참고',
+        };
+      }
+      return {
+        label: '개선 필요 가능성 · AI 점검 보조(참고)',
+        summary: '접근성 확인 후보가 감지되었습니다. 관리자 확인·검토 요청이 가능합니다.',
+        confidenceNote: 'AI 탐지 참고값 · 데모',
+        bboxLabel: '검토 후보 · 참고',
+      };
+    }
+
+    function loadDashboardData(){
+      const base = {
+        kpis: { attendance: '94.2%', mobility: '88.7%', buddy: '76.4%', instructor: '24%' },
+        disabilityChart: { labels:['보행 보조','음성 안내','단계별 안내','기타'], data:[48,18,22,12] },
+        trafficChart: { labels:['09시','11시','13시','15시','17시','19시'], booking:[35,68,42,95,50,20], delay:[5,18,8,28,12,2] },
+      };
+      const dash = getServerData().dashboard;
+      if(!dash) return base;
+      return Object.assign({}, base, {
+        csv_inventory: dash.csv_inventory || [],
+        csv_summary: dash.csv_summary || '',
+        mobility_rows: dash.mobility_rows,
+        protected_zone_rows: dash.protected_zone_rows,
+        low_floor_bus_rows: dash.low_floor_bus_rows,
+      });
+    }
+    function renderPublicApiStatus(){
+      const list = document.getElementById('public-api-status-list');
+      if(!list) return;
+      const cards = getServerData().public_api_cards;
+      if(cards && cards.length){
+        list.innerHTML = cards.map(function(c){
+          return '<div class="soft rounded-xl p-3"><span class="text-accent font-bold">'+c.label+'</span><br/>'+c.display+'</div>';
+        }).join('');
+        return;
+      }
+      const items = [
+        ['VWorld 주소검색', '연결 예정 (mock geocode_vworld)'],
+        ['버스 노선 정보', 'mock 사용 중 (fetchBusRoute)'],
+        ['버스 도착 정보', 'mock · no_data fallback'],
+        ['기상 단기예보', 'mock 사용 중'],
+        ['접근성 제보', '프론트 세션 저장'],
+        ['RAG 문서검색', 'mock 응답'],
+        ['SendGrid', 'payload 미리보기만'],
+      ];
+      list.innerHTML = items.map(function(i){ return '<div class="soft rounded-xl p-3"><span class="text-accent font-bold">'+i[0]+'</span><br/>'+i[1]+'</div>'; }).join('');
+    }
+
+    function buildOfficialDraft(visionResult){
+      const draft = getServerData().email && getServerData().email.official_draft;
+      if(draft && draft.body){
+        return {
+          subject: draft.subject || '김포 반다비체육센터 접근성 개선 검토 요청',
+          body: draft.body + '\n\n- AI 점검 보조 결과: ' + (visionResult?.label || '개선 필요 가능성'),
+        };
+      }
+      return {
+        subject: '김포 반다비체육센터 접근성 개선 검토 요청',
+        body: '안녕하세요. 김포 반다비 AI 운영팀입니다.\n\n첨부·제보 사진 기준으로 접근성 개선 검토가 필요할 가능성이 확인되었습니다.\n\n- AI 점검 보조 결과: '+(visionResult?.label || '개선 필요 가능성')+'\n- 본 문서는 행정 검토용 참고 초안이며 법적 판정을 대체하지 않습니다.\n\n검토 후 회신 부탁드립니다.',
+      };
+    }
+    function improveDraftWithLLM(draft){
+      return { subject: draft.subject, body: draft.body + '\n\n[LLM mock] 표현을 공문 형식에 맞게 다듬었습니다. 실제 LLM 연결은 백엔드에서 처리합니다.' };
+    }
+    function prepareSendGridPayload(form){
+      return {
+        personalizations: [{ to: [{ email: form.to }] }],
+        from: { email: form.fromEmail, name: form.fromName },
+        subject: form.subject,
+        content: [{ type: 'text/plain', value: form.body }],
+      };
+    }
+    // 백엔드 연결 시 사용 — 실제 SendGrid 호출 금지
+    function sendEmailWithSendgrid(payload){ return { ok: false, message: 'Streamlit 단독 배포 · mock only. ENABLE_SENDGRID_SEND=true 는 서버 env에서만.' }; }
+
+    function classifyVoiceCommand(text){
+      const t = (text || '').trim();
+      if(/경로|추천|출발/.test(t)) return 'route';
+      if(/일정|시간/.test(t)) return 'schedule';
+      if(/접근성|점검|스캔/.test(t)) return 'vision';
+      return 'unknown';
+    }
+
+
+    function enterAppWithRole(role, displayName){
+      loadFlowState();
+      loadTokensFromSession();
+      currentRole = role;
+      document.getElementById('login-modal').classList.add('hidden');
+      const badge = document.getElementById('role-badge');
+      const title = document.getElementById('role-title');
+      const resolvedName = displayName || getUserDisplayName();
+      updateUserGreeting(resolvedName);
+      if(role === 'B2C'){
+        badge.textContent = '이용자 모드';
+        title.textContent = '(User | ' + resolvedName + '님)';
+        badge.className = 'rounded-full bg-blue-950/60 border border-blue-700/30 px-3 py-1 text-[11px] font-black text-accent';
+        document.getElementById('token-wrapper').classList.remove('hidden');
+        const dashboardBtn = document.getElementById('tab-dashboard-btn');
+        if(dashboardBtn) dashboardBtn.classList.add('hidden');
+        showFlow('start-screen');
+        switchTab('main-tab', document.getElementById('tab-main-btn'));
+      } else {
+        badge.textContent = '기관 관리자';
+        title.textContent = '(Admin)';
+        badge.className = 'rounded-full bg-purple-950/60 border border-purple-700/30 px-3 py-1 text-[11px] font-black text-lav';
+        document.getElementById('token-wrapper').classList.add('hidden');
+        const dashboardBtn = document.getElementById('tab-dashboard-btn');
+        if(dashboardBtn) dashboardBtn.classList.remove('hidden');
+        switchTab('dashboard-tab', document.getElementById('tab-dashboard-btn'));
+        renderDashboardData();
+      }
+    }
+
+    function saveReservationState(extra){
+      const base = {
+        reservationConfirmed: true,
+        mobilityLinked: true,
+        buddyPending: true,
+        confirmedAt: new Date().toISOString(),
+      };
+      Object.assign(base, extra || {});
+      sessionStorage.setItem('bandabi_reservation', JSON.stringify(base));
+    }
+
+    function renderBuddyRecommendation(data){
+      renderBuddyCard();
+      const helper = document.querySelector('#care-screen .toss-card:nth-child(2) p.mt-6');
+      if(helper) helper.textContent = '500m 전';
+    }
+
+    function renderInstructorRecommendation(data){ renderInstructorCard(data || recommendInstructor(getUserProfile())); }
+
+    function renderGuardianSummary(){
+      const text = buildGuardianSummaryText();
+      const el = document.getElementById('guardian-summary-text');
+      if(el) el.textContent = text;
+    }
+
+    function renderScheduleRecommendations(items){
+      const container = document.getElementById('after-schedule');
+      const badge = document.getElementById('optimize-badge');
+      const result = document.getElementById('optimize-result');
+      if(!container) return;
+      container.innerHTML = items.map(function(item, idx){
+        const border = idx === 0 ? ' border border-purple-700/30' : '';
+        return '<button onclick="selectScheduleTime(\''+item.full+'\')" class="w-full text-left toss-card rounded-[2rem] p-5'+border+'"><div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"><div><p class="text-xs font-black text-purple-300">'+item.rank+'</p><h4 class="mt-1 text-2xl font-black">'+item.label+' <span class="text-base font-medium text-slate-400">'+item.date+'</span></h4><p class="mt-2 text-sm text-slate-400">'+item.note+'</p></div><span class="'+item.badgeClass+'">'+item.badge+'</span></div></button>';
+      }).join('') + '<div id="schedule-confirm-box" class="hidden rounded-[2rem] bg-surface border border-lav-line p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4"><div><p class="font-black"><span id="selected-schedule-time"></span> 일정이 선택됐어요</p><p class="text-sm text-slate-400">이 시간으로 예약 흐름을 이어가면 경로·버디·강습 추천과 연결됩니다.</p></div><button onclick="continueWithSelectedSchedule()" class="rounded-2xl px-4 py-3 text-sm font-black whitespace-nowrap" style="background:#a8e6c4;color:#1a5c38 !important;border:1px solid rgba(80,180,120,.25);">이 시간으로 예약 이어가기</button></div>';
+      if(badge){ badge.textContent = '추천 '+items.length+'건'; badge.className = 'rounded-full bg-purple-950/60 border border-purple-700/30 px-3 py-1 text-[11px] font-mono text-lav'; }
+      if(result){
+        result.classList.remove('hidden');
+        result.innerHTML = '가장 추천하는 시간은 <b>'+items[0].full+'</b>입니다. 이동지원 연계 가능성이 높고, 같은 센터를 이용하는 버디 후보가 있습니다.';
+      }
+      flowProgress.scheduleOptimized = true;
+      saveFlowState();
+    }
+
+    function renderDashboardData(){
+      const data = loadDashboardData();
+      const set = function(id, val){ const el = document.getElementById(id); if(el) el.textContent = val; };
+      set('kpi-attendance', data.kpis.attendance);
+      set('kpi-mobility', data.kpis.mobility);
+      set('kpi-buddy', data.kpis.buddy);
+      set('kpi-instructor', data.kpis.instructor);
+      renderPublicApiStatus();
+      renderCharts(data);
+    }
+
+    let accessibilityUploadFile = null;
+    function handleAccessibilityPhotoUpload(event){
+      const file = event.target.files && event.target.files[0];
+      if(!file) return;
+      accessibilityUploadFile = file;
+      const nameEl = document.getElementById('vision-upload-filename');
+      if(nameEl) nameEl.textContent = file.name;
+      const stage = document.getElementById('vision-stage');
+      const svg = document.getElementById('vision-stage-svg');
+      if(stage && svg){
+        svg.classList.add('hidden');
+        let img = document.getElementById('vision-upload-preview');
+        if(!img){
+          img = document.createElement('img');
+          img.id = 'vision-upload-preview';
+          img.className = 'w-full h-auto max-h-[250px] object-contain';
+          stage.insertBefore(img, stage.firstChild);
+        }
+        img.src = URL.createObjectURL(file);
+      }
+    }
+
+    function demoVisionFallback(){
+      return analyzeAccessibilityImage(accessibilityUploadFile);
+    }
+
+    function flowGuard(screenId){
+      if(screenId === 'care-screen' && !flowProgress.routeApproved){
+        showAppToast('경로 확정 후 버디 추천을 확인하는 것을 권장합니다.');
+      }
+      if(screenId === 'class-screen' && !flowProgress.routeApproved){
+        showAppToast('경로 분석·확정 후 강습 추천을 이어가면 더 자연스럽습니다.');
+      }
+      if(screenId === 'report-screen' && !flowProgress.classConfirmed){
+        showAppToast('강습 확정 후 리포트를 확인하는 것을 권장합니다.');
+      }
+    }
+
+    function injectRouteResults(originLabel, destLabel, score, grade, action, busRoute, weather, arrival){
+      document.getElementById('route-title').textContent = originLabel + ' → ' + destLabel;
+      const riskEl = document.getElementById('route-risk');
+      riskEl.textContent = grade;
+      riskEl.className = 'mt-1 text-3xl font-black ' + gradeClass(score);
+      document.getElementById('route-action').textContent = action;
+      document.getElementById('route-total').textContent = busRoute.duration || '35분';
+      document.getElementById('route-walk').textContent = busRoute.walk || (score >= 88 ? '230m' : '300m');
+      document.getElementById('route-transfer').textContent = busRoute.transfer || '1회';
+      document.getElementById('route-reserve').textContent = Math.max(60, score - 12) + '%';
+      const weatherEl = document.getElementById('route-weather');
+      if(weatherEl) weatherEl.textContent = weather.summary || summarizeWeatherItems(weather);
+      const arrivalEl = document.getElementById('route-bus-arrival');
+      if(arrivalEl) arrivalEl.textContent = arrival.status === 'no_data' ? '실시간 도착 정보 없음' : (arrival.eta || '확인 중');
+    }
+
+    function applyUserToForm(user){
+      // Chrome password manager UI is controlled by the browser.
+      // Because this app is rendered inside a Streamlit iframe, password suggestions may still be limited.
+      if(!user) return;
+      const nameInputs = [document.getElementById('login-name'), document.getElementById('signup-name')];
+      const emailInputs = [document.getElementById('login-email'), document.getElementById('signup-email')];
+      nameInputs.forEach(function(el){ if(el && user.name) el.value = user.name; });
+      emailInputs.forEach(function(el){ if(el && user.email) el.value = user.email; });
+      updateUserGreeting(user.name || getUserDisplayName());
+    }
+    function showRoleSelectPanel(){
+      document.getElementById('auth-form-panel').classList.add('hidden');
+      document.getElementById('role-select-panel').classList.remove('hidden');
+      document.getElementById('login-modal-subtitle').textContent = '접속할 서비스를 선택하세요.';
+    }
+
+    function showAuthPanel(mode){
+      authMode = mode;
+      document.getElementById('auth-entry-panel').classList.add('hidden');
+      document.getElementById('role-select-panel').classList.add('hidden');
+      document.getElementById('auth-form-panel').classList.remove('hidden');
+      const loginForm = document.getElementById('login-form');
+      const signupForm = document.getElementById('signup-form');
+      const titleText = mode === 'signup' ? '회원가입' : '로그인';
+      const helpText = mode === 'signup'
+        ? '프로토타입에서는 기본 정보만 입력하고 역할 선택으로 이동합니다.'
+        : '프로토타입에서는 실제 인증 없이 다음 단계로 이동합니다.';
+      const subtitle = document.getElementById('login-modal-subtitle');
+      if(loginForm) loginForm.classList.toggle('hidden', mode !== 'login');
+      if(signupForm) signupForm.classList.toggle('hidden', mode !== 'signup');
+      document.querySelectorAll('.auth-form-title').forEach(function(el){ el.textContent = titleText; });
+      document.querySelectorAll('.auth-form-help').forEach(function(el){ el.textContent = helpText; });
+      if(subtitle) subtitle.textContent = mode === 'signup' ? '회원가입 후 이용자/관리자 모드를 선택하세요.' : '로그인 후 이용자/관리자 모드를 선택하세요.';
+    }
+    function backToAuthEntry(){
+      document.getElementById('auth-entry-panel').classList.remove('hidden');
+      document.getElementById('auth-form-panel').classList.add('hidden');
+      document.getElementById('role-select-panel').classList.add('hidden');
+      document.getElementById('login-modal-subtitle').textContent = '서비스 이용을 위해 로그인하거나 회원가입을 진행하세요.';
+    }
+    function getActiveNameInput(){
+      return document.getElementById(authMode === 'signup' ? 'signup-name' : 'login-name');
+    }
+    function getActiveEmailInput(){
+      return document.getElementById(authMode === 'signup' ? 'signup-email' : 'login-email');
+    }
+    function getUserDisplayName(){
+      const session = loadSession();
+      const input = getActiveNameInput();
+      const raw = input ? input.value.trim() : '';
+      if(raw) return raw;
+      if(session && session.name) return session.name;
+      const roleTitle = document.getElementById('role-title');
+      if(roleTitle && roleTitle.dataset.userName) return roleTitle.dataset.userName;
+      return '000';
+    }
+    function updateUserGreeting(name){
+      const displayName = (name || getUserDisplayName() || '000').trim();
+      const greeting = document.getElementById('start-greeting');
+      const roleTitle = document.getElementById('role-title');
+      if(greeting) greeting.textContent = `반갑습니다, ${displayName}님 :)`;
+      if(roleTitle) roleTitle.dataset.userName = displayName;
+    }
+    function completeAuth(){
+      const email = (getActiveEmailInput()?.value || '').trim().toLowerCase();
+      const name = getUserDisplayName();
+      const loginPw = document.getElementById('login-password')?.value || '';
+      const signupPw = document.getElementById('signup-password')?.value || '';
+      const confirmPw = document.getElementById('signup-password-confirm')?.value || '';
+      const password = authMode === 'signup' ? signupPw : loginPw;
+      if(!email){ showAppToast('이메일을 입력해 주세요.'); return; }
+      if(!password){ showAppToast('비밀번호를 입력해 주세요.'); return; }
+      if(authMode === 'signup'){
+        if(!name || name === '000'){ showAppToast('이름을 입력해 주세요.'); return; }
+        if(password.length < 8){ showAppToast('비밀번호는 8자 이상이어야 합니다.'); return; }
+        if(password !== confirmPw){ showAppToast('비밀번호가 일치하지 않습니다.'); return; }
+        const users = loadUsers();
+        if(users.some(function(u){ return u.email === email; })){ showAppToast('이미 사용 중인 이메일입니다.'); return; }
+        users.push({ email, name, password });
+        saveUsers(users);
+        saveSession({ email, name, role: null });
+        applyUserToForm({ email, name });
+        updateUserGreeting(name);
+        showRoleSelectPanel();
+        return;
+      }
+      const user = loadUsers().find(function(u){ return u.email === email && u.password === password; });
+      if(!user){ showAppToast('이메일 또는 비밀번호가 올바르지 않습니다.'); return; }
+      saveSession({ email: user.email, name: user.name, role: user.role || null });
+      applyUserToForm(user);
+      updateUserGreeting(user.name);
+      if(user.role){
+        handleLogin(user.role);
+        return;
+      }
+      showRoleSelectPanel();
+    }
+    function resetAuthModal(){
+      if(document.getElementById('auth-entry-panel')) backToAuthEntry();
+      ['login-name','login-email','login-password','signup-name','signup-email','signup-password','signup-password-confirm'].forEach(function(id){ const el = document.getElementById(id); if(el) el.value = ''; });
+    }
+
+    function updateToken(){ const el=document.getElementById('user-token-balance'); if(el) el.textContent=userTokens.toLocaleString(); }
+    function handleLogin(role){
+      const session = loadSession() || {};
+      session.role = role;
+      saveSession(session);
+      const users = loadUsers();
+      const idx = users.findIndex(function(u){ return u.email === session.email; });
+      if(idx >= 0){ users[idx].role = role; saveUsers(users); }
+      const title = document.getElementById('role-title');
+      const displayName = (title && title.dataset.userName) || getUserDisplayName();
+      enterAppWithRole(role, displayName);
+      showAppToast(role === 'B2G' ? '기관 관리자 모드로 접속했습니다.' : '이용자 모드로 접속했습니다.');
+    }
+    function logout(){
+      saveSession(null);
+      resetFlowProgress();
+      currentRole=null; document.getElementById('login-modal').classList.remove('hidden'); resetAuthModal(); document.getElementById('role-title').textContent='세션 대기'; document.getElementById('start-greeting').textContent='반갑습니다, 000님 :)'; document.getElementById('token-wrapper').classList.add('hidden'); const dashboardBtn=document.getElementById('tab-dashboard-btn'); if(dashboardBtn) dashboardBtn.classList.add('hidden'); showFlow('start-screen');
+    }
+    function tryRestoreSession(){
+      loadTokensFromSession();
+      loadFlowState();
+      const session = loadSession();
+      if(!session || !session.email) return;
+      applyUserToForm(session);
+      if(session.role) handleLogin(session.role);
+      else {
+        document.getElementById('login-modal').classList.remove('hidden');
+        document.getElementById('auth-entry-panel').classList.add('hidden');
+        document.getElementById('auth-form-panel').classList.add('hidden');
+        showRoleSelectPanel();
+      }
+    }
+    function showAppToast(message){
+      const toast=document.getElementById('app-toast');
+      if(!toast) return;
+      toast.textContent=message;
+      toast.classList.add('open');
+      clearTimeout(window.__bandabiToastTimer);
+      window.__bandabiToastTimer=setTimeout(()=>toast.classList.remove('open'), 2200);
+    }
+    function blockUnavailableCenter(centerName){
+      showAppToast('김포 제2 반다비 교육거점은 아직 등록되지 않은 예정 시설입니다. 현재는 김포 반다비체육센터 기준으로 이용해 주세요.');
+      const sel = document.getElementById('center-location');
+      if(sel) sel.value = 'gimpo';
+      return false;
+    }
+    function switchTab(tabId, btn){
+      if(tabId==='dashboard-tab' && currentRole!=='B2G'){
+        showAppToast('기관용 대시보드는 관리자 모드에서만 접근할 수 있습니다.');
+        const mainBtn=document.getElementById('tab-main-btn');
+        if(document.getElementById('main-tab') && !document.getElementById('main-tab').classList.contains('active')) switchTab('main-tab', mainBtn);
+        return;
+      }
+      document.querySelectorAll('.tab-content').forEach(el=>el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+      if(btn) btn.classList.add('active');
+      if(tabId==='dashboard-tab') renderDashboardData();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function showFlow(screenId){
+      flowGuard(screenId);
+      document.querySelectorAll('.flow-screen').forEach(el=>el.classList.remove('active'));
+      const target=document.getElementById(screenId); if(target) target.classList.add('active');
+      const steps=document.getElementById('user-flow-steps');
+      if(steps) steps.classList.toggle('hidden', screenId==='start-screen' || screenId==='guardian-summary-screen');
+      document.querySelectorAll('.flow-step').forEach(btn=>{ btn.classList.remove('active','done'); const i=flowOrder.indexOf(btn.dataset.step); const cur=flowOrder.indexOf(screenId); if(i===cur) btn.classList.add('active'); else if(cur>-1 && i<cur) btn.classList.add('done'); });
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    function toggleHighContrast(){ document.getElementById('main-body').classList.toggle('high-contrast-active'); }
+    function voiceDemo(){ const el=document.getElementById('voice-status'); el.textContent='인식 중'; setTimeout(function(){ const cmd=classifyVoiceCommand('경로 추천해줘'); el.textContent='완료'; if(cmd==='route'){ document.getElementById('disability-type').value='visual'; switchTab('main-tab', document.getElementById('tab-main-btn')); triggerAiEngine(); } else if(cmd==='schedule'){ switchTab('schedule-tab', document.getElementById('tab-schedule-btn')); } else if(cmd==='vision'){ switchTab('vision-tab', document.getElementById('tab-vision-btn')); } },900); }
+    function runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, isApiFallback){
+      const weather = fetchWeatherShortForecast();
+      const busRoute = fetchBusRoute(originGeo, destGeo);
+      const arrival = fetchBusArrival(busRoute.routeId);
+      const payload = {
+        disability: profile.disability,
+        weatherRisk: weather.wind && weather.wind.indexOf('강풍') >= 0 ? 'wind' : 'normal',
+        walkDistance: profile.disability === 'developmental' ? 140 : 300,
+        reserveMobility: profile.disability === 'senior' ? 69 : 74,
+      };
+      const serverScore = getServerData().scoring && getServerData().scoring.by_disability && getServerData().scoring.by_disability[profile.disability];
+      let score, grade, action;
+      if(serverScore && typeof serverScore.score === 'number'){
+        score = serverScore.score;
+        grade = serverScore.display_grade || gradeScore(score);
+        action = serverScore.explanation || explainScore(score, payload);
+      } else {
+        score = calculateViablePathScore(payload);
+        grade = gradeScore(score);
+        action = explainScore(score, payload);
+      }
+      document.getElementById('route-loading').classList.add('hidden');
+      document.getElementById('route-result').classList.remove('hidden');
+      injectRouteResults(originGeo.label || originText, destLabel, score, grade, action, busRoute, weather, arrival);
+      setRouteSourceStatus(isApiFallback ? buildFallbackStatusLine() : 'JS mock · VWorld fallback · 버스 도착 no_data · scoring rule_engine');
+      flowProgress.routeAnalyzed = true;
+      saveFlowState();
+    }
+    function triggerAiEngine(){
+      if(!ensureValidCenterSelection()) return;
+      const profile = getUserProfile();
+      if(isUnavailableCenterValue(profile.center) || isUnavailableCenterLabel(profile.centerLabel)){
+        blockUnavailableCenter('김포 제2 반다비 교육거점');
+        return;
+      }
+      const originText = profile.origin || '김포 구래역 1번 출구';
+      const destLabel = profile.centerLabel;
+      const originGeo = geocode_vworld(originText);
+      const destGeo = geocode_vworld(destLabel);
+      showFlow('route-screen');
+      document.getElementById('route-loading').classList.remove('hidden');
+      document.getElementById('route-result').classList.add('hidden');
+      setRouteSourceStatus('');
+      const apiBase = refreshApiBase();
+      if(!apiBase){
+        console.warn('[Bandabi API unreachable] FastAPI 미실행 — python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000');
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, true); }, 300);
+        return;
+      }
+      fetch(apiBase + '/api/route-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ origin: originText, destination: destLabel, disability: profile.disability }),
+      })
+      .then(function(res){
+        if(!res.ok) throw new Error('api_error:' + res.status);
+        return res.json();
+      })
+      .then(function(data){
+        if(!data || !data.ok) throw new Error('analysis_failed');
+        applyRouteAnalysisPayload(data, originText, destLabel, data.status_line);
+      })
+      .catch(function(err){
+        console.warn('[Bandabi API unreachable]', err);
+        setTimeout(function(){ runLocalRouteAnalysis(profile, originText, destLabel, originGeo, destGeo, true); }, 300);
+      });
+    }
+    function simulateDispatch(){ triggerAiEngine(); showAppToast('경로를 다시 계산했습니다.'); }
+    function restartRouteAnalysis(){
+      const loading=document.getElementById('route-loading');
+      const result=document.getElementById('route-result');
+      if(loading) loading.classList.remove('hidden');
+      if(result) result.classList.add('hidden');
+      showFlow('start-screen');
+      showAppToast('입력 화면으로 돌아왔습니다. 정보를 수정한 뒤 다시 분석할 수 있습니다.');
+    }
+    function openStepConfirmModal({ title, subtitle, message, onConfirm }){
+      const modal=document.getElementById('reward-modal');
+      const titleEl=document.getElementById('reward-modal-title');
+      const subtitleEl=modal ? modal.querySelector('.reward-modal-subtitle') : null;
+      const messageEl=document.getElementById('reward-modal-message');
+      if(titleEl) titleEl.textContent=title;
+      if(subtitleEl) subtitleEl.textContent=subtitle;
+      if(messageEl) messageEl.innerHTML=message;
+      pendingConfirmAction = typeof onConfirm === 'function' ? onConfirm : null;
+      if(modal) modal.classList.add('open');
+    }
+    function approveReservation(){
+      addTokens(500);
+      saveReservationState({ buddyPending: true });
+      flowProgress.routeApproved = true;
+      saveFlowState();
+      openStepConfirmModal({
+        title:'운영 확정 요청이 등록되었습니다.',
+        subtitle:'예약·이동·동행 플랜이 다음 단계로 연결됩니다.',
+        message:'운영 확정 요청이 등록되었습니다.<br/>참여 인센티브 <strong>500BT</strong>가 적립되었습니다.<br/>현금 환급·양도·재판매는 불가하며, 협약된 생활체육 서비스 혜택으로만 사용할 수 있습니다.',
+        onConfirm:function(){
+          renderBuddyRecommendation(recommendBuddy(getUserProfile()));
+          showFlow('care-screen');
+        }
+      });
+    }
+    function confirmRewardModal(){
+      const modal=document.getElementById('reward-modal');
+      if(modal) modal.classList.remove('open');
+      const action=pendingConfirmAction;
+      pendingConfirmAction=null;
+      if(action) action();
+    }
+    function skipBuddy(){ document.getElementById('care-msg').textContent='버디 매칭은 건너뛰었습니다. 강습 추천 화면으로 이동합니다.'; setTimeout(()=>showFlow('class-screen'),450); }
+    function confirmBuddy(){
+      openStepConfirmModal({
+        title:'버디 매칭 확정 요청이 등록되었습니다.',
+        subtitle:'상호 동의와 관리자 확인 후 연결됩니다.',
+        message:'첫 방문 버디 후보 연결 요청이 등록되었습니다.<br/>실명·연락처는 확정 전 비공개로 유지되며, 관리자 확인 후 다음 단계로 연결됩니다.',
+        onConfirm:function(){
+          const buddy = recommendBuddy(getUserProfile());
+          sessionStorage.setItem('bandabi_buddy', JSON.stringify({ name: buddy.name, confirmedAt: new Date().toISOString() }));
+          const st = JSON.parse(sessionStorage.getItem('bandabi_reservation') || '{}');
+          st.buddyConfirmed = true; st.buddyPending = false;
+          sessionStorage.setItem('bandabi_reservation', JSON.stringify(st));
+          flowProgress.buddyDone = true;
+          saveFlowState();
+          const msg=document.getElementById('care-msg');
+          if(msg) msg.textContent='버디 후보가 임시 확정되었습니다. 관리자 확인 후 최종 연결됩니다.';
+          renderInstructorRecommendation(recommendInstructor(getUserProfile()));
+          showFlow('class-screen');
+        }
+      });
+    }
+    function switchInstructor(){ if(!instructorPool.length) recommendInstructor(getUserProfile()); instructorIndex=(instructorIndex+1)%instructorPool.length; renderInstructorCard(instructorPool[instructorIndex]); }
+    function confirmClass(){
+      openStepConfirmModal({
+        title:'강습·지도자 추천이 확정되었습니다.',
+        subtitle:'운동 참여 결과를 리포트 화면에서 확인합니다.',
+        message:'추천 지도자와 강습 선택이 등록되었습니다.<br/>본 내용은 생활체육 참여 지원을 위한 참고자료이며, 최종 운영 확정은 이용자와 운영기관 확인 후 진행됩니다.',
+        onConfirm:function(){
+          const inst = instructorPool[instructorIndex] || recommendInstructor(getUserProfile());
+          sessionStorage.setItem('bandabi_class', JSON.stringify({ name: inst.name, confirmedAt: new Date().toISOString() }));
+          flowProgress.classConfirmed = true;
+          saveFlowState();
+          const msg=document.getElementById('class-msg');
+          if(msg) msg.textContent='강습 추천이 확정되었습니다. 생활체육 리포트 화면으로 이동합니다.';
+          renderExerciseReport();
+          showFlow('report-screen');
+        }
+      });
+    }
+    function saveReport(){ flowProgress.reportSaved = true; saveFlowState(); renderExerciseReport(); const msg=document.getElementById('report-msg'); msg.classList.remove('hidden'); msg.textContent='리포트가 보호자 공유용 요약으로 저장되었습니다.'; setTimeout(function(){ renderGuardianSummary(); showFlow('guardian-summary-screen'); },650); }
+    function shareGuardianSummary(){ renderGuardianSummary(); const msg=document.getElementById('guardian-msg'); msg.classList.remove('hidden'); msg.textContent='보호자 공유 완료 메시지가 생성되었습니다. 실제 외부 전송은 연결하지 않았습니다.'; showAppToast('보호자 공유용 요약이 준비되었습니다.'); }
+    function addMileage(){ addTokens(300, '운동 완료 참여 인센티브 300BT가 적립되었습니다. 현금 환급·양도·재판매는 불가합니다.'); const msg=document.getElementById('report-msg'); if(msg){ msg.classList.remove('hidden'); msg.textContent='운동 완료 참여 인센티브 300BT가 적립되었습니다.'; } }
+    function getNextWeekday(targetDay) {
+      // targetDay: 0=일,1=월,2=화,3=수,4=목,5=금,6=토
+      const today = new Date();
+      const todayDay = today.getDay();
+      let diff = targetDay - todayDay;
+      if (diff <= 0) diff += 7;
+      const next = new Date(today);
+      next.setDate(today.getDate() + diff);
+      return next;
+    }
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+      return y + ' / ' + m + ' / ' + d + ' / ' + days[date.getDay()];
+    }
+    function runScheduleOptimize(){
+      const container = document.getElementById('after-schedule');
+      const badge = document.getElementById('optimize-badge');
+      const result = document.getElementById('optimize-result');
+      if(badge) {
+        badge.textContent = '분석 중';
+        badge.className = 'rounded-full bg-slate-800 px-3 py-1 text-[11px] font-mono text-slate-300';
+      }
+      if(result) result.classList.add('hidden');
+      if(container){
+        container.innerHTML = '<div class="rounded-[2rem] bg-surface border border-lav-line p-10 text-center"><i class="fa-solid fa-spinner spinner text-purple-300 text-3xl"></i><p class="mt-4 font-black">참여 가능 시간을 계산하고 있어요</p><p class="mt-2 text-sm text-slate-500">강습 가능 시간·이동지원 가능성·버디 후보를 함께 확인합니다.</p></div>';
+      }
+      setTimeout(function(){
+        const prefs = { day: document.getElementById('schedule-preferred-day')?.value, time: document.getElementById('schedule-preferred-time')?.value };
+        const items = recommendSchedule(prefs);
+        renderScheduleRecommendations(items);
+      }, 900);
+    }
+    function selectScheduleTime(time){
+      sessionStorage.setItem(SCHEDULE_SESSION_KEY, time);
+      const box = document.getElementById('schedule-confirm-box');
+      const selected = document.getElementById('selected-schedule-time');
+      if(selected) selected.textContent = time;
+      if(box) box.classList.remove('hidden');
+      showAppToast(time + ' 일정이 선택되었습니다.');
+    }
+    function continueWithSelectedSchedule(){
+      const sel = document.getElementById('selected-schedule-time');
+      const time = sel ? sel.textContent : '';
+      sessionStorage.setItem(SCHEDULE_SESSION_KEY, time);
+      flowProgress.scheduleSelected = true;
+      saveFlowState();
+      switchTab('main-tab', document.getElementById('tab-main-btn'));
+      showFlow('start-screen');
+      showAppToast('선택한 시간('+time+') 기준으로 예약 흐름을 이어갑니다.');
+    }
+    function startVisionScan(){
+      document.getElementById('scan-line').classList.remove('hidden');
+      document.getElementById('scan-line').classList.add('scan-line');
+      document.getElementById('bbox-vision').classList.add('hidden');
+      document.getElementById('vision-result').innerHTML='<i class="fa-solid fa-spinner spinner text-blue-300 mr-2"></i>사진 속 접근성 위험 요소를 분석 중입니다.';
+      setTimeout(function(){
+        const analysis = demoVisionFallback();
+        latestVisionAnalysis = analysis;
+        sessionStorage.setItem('bandabi_accessibility_report', JSON.stringify({ label: analysis.label, at: new Date().toISOString() }));
+        flowProgress.visionScanned = true;
+        saveFlowState();
+        document.getElementById('scan-line').classList.add('hidden');
+        document.getElementById('bbox-vision').classList.remove('hidden');
+        document.getElementById('vision-result').innerHTML='<div class="flex items-start gap-3"><div class="w-11 h-11 rounded-2xl bg-red-500/15 text-red-300 flex items-center justify-center"><i class="fa-solid fa-triangle-exclamation"></i></div><div><p class="font-black text-red-200">'+analysis.label+'</p><p class="text-sm text-slate-400 mt-1">'+analysis.summary+' 관리자 확인·검토 요청이 가능합니다.</p></div></div>';
+      }, 1200);
+    }
+    function processReward(){ addTokens(200, '접근성 제보 참여 인센티브 200BT가 적립되었습니다. 현금 환급·양도·재판매는 불가합니다.'); }
+    function buildSendGridPayloadLegacy(){
+      const toEmail = document.getElementById('gov-to-email')?.value || '';
+      const fromEmail = document.getElementById('gov-from-email')?.value || '';
+      const fromName = document.getElementById('gov-from-name')?.value || '';
+      const subject = document.getElementById('gov-subject')?.value || '';
+      const body = document.getElementById('gov-body')?.value || '';
+      return {
+        personalizations: [{ to: [{ email: toEmail }] }],
+        from: { email: fromEmail, name: fromName },
+        subject,
+        content: [{ type: 'text/plain', value: body }]
+      };
+    }
+    function refreshSendGridPayload(){
+      latestSendGridPayload = prepareSendGridPayload({ to: document.getElementById('gov-to-email')?.value || '', fromEmail: document.getElementById('gov-from-email')?.value || '', fromName: document.getElementById('gov-from-name')?.value || '', subject: document.getElementById('gov-subject')?.value || '', body: document.getElementById('gov-body')?.value || '' });
+      const preview = document.getElementById('sendgrid-payload-preview');
+      if(preview) preview.textContent = JSON.stringify(latestSendGridPayload, null, 2);
+      return latestSendGridPayload;
+    }
+    function openGovModal(){
+      const draft = improveDraftWithLLM(buildOfficialDraft(latestVisionAnalysis));
+      const subj = document.getElementById('gov-subject');
+      const body = document.getElementById('gov-body');
+      if(subj) subj.value = draft.subject;
+      if(body) body.value = draft.body;
+      const modal = document.getElementById('gov-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(refreshSendGridPayload, 0);
+    }
+    function closeGovModal(){ document.getElementById('gov-modal').classList.add('hidden'); document.getElementById('gov-modal').classList.remove('flex'); }
+    function prepareSendGridEmail(){
+      refreshSendGridPayload();
+      showAppToast('SendGrid 발송용 payload가 준비되었습니다. 실제 발송 API는 추후 연결하면 됩니다.');
+    }
+    function submitGovModal(){
+      refreshSendGridPayload();
+      const status=document.getElementById('table-status-target-1');
+      if(status){ status.textContent='검토 요청 등록 완료'; status.className='p-3 text-right text-emerald-300 font-bold'; }
+      closeGovModal();
+      showAppToast('수정한 공문 초안과 이메일 payload가 검토 요청으로 저장되었습니다.');
+    }
+    function triggerForcedDispatch(){ const log=document.getElementById('b2g-log-feed'); log.innerHTML+='<p class="text-purple-300">[10:08:21] 노쇼 공백 감지 · 대기자 2명 알림 발송</p><p class="text-emerald-300">[10:08:28] 1순위 대기자 수락 · 슬롯 임시 확정</p>'; log.scrollTop=log.scrollHeight; }
+
+    function goHomeWithGreeting() {
+      // 로그인 상태가 아니면 무시
+      if (!currentRole) return;
+
+      // 메인탭 + 시작화면으로 이동
+      switchTab('main-tab', document.getElementById('tab-main-btn'));
+      showFlow('start-screen');
+
+      // 사용자 이름 읽기
+      const name = getUserDisplayName();
+
+      // 알림 팝업 생성 (기존 있으면 제거)
+      const existingNoti = document.getElementById('home-noti');
+      if (existingNoti) existingNoti.remove();
+
+      const noti = document.createElement('div');
+      noti.id = 'home-noti';
+      noti.innerHTML = `
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(78,204,163,.14);border:1px solid rgba(78,204,163,.22);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;color:#6d28d9;">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <p style="margin:0;font-weight:900;font-size:14px;color:#2c2840;">안녕하세요, ${name}님!</p>
+            <p style="margin:4px 0 0;font-size:12px;color:#9080b0;font-weight:300;line-height:1.5;">오늘도 반다비 AI와 함께 생활체육 참여를 시작해볼까요? 새로운 추천이 준비되어 있어요.</p>
+          </div>
+          <button onclick="document.getElementById('home-noti').remove()" style="background:none;border:none;color:#b0a0c8;font-size:16px;cursor:pointer;padding:0;line-height:1;flex-shrink:0;" aria-label="닫기">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `;
+      Object.assign(noti.style, {
+        position: 'fixed',
+        top: '80px',
+        right: '20px',
+        zIndex: '80',
+        width: 'min(360px, calc(100vw - 40px))',
+        padding: '16px',
+        borderRadius: '14px',
+        background: 'rgba(255,255,255,.88)',
+        border: '1px solid rgba(180,160,230,.22)',
+        boxShadow: '0 8px 32px rgba(100,80,180,.14)',
+        opacity: '0',
+        transform: 'translateY(-8px)',
+        transition: 'opacity .22s ease, transform .22s ease',
+      });
+      document.body.appendChild(noti);
+
+      // 애니메이션 진입
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          noti.style.opacity = '1';
+          noti.style.transform = 'translateY(0)';
+        });
+      });
+
+      // 5초 후 자동 닫기
+      setTimeout(() => {
+        if (document.getElementById('home-noti')) {
+          noti.style.opacity = '0';
+          noti.style.transform = 'translateY(-8px)';
+          setTimeout(() => noti.remove(), 220);
+        }
+      }, 5000);
+    }
+    function renderCharts(data){
+      const d = data || loadDashboardData();
+      if(chart1) chart1.destroy();
+      if(chart2) chart2.destroy();
+      const ctx1=document.getElementById('disabilityChart');
+      const ctx2=document.getElementById('trafficChart');
+      if(!ctx1||!ctx2) return;
+      chart1=new Chart(ctx1,{type:'doughnut',data:{labels:d.disabilityChart.labels,datasets:[{data:d.disabilityChart.data,backgroundColor:['#8b5cf6','#a78bfa','#6d28d9','#4c1d95'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}});
+      chart2=new Chart(ctx2,{type:'bar',data:{labels:d.trafficChart.labels,datasets:[{label:'예약',data:d.trafficChart.booking,backgroundColor:'#6366f1',borderRadius:8},{label:'이동지원 지연',data:d.trafficChart.delay,type:'line',borderColor:'#ef4444',borderWidth:2,fill:false}]},options:{responsive:true,maintainAspectRatio:false,scales:{x:{ticks:{color:'#94a3b8'},grid:{display:false}},y:{ticks:{color:'#94a3b8'},grid:{color:'#334155'}}},plugins:{legend:{position:'bottom',labels:{color:'#94a3b8'}}}}});
+    }
+    tryRestoreSession();
+    renderPublicApiStatus();
+    ensureValidCenterSelection();
+    refreshApiBase();
+    window.scrollTo(0, 0);
+  </script>
+</body>
+</html>
