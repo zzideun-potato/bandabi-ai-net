@@ -140,6 +140,9 @@ def init_state() -> None:
         "guardian_summary": "",
         "instructor_index": 0,
         "schedule_recommendations": [],
+        "schedule_generated": False,
+        "schedule_day_label": "화·목 중심",
+        "schedule_time_label": "오전 10시 전후",
         "pending_confirm": None,
         "center_warning": False,
         "notice": "",
@@ -227,11 +230,13 @@ def inject_css() -> None:
             overflow-x: hidden;
         }}
         .block-container {{
-            max-width: 1120px;
+            max-width: 1360px;
             padding-top: .85rem;
             padding-bottom: 5rem;
         }}
-        h1, h2, h3, p, label, span, div {{
+        h1, h2, h3, p, label, span, div, a, button, input, select {{
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
+                "Malgun Gothic", system-ui, sans-serif;
             letter-spacing: 0;
         }}
         .bandabi-header {{
@@ -895,7 +900,7 @@ def inject_css() -> None:
             margin: 2px 0 12px;
         }}
         .journey-shell {{
-            max-width: 860px;
+            max-width: 1380px;
             margin: 0 auto;
         }}
         .tab-shell {{
@@ -1069,7 +1074,7 @@ def inject_css() -> None:
         .user-topbar-title-user {{
             color: #7a67a7;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 800;
             margin-left: 4px;
         }}
         .user-topbar-badges {{
@@ -1096,7 +1101,7 @@ def inject_css() -> None:
         .topbar-badge-token small {{
             color: #8f7db7;
             font-size: 10px;
-            font-weight: 700;
+            font-weight: 800;
         }}
         .topbar-badge-token svg {{
             width: 15px;
@@ -1132,16 +1137,17 @@ def inject_css() -> None:
             padding: 0 14px;
             color: #6f5a98 !important;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 900 !important;
             line-height: 1.2;
             text-decoration: none !important;
             white-space: nowrap;
             transition: background .15s ease, color .15s ease, box-shadow .15s ease;
         }}
         .app-tab svg {{
-            flex: 0 0 16px;
-            width: 16px;
-            height: 16px;
+            flex: 0 0 18px;
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.35;
         }}
         .app-tab.active {{
             background: #4a2d7a;
@@ -1254,17 +1260,19 @@ def inject_css() -> None:
             margin: 0;
         }}
         .start-greeting {{
-            color: #4a2d7a;
-            font-size: 52px;
-            font-weight: 900;
+            color: #2d2040 !important;
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", sans-serif !important;
+            font-size: 50px !important;
+            font-weight: 900 !important;
             line-height: 1.08;
+            letter-spacing: -0.02em !important;
             margin: 14px 0 0;
         }}
         .start-lead {{
-            color: #7868a0;
+            color: #2d2040;
             font-size: 18px;
             line-height: 1.5;
-            font-weight: 260;
+            font-weight: 300;
             margin: 16px 0 0;
         }}
         .start-copy {{
@@ -1329,28 +1337,55 @@ def inject_css() -> None:
         .start-action-wrap {{
             margin-top: 12px;
         }}
-        .st-key-btn_ai_start > button {{
-            min-height: 116px;
+        .start-ai-link {{
+            height: 82px;
+            min-height: 82px;
+            max-height: 82px;
             border-radius: 22px;
-            font-size: 25px;
+            font-size: 22px;
+            font-weight: 900 !important;
+            letter-spacing: 0;
+            box-shadow: 0 12px 24px rgba(74,45,122,.28);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: #4a2d7a;
+            color: #fff !important;
+            text-decoration: none !important;
+            width: 100%;
+            box-sizing: border-box;
+            line-height: 1;
+        }}
+        .start-ai-icon {{
+            width: 26px;
+            height: 26px;
+            display: block;
+            flex: 0 0 26px;
+        }}
+        .st-key-btn_ai_start > button {{
+            min-height: 82px;
+            border-radius: 22px;
+            font-size: 22px;
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
-            padding-top: 8px;
-            padding-bottom: 8px;
+            padding-top: 18px;
+            padding-bottom: 18px;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 10px !important;
         }}
         .st-key-btn_ai_start > button p {{
-            font-size: 25px;
+            font-size: 22px;
             font-weight: 900;
             margin: 0;
             line-height: 1;
         }}
         .st-key-btn_ai_start button[kind="primary"] {{
-            min-height: 116px !important;
+            min-height: 82px !important;
         }}
         .st-key-btn_ai_start > button::before {{
             content: "";
@@ -1374,33 +1409,42 @@ def inject_css() -> None:
             background: #ffffff;
             border: 1px solid var(--bandabi-line);
             border-radius: 30px;
-            padding: 26px 28px 28px;
+            padding: 30px 30px 28px;
+            max-width: 1380px;
+            width: min(1380px, calc(100vw - 330px));
+            margin: 5px auto 0;
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 2px 20px rgba(109,40,217,.07);
         }}
         .schedule-kicker {{
             color: #6b4fa0;
             font-size: 12px;
-            font-weight: 700;
+            font-weight: 900;
             letter-spacing: .11em;
             margin: 0;
         }}
         .schedule-title {{
-            color: #332456;
-            font-size: 42px;
-            font-weight: 900;
+            color: #2d2040 !important;
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", sans-serif !important;
+            font-size: 38px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.02em !important;
             margin: 4px 0 0;
             line-height: 1.05;
         }}
         .schedule-sub {{
-            margin: 12px 0 0;
+            margin: 12px 0 18px;
             color: #7a6aa1;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 400;
             line-height: 1.55;
         }}
         .st-key-schedule_find_btn > button {{
-            min-height: 60px;
+            min-height: 58px;
             border-radius: 16px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 900;
             white-space: nowrap;
             box-shadow: 0 10px 22px rgba(74,45,122,.22);
@@ -1418,6 +1462,30 @@ def inject_css() -> None:
             -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
         }}
+        .schedule-find-link {{
+            min-height: 58px;
+            border-radius: 16px;
+            padding: 0 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #4a2d7a;
+            color: #fff !important;
+            text-decoration: none !important;
+            font-size: 16px;
+            font-weight: 900 !important;
+            white-space: nowrap;
+            box-shadow: 0 10px 22px rgba(74,45,122,.22);
+            width: auto;
+            min-width: 200px;
+            align-self: flex-start;
+        }}
+        .schedule-find-link svg {{
+            width: 19px;
+            height: 19px;
+            flex: 0 0 19px;
+        }}
         .st-key-schedule_pref_card,
         .st-key-schedule_criteria_card,
         .st-key-schedule_result_card {{
@@ -1425,7 +1493,7 @@ def inject_css() -> None:
             border: 1px solid rgba(184,172,216,.22);
             border-radius: 22px;
             padding: 20px;
-            box-shadow: 0 3px 10px rgba(74,45,122,.06);
+            box-shadow: none;
         }}
         .st-key-schedule_criteria_card {{
             margin-top: 14px;
@@ -1436,7 +1504,7 @@ def inject_css() -> None:
         .schedule-card-title {{
             margin: 0 0 14px;
             color: #2f2350;
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 900;
             line-height: 1.2;
             display: inline-flex;
@@ -1444,10 +1512,10 @@ def inject_css() -> None:
             gap: 9px;
         }}
         .schedule-card-title svg {{
-            width: 20px;
-            height: 20px;
+            width: 18px;
+            height: 18px;
             color: #4a2d7a;
-            flex: 0 0 20px;
+            flex: 0 0 18px;
         }}
         .schedule-label {{
             display: block;
@@ -1456,10 +1524,10 @@ def inject_css() -> None:
             font-weight: 800;
             margin: 10px 0 8px;
         }}
-        .schedule-fields [data-testid="stSelectbox"] label {{
+        .st-key-schedule_pref_card [data-testid="stSelectbox"] label {{
             display: none;
         }}
-        .schedule-fields [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
+        .st-key-schedule_pref_card [data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
             min-height: 52px;
             border-radius: 14px;
             border-color: rgba(119, 96, 160, .22);
@@ -1473,7 +1541,7 @@ def inject_css() -> None:
         }}
         .schedule-criteria-list {{
             color: #5e4f84;
-            font-size: 16px;
+            font-size: 14px;
             line-height: 1.9;
             font-weight: 500;
             margin: 0;
@@ -1514,8 +1582,10 @@ def inject_css() -> None:
             color: #344154;
         }}
         .schedule-empty .big {{
-            font-size: 22px;
-            font-weight: 900;
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", sans-serif !important;
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.01em !important;
             line-height: 1.35;
             color: #2f2350;
             max-width: 520px;
@@ -1525,6 +1595,163 @@ def inject_css() -> None:
             font-size: 15px;
             color: #8575ad;
             font-weight: 500;
+        }}
+        .schedule-native-head {{
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+        }}
+        .schedule-native-head > div:first-child {{
+            flex: 1 1 auto;
+            min-width: 0;
+        }}
+        .schedule-native-grid {{
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: 22px;
+            margin-top: 24px;
+        }}
+        .schedule-left-stack {{
+            display: grid;
+            gap: 14px;
+        }}
+        .schedule-soft {{
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.28);
+            border-radius: 22px;
+            padding: 20px;
+            box-shadow: none;
+        }}
+        .schedule-soft-title {{
+            margin: 0 0 18px;
+            color: #2f2350 !important;
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", sans-serif !important;
+            font-size: 20px !important;
+            font-weight: 900 !important;
+            letter-spacing: -0.01em !important;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            line-height: 1.2;
+        }}
+        .schedule-soft-title svg {{
+            width: 20px;
+            height: 20px;
+            color: #4a2d7a;
+            flex: 0 0 20px;
+        }}
+        .schedule-field-label {{
+            display: block;
+            color: #7a6aa1;
+            font-size: 12px;
+            font-weight: 800;
+            margin: 0 0 8px;
+        }}
+        .schedule-control {{
+            width: 100%;
+            min-height: 52px;
+            border-radius: 14px;
+            border: 1px solid rgba(119,96,160,.22);
+            background: #fff;
+            color: #4a2d7a;
+            font-size: 14px;
+            font-weight: 500;
+            padding: 0 14px;
+            margin-bottom: 16px;
+            appearance: auto;
+        }}
+        .schedule-check-grid {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 2px;
+        }}
+        .schedule-check {{
+            min-height: 48px;
+            border-radius: 16px;
+            background: rgba(255,255,255,.32);
+            border: 1px solid rgba(184,172,216,.22);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 12px;
+            color: #5e4f84;
+            font-size: 13px;
+            font-weight: 600;
+        }}
+        .schedule-check span:first-child {{
+            width: 17px;
+            height: 17px;
+            border-radius: 5px;
+            background: #7c5fb8;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+        }}
+        .schedule-rule-list {{
+            color: #6f5d95;
+            font-size: 14px;
+            line-height: 1.9;
+            font-weight: 500;
+            margin: 0;
+        }}
+        .schedule-rule-list b {{
+            color: #4a2d7a;
+            font-weight: 900;
+            margin-right: 4px;
+        }}
+        .schedule-result-top {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 2px 0 14px;
+        }}
+        .schedule-result-panel {{
+            min-height: 218px;
+            border-radius: 22px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.28);
+            display: grid;
+            place-items: center;
+            text-align: center;
+            padding: 28px;
+        }}
+        .schedule-result-card {{
+            width: 100%;
+            text-align: left;
+            background: rgba(255,255,255,.42);
+            border: 1px solid rgba(184,172,216,.24);
+            border-radius: 18px;
+            padding: 14px 16px;
+            margin: 8px 0;
+            color: #4a2d7a;
+            font-size: 14px;
+            line-height: 1.5;
+        }}
+        .schedule-empty-icon {{
+            width: 46px;
+            height: 46px;
+            margin: 0 auto 12px;
+            color: #344154;
+        }}
+        @media (max-width: 900px) {{
+            .schedule-native-head,
+            .schedule-native-grid {{
+                grid-template-columns: 1fr;
+                display: grid;
+            }}
+            .schedule-find-link {{
+                width: 100%;
+            }}
+            .st-key-schedule_shell {{
+                width: 100%;
+                left: auto;
+                transform: none;
+            }}
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
@@ -1967,6 +2194,30 @@ def handle_user_chrome_query() -> None:
         changed = True
     elif action == "voice":
         st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
+        changed = True
+    elif action == "start_ai":
+        if st.session_state.get("destination_choice") == UNAVAILABLE_DESTINATION:
+            block_unavailable_destination()
+        else:
+            st.session_state.destination = DEFAULT_DESTINATION
+            result = build_route_analysis()
+            st.session_state.route_result = result
+            st.session_state.route_analysis_result = result
+            st.session_state.main_step = "route"
+            st.session_state.current_page = "main"
+            st.session_state.pending_confirm = None
+        changed = True
+    elif action == "schedule_find":
+        day_map = {
+            "화·목 중심": ["화", "목"],
+            "월·수 중심": ["월", "수"],
+            "주말 중심": ["토", "일"],
+        }
+        day_label = st.session_state.get("schedule_day_label", "화·목 중심")
+        time_label = st.session_state.get("schedule_time_label", "오전 10시 전후")
+        st.session_state.schedule_recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
+        st.session_state.schedule_generated = True
+        st.session_state.current_page = "schedule"
         changed = True
     elif action == "logout":
         st.session_state.logged_in = False
@@ -2426,8 +2677,23 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
-                start_analysis()
+            start_href = "?" + urlencode(
+                {
+                    "resume": "1",
+                    "page": "main",
+                    "step": "start",
+                    "role": st.session_state.get("role", USER_ROLE),
+                    "user": st.session_state.get("user_name", ""),
+                    "email": st.session_state.get("user_email", ""),
+                    "action": "start_ai",
+                }
+            )
+            zap_src = zap_icon_data_uri()
+            st.markdown(
+                f'<a class="start-ai-link" href="{esc(start_href)}" target="_self">'
+                f'<img class="start-ai-icon" src="{esc(zap_src)}" alt="">AI 추천 시작</a>',
+                unsafe_allow_html=True,
+            )
             st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -2755,6 +3021,17 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 
 def render_schedule_page() -> None:
+    schedule_href = "?" + urlencode(
+        {
+            "resume": "1",
+            "page": "schedule",
+            "step": st.session_state.get("main_step", "start"),
+            "role": st.session_state.get("role", USER_ROLE),
+            "user": st.session_state.get("user_name", ""),
+            "email": st.session_state.get("user_email", ""),
+            "action": "schedule_find",
+        }
+    )
     sliders_icon = """
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
@@ -2781,78 +3058,82 @@ def render_schedule_page() -> None:
             <path d="M8 12.5h8M12 8.5v8" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/>
         </svg>
     """
-    with st.container(key="schedule_shell"):
-        head_left, head_right = st.columns([1.7, 0.6], gap="medium")
-        with head_left:
-            st.markdown("<p class='schedule-kicker'>Personal Schedule AI</p>", unsafe_allow_html=True)
-            st.markdown("<h2 class='schedule-title'>내 운동 일정 추천</h2>", unsafe_allow_html=True)
-            st.markdown(
-                "<p class='schedule-sub'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>",
-                unsafe_allow_html=True,
-            )
-        with head_right:
-            with st.container(key="schedule_find_btn"):
-                find_clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
+    if st.session_state.get("schedule_generated") and st.session_state.get("schedule_recommendations"):
+        result_html = "".join(
+            f"<div class='schedule-result-card'><b>{idx}</b> {esc(item['title'])}<br>{esc(item['reason'])}</div>"
+            for idx, item in enumerate(st.session_state.schedule_recommendations[:3], start=1)
+        )
+    else:
+        result_html = (
+            "<div class='schedule-empty'>"
+            f"<div>{calendar_plus_icon}"
+            "<div class='big'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
+            "<div class='small'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>"
+            "</div>"
+        )
 
-        left_col, right_col = st.columns([1, 1.35], gap="large")
-
-        with left_col:
-            with st.container(key="schedule_pref_card"):
-                st.markdown(f"<h3 class='schedule-card-title'>{sliders_icon}선호 조건</h3>", unsafe_allow_html=True)
-                st.markdown("<div class='schedule-fields'>", unsafe_allow_html=True)
-                st.markdown("<span class='schedule-label'>선호 요일</span>", unsafe_allow_html=True)
-                day_label = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0, label_visibility="collapsed")
-                st.markdown("<span class='schedule-label'>선호 시간대</span>", unsafe_allow_html=True)
-                time_label = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0, label_visibility="collapsed")
-                st.markdown("</div>", unsafe_allow_html=True)
-
-                t1, t2 = st.columns(2, gap="small")
-                with t1:
-                    st.checkbox("이동지원 우선", value=True, key="schedule_mobility_first")
-                with t2:
-                    st.checkbox("버디 후보 우선", value=True, key="schedule_buddy_first")
-
-            with st.container(key="schedule_criteria_card"):
-                st.markdown(
-                    f"<h3 class='schedule-card-title'>{info_icon}추천 기준</h3>"
-                    "<p class='schedule-criteria-list'>"
-                    "<b>1</b> 지도자 가능 시간과 프로그램 정원<br>"
-                    "<b>2</b> 이동지원 연계 가능성과 시간대 혼잡도<br>"
-                    "<b>3</b> 같은 센터·시간대 버디 후보 여부"
-                    "</p>",
-                    unsafe_allow_html=True,
-                )
-
-        with right_col:
-            st.markdown(
-                f"<div class='schedule-result-head'><h3 class='schedule-card-title' style='margin:0'>{calendar_check_icon}참여 가능 시간 후보</h3><span class='schedule-status-chip'>분석 대기</span></div>",
-                unsafe_allow_html=True,
-            )
-            with st.container(key="schedule_result_card"):
-                day_map = {
-                    "화·목 중심": ["화", "목"],
-                    "월·수 중심": ["월", "수"],
-                    "주말 중심": ["토", "일"],
-                }
-                if find_clicked:
-                    st.session_state.schedule_recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
-
-                recommendations = st.session_state.get("schedule_recommendations", [])
-                if recommendations:
-                    for idx, item in enumerate(recommendations[:3], start=1):
-                        st.markdown(
-                            f"<div class='notice-box' style='margin:8px 0;'><b>{idx}</b> {esc(item['title'])}<br>{esc(item['reason'])}</div>",
-                            unsafe_allow_html=True,
-                        )
-                else:
-                    st.markdown(
-                        "<div class='schedule-empty'>"
-                        f"<div>{calendar_plus_icon}"
-                        "<div class='big'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
-                        "<div class='small'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>"
-                        "</div>",
-                        unsafe_allow_html=True,
-                    )
+    st.markdown(
+        html_block(f"""
+        <section class="st-key-schedule_shell">
+            <div class="schedule-native-head">
+                <div>
+                    <p class="schedule-kicker">Personal Schedule AI</p>
+                    <h2 class="schedule-title">내 운동 일정 추천</h2>
+                    <p class="schedule-sub">강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>
+                </div>
+                <a class="schedule-find-link" href="{esc(schedule_href)}" target="_self">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M10.8 4.2a6.6 6.6 0 1 0 0 13.2 6.6 6.6 0 0 0 0-13.2Zm0 2.9a2.7 2.7 0 0 1 2.7 2.7c0 2-2.7 5.1-2.7 5.1S8.1 11.8 8.1 9.8a2.7 2.7 0 0 1 2.7-2.7Z" fill="currentColor"/>
+                        <path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                        <circle cx="10.8" cy="9.8" r="1.1" fill="#4a2d7a"/>
+                    </svg>
+                    가능한 시간 찾기
+                </a>
+            </div>
+            <div class="schedule-native-grid">
+                <div class="schedule-left-stack">
+                    <div class="schedule-soft">
+                        <h3 class="schedule-soft-title">{sliders_icon}선호 조건</h3>
+                        <label class="schedule-field-label">선호 요일</label>
+                        <select class="schedule-control" aria-label="선호 요일">
+                            <option>화·목 중심</option>
+                            <option>월·수 중심</option>
+                            <option>주말 가능</option>
+                        </select>
+                        <label class="schedule-field-label">선호 시간대</label>
+                        <select class="schedule-control" aria-label="선호 시간대">
+                            <option>오전 10시 전후</option>
+                            <option>오후 2시 전후</option>
+                            <option>오후 4시 전후</option>
+                        </select>
+                        <div class="schedule-check-grid">
+                            <div class="schedule-check"><span>✓</span>이동지원 우선</div>
+                            <div class="schedule-check"><span>✓</span>버디 후보 우선</div>
+                        </div>
+                    </div>
+                    <div class="schedule-soft">
+                        <h3 class="schedule-soft-title">{info_icon}추천 기준</h3>
+                        <p class="schedule-rule-list">
+                            <b>1</b>지도자 가능 시간과 프로그램 정원<br>
+                            <b>2</b>이동지원 연계 가능성과 시간대 혼잡도<br>
+                            <b>3</b>같은 센터·시간대 버디 후보 여부
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <div class="schedule-result-top">
+                        <h3 class="schedule-soft-title" style="margin:0">{calendar_check_icon}참여 가능 시간 후보</h3>
+                        <span class="schedule-status-chip">분석 대기</span>
+                    </div>
+                    <div class="schedule-result-panel">
+                        {result_html}
+                    </div>
+                </div>
+            </div>
+        </section>
+        """),
+        unsafe_allow_html=True,
+    )
 
 
 def mock_accessibility_result(report_type: str) -> dict[str, Any]:
