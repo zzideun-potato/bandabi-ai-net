@@ -2735,6 +2735,7 @@ def inject_css() -> None:
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
             gap: 12px;
+            margin-bottom: 20px;
         }}
         @media (max-width: 980px) {{
             .dashboard-kpi-grid {{
@@ -2783,7 +2784,6 @@ def inject_css() -> None:
             font-weight: 900;
         }}
         .dashboard-board-shell,
-        .dashboard-board-shell h2,
         .dashboard-board-shell p,
         .dashboard-board-shell th,
         .dashboard-board-shell td,
@@ -2905,12 +2905,30 @@ def inject_css() -> None:
             color: #4a2d7a;
             font-weight: 900;
         }}
+        .dashboard-kpi-shell {{
+            margin-bottom: 0 !important;
+            display: block;
+        }}
+        div[data-testid="element-container"]:has(.dashboard-kpi-shell) + div[data-testid="element-container"]:has(iframe) {{
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }}
         div[data-testid="stHtml"] iframe {{
             border: 0;
         }}
-        div[data-testid="stHtml"] {{
-            margin-top: 24px !important;
+        div[data-testid="stHtml"],
+        div[data-testid="element-container"]:has(iframe) {{
+            margin-top: 0 !important;
             margin-bottom: 20px !important;
+        }}
+        .stMarkdown .dashboard-board-title,
+        [data-testid="stMarkdownContainer"] .dashboard-board-title {{
+            font-family: {PRETENDARD_STACK} !important;
+            font-weight: 900 !important;
+            font-size: 24px !important;
+            line-height: 1.2 !important;
+            color: #2d2040 !important;
+            margin: 6px 0 0 !important;
         }}
         [data-testid="stMarkdownContainer"] .dashboard-board-shell,
         [data-testid="stMarkdownContainer"] .dashboard-board-shell * {{
@@ -5933,11 +5951,28 @@ def render_dashboard_page() -> None:
         render_main_page()
         return
 
+    font_data_uri = pretendard_font_data_uri()
+    dashboard_font_face = (
+        f"""
+        @font-face {{
+            font-family: "Pretendard Local";
+            src: url("{font_data_uri}") format("truetype");
+            font-weight: 45 920;
+            font-style: normal;
+            font-display: swap;
+        }}
+        """
+        if font_data_uri
+        else ""
+    )
+
     st.markdown(
         f"""
         <style>
+        {dashboard_font_face}
         [data-testid="stMarkdownContainer"] .dashboard-board-shell,
-        [data-testid="stMarkdownContainer"] .dashboard-board-shell h2,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell .dashboard-board-title,
+        [data-testid="stMarkdownContainer"] .dashboard-board-shell .dashboard-board-kicker,
         [data-testid="stMarkdownContainer"] .dashboard-board-shell p,
         [data-testid="stMarkdownContainer"] .dashboard-board-shell th,
         [data-testid="stMarkdownContainer"] .dashboard-board-shell td,
@@ -5975,7 +6010,6 @@ def render_dashboard_page() -> None:
         f'<div class="dashboard-api-item{" wide" if label == "SendGrid" else ""}"><b>{esc(label)}</b><br>{esc(status)}</div>'
         for label, status in api_items
     )
-    font_data_uri = pretendard_font_data_uri()
     chart_font_face = (
         f"""
           @font-face {{
@@ -6042,7 +6076,7 @@ def render_dashboard_page() -> None:
           {chart_font_face}
           body {{
             margin: 0;
-            padding-top: 4px;
+            padding: 0;
             font-family: "Pretendard Local", "Pretendard Variable", Pretendard, sans-serif;
             background: transparent;
           }}
@@ -6050,6 +6084,7 @@ def render_dashboard_page() -> None:
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
+            margin-top: 0;
           }}
           .panel {{
             background: #ffffff;
@@ -6132,7 +6167,7 @@ def render_dashboard_page() -> None:
                 <div class="dashboard-board-head">
                     <div>
                         <p class="dashboard-board-kicker">B2G Operating Board</p>
-                        <h2 class="dashboard-board-title">기관 운영 액션 보드</h2>
+                        <p class="dashboard-board-title" role="heading" aria-level="2">기관 운영 액션 보드</p>
                     </div>
                     <a class="dashboard-dispatch-link" href="{esc(dispatch_href)}" target="_self">대체 매칭 알림</a>
                 </div>
