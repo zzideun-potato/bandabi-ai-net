@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import streamlit as st
 
@@ -1255,10 +1255,11 @@ def inject_css() -> None:
         }}
         .start-greeting {{
             color: #4a2d7a;
-            font-size: clamp(50px, 4.1vw, 58px);
-            font-weight: 900;
+            font-size: clamp(54px, 4.5vw, 62px);
+            font-weight: 920;
             line-height: 1.08;
             margin: 14px 0 0;
+            -webkit-text-stroke: .2px #3d2b66;
         }}
         .start-lead {{
             color: #7868a0;
@@ -1330,14 +1331,18 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 232px;
+            min-height: 116px;
             border-radius: 22px;
             font-size: 25px;
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
-            padding-top: 26px;
-            padding-bottom: 26px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
         }}
         .st-key-btn_ai_start > button p {{
             font-size: 25px;
@@ -1346,19 +1351,18 @@ def inject_css() -> None:
             line-height: 1;
         }}
         .st-key-btn_ai_start button[kind="primary"] {{
-            min-height: 232px !important;
+            min-height: 116px !important;
         }}
         .st-key-btn_ai_start > button::before {{
             content: "";
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            margin-right: 10px;
-            vertical-align: middle;
+            width: 26px;
+            height: 26px;
             background-image: url("{zap_uri}");
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;
+            flex: 0 0 26px;
         }}
         .start-footnote {{
             color: #b8acd8;
@@ -1371,19 +1375,69 @@ def inject_css() -> None:
             background: #ffffff;
             border: 1px solid var(--bandabi-line);
             border-radius: 30px;
-            padding: 28px;
+            padding: 26px 28px 28px;
+        }}
+        .schedule-head-row {{
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
         }}
         .schedule-grid {{
             display: grid;
             grid-template-columns: 1fr 1.35fr;
             gap: 22px;
-            margin-top: 14px;
+            margin-top: 18px;
         }}
         .schedule-pane {{
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.22);
             border-radius: 22px;
             padding: 20px;
+        }}
+        .schedule-pane-title {{
+            margin: 0 0 14px;
+            color: #312453;
+            font-size: 16px;
+            font-weight: 900;
+        }}
+        .schedule-candidates {{
+            min-height: 218px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: #4a2d7a;
+            line-height: 1.5;
+            font-size: 16px;
+            font-weight: 700;
+        }}
+        .schedule-status-chip {{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(184,172,216,.35);
+            color: #655586;
+            border-radius: 999px;
+            min-height: 32px;
+            padding: 0 14px;
+            font-size: 14px;
+            font-weight: 700;
+            background: #f6f3fc;
+        }}
+        .schedule-criteria {{
+            margin-top: 14px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.22);
+            border-radius: 22px;
+            padding: 20px;
+            color: #5e4f84;
+            font-size: 17px;
+            line-height: 1.85;
+            font-weight: 500;
+        }}
+        .schedule-criteria b {{
+            color: #3e2f66;
+            font-weight: 900;
         }}
         .schedule-hero-btn button {{
             min-height: 58px;
@@ -1882,10 +1936,21 @@ def render_user_topbar() -> None:
     )
 
     tab_links = []
+    base_query = {
+        "resume": "1",
+        "role": st.session_state.get("role", USER_ROLE),
+        "user": st.session_state.get("user_name", ""),
+        "email": st.session_state.get("user_email", ""),
+        "step": st.session_state.get("main_step", "start"),
+    }
     for page, label, icon_kind in USER_TABS:
         active = " active" if current_page == page else ""
+        q = dict(base_query)
+        q["nav_tab"] = page
+        q["page"] = page
+        href = "?" + urlencode({k: v for k, v in q.items() if v != ""})
         tab_links.append(
-            f'<a class="app-tab{active}" href="?nav_tab={page}" target="_self">'
+            f'<a class="app-tab{active}" href="{href}" target="_self">'
             f"{tab_icon_svg(icon_kind)}{esc(label)}</a>"
         )
 
@@ -2279,7 +2344,7 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("⚡ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
                 start_analysis()
             st.markdown("</div>", unsafe_allow_html=True)
 
@@ -2609,29 +2674,72 @@ def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict
 
 def render_schedule_page() -> None:
     st.markdown('<div class="schedule-shell">', unsafe_allow_html=True)
-    st.markdown("<p class='start-kicker' style='margin:0'>Personal Schedule AI</p>", unsafe_allow_html=True)
-    st.markdown("<h2 class='start-greeting' style='margin-top:6px'>내 운동 일정 추천</h2>", unsafe_allow_html=True)
-    st.markdown("<p class='start-lead' style='margin-top:8px'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>", unsafe_allow_html=True)
+    st.markdown('<div class="schedule-head-row">', unsafe_allow_html=True)
+    st.markdown(
+        "<div><p class='start-kicker' style='margin:0'>Personal Schedule AI</p>"
+        "<h2 class='start-greeting' style='margin-top:2px'>내 운동 일정 추천</h2>"
+        "<p class='start-lead' style='margin-top:6px'>강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p></div>",
+        unsafe_allow_html=True,
+    )
+    st.markdown('<div class="schedule-hero-btn">', unsafe_allow_html=True)
+    find_clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary")
+    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+
     st.markdown('<div class="schedule-grid">', unsafe_allow_html=True)
+    st.markdown('<div>', unsafe_allow_html=True)
     st.markdown('<div class="schedule-pane">', unsafe_allow_html=True)
-    days = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0)
-    time_range = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0)
+    st.markdown("<h3 class='schedule-pane-title'>선호 조건</h3>", unsafe_allow_html=True)
+    day_label = st.selectbox("선호 요일", ["화·목 중심", "월·수 중심", "주말 중심"], index=0)
+    time_label = st.selectbox("선호 시간대", ["오전 10시 전후", "오후 2시 전후", "저녁 7시 전후"], index=0)
     c1, c2 = st.columns(2)
     with c1:
         mobility_first = st.checkbox("이동지원 우선", value=True)
     with c2:
         buddy_first = st.checkbox("버디 후보 우선", value=True)
     st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown('<div class="schedule-pane">', unsafe_allow_html=True)
-    st.markdown('<div class="schedule-hero-btn">', unsafe_allow_html=True)
-    clicked = st.button("가능한 시간 찾기", key="schedule_generate", type="primary", use_container_width=True)
+    st.markdown(
+        "<div class='schedule-criteria'><b>추천 기준</b><br>"
+        "1 지도자 가능 시간과 프로그램 정원<br>"
+        "2 이동지원 연계 가능성과 시간대 혼잡도<br>"
+        "3 같은 센터·시간대 버디 후보 여부</div>",
+        unsafe_allow_html=True,
+    )
     st.markdown("</div>", unsafe_allow_html=True)
-    if clicked or not st.session_state.get("schedule_recommendations"):
-        st.session_state.schedule_recommendations = make_schedule_recommendations(["화", "목"], time_range)
-    for idx, item in enumerate(st.session_state.schedule_recommendations[:3], start=1):
-        st.markdown(f"<div class='notice-box'><b>{idx}</b>  {esc(item['title'])} · {esc(item['reason'])}</div>", unsafe_allow_html=True)
-    if st.button("이 시간으로 예약 이어가기", key="schedule_pick_0", type="primary", use_container_width=True):
-        pick = st.session_state.schedule_recommendations[0]
+
+    st.markdown('<div>', unsafe_allow_html=True)
+    right_head_col, right_chip_col = st.columns([1, 0.36], gap="small")
+    with right_head_col:
+        st.markdown("<h3 class='schedule-pane-title' style='margin-top:2px'>참여 가능 시간 후보</h3>", unsafe_allow_html=True)
+    with right_chip_col:
+        st.markdown("<div class='schedule-status-chip'>분석 대기</div>", unsafe_allow_html=True)
+    st.markdown('<div class="schedule-pane schedule-candidates">', unsafe_allow_html=True)
+
+    day_map = {
+        "화·목 중심": ["화", "목"],
+        "월·수 중심": ["월", "수"],
+        "주말 중심": ["토", "일"],
+    }
+    if find_clicked:
+        st.session_state.schedule_recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
+
+    recommendations = st.session_state.get("schedule_recommendations", [])
+    if recommendations:
+        for idx, item in enumerate(recommendations[:3], start=1):
+            st.markdown(
+                f"<div class='notice-box' style='width:100%;text-align:left'><b>{idx}</b> {esc(item['title'])}<br>{esc(item['reason'])}</div>",
+                unsafe_allow_html=True,
+            )
+    else:
+        st.markdown(
+            "<div><div style='font-size:48px;line-height:1'>📅</div>"
+            "<div style='margin-top:6px;font-size:38px;font-weight:900;color:#3f2f67;'>가능한 시간 찾기를 누르면 추천 시간이 표시됩니다</div>"
+            "<div style='margin-top:4px;font-size:28px;color:#8473ae;'>강습·이동지원·버디 후보를 함께 계산합니다.</div></div>",
+            unsafe_allow_html=True,
+        )
+    st.markdown("</div>", unsafe_allow_html=True)
+    if recommendations and st.button("이 시간으로 예약 이어가기", key="schedule_pick_0", type="primary", use_container_width=True):
+        pick = recommendations[0]
         st.session_state.selected_schedule = f"{pick['date']} {pick['title']}"
         st.session_state.current_page = "main"
         st.session_state.main_step = "start"
