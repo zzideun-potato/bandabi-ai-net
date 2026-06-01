@@ -194,7 +194,11 @@ def init_state() -> None:
         st.session_state.authenticated = True
         st.session_state.user_name = qp.get("user", st.session_state.get("user_name", "")) or "안소연"
         st.session_state.user_email = qp.get("email", st.session_state.get("user_email", ""))
-        st.session_state.role = ADMIN_ROLE if qp.get("role") == ADMIN_ROLE else USER_ROLE
+        role_qp = qp.get("role")
+        if role_qp == ADMIN_ROLE:
+            st.session_state.role = ADMIN_ROLE
+        elif role_qp == USER_ROLE:
+            st.session_state.role = USER_ROLE
         page = qp.get("page", "main")
         st.session_state.current_page = page if page in {"main", "schedule", "accessibility", "dashboard"} else "main"
         step = qp.get("step", "start")
@@ -774,6 +778,91 @@ def inject_css() -> None:
             color: #ffffff !important;
             border-color: #4a2d7a;
             box-shadow: 0 8px 18px rgba(74,45,122,.22);
+        }}
+        .role-select-panel {{
+            margin-top: 20px;
+        }}
+        .role-select-kicker {{
+            margin: 0 0 12px;
+            color: #7868a0;
+            font-size: 11px;
+            line-height: 1.2;
+            font-weight: 900;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }}
+        .role-select-card {{
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 10px;
+            padding: 16px 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(184,172,216,.34);
+            background: #ffffff;
+            color: #4a2d7a !important;
+            text-decoration: none !important;
+            box-shadow: 0 10px 24px rgba(74,45,122,.06);
+        }}
+        .role-select-card:first-of-type {{
+            margin-top: 0;
+        }}
+        .role-select-card:hover {{
+            border-color: rgba(74,45,122,.42);
+            box-shadow: 0 12px 28px rgba(74,45,122,.12);
+        }}
+        .role-select-card-inner {{
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }}
+        .role-select-icon {{
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }}
+        .role-select-icon.user {{
+            background: rgba(59,130,246,.12);
+            color: #2563eb;
+        }}
+        .role-select-icon.admin {{
+            background: rgba(109,49,237,.12);
+            color: #6d31ed;
+        }}
+        .role-select-title {{
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            color: #4a2d7a;
+        }}
+        .role-select-copy {{
+            margin: 4px 0 0 !important;
+            font-size: 12px !important;
+            line-height: 1.45 !important;
+            font-weight: 300 !important;
+            color: #7868a0 !important;
+        }}
+        .role-select-back {{
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 55px;
+            margin-top: 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(184,172,216,.34);
+            background: #f0ecf8;
+            color: #4a2d7a !important;
+            font-size: 16px;
+            font-weight: 900;
+            text-decoration: none !important;
         }}
         .auth-form-buttons {{
             display: flex;
@@ -3279,6 +3368,15 @@ def signup_role_from_choice() -> str:
     return ADMIN_ROLE if "Admin" in str(choice) else USER_ROLE
 
 
+def finalize_app_entry(role: str) -> None:
+    st.session_state.logged_in = True
+    st.session_state.authenticated = True
+    st.session_state.role = role
+    st.session_state.current_page = "dashboard" if role == ADMIN_ROLE else "main"
+    st.session_state.main_step = "start"
+    st.session_state.auth_stage = "entry"
+    st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
+    st.session_state.bt_balance = st.session_state.bt_points
 
 
 def render_auth() -> None:
@@ -3302,18 +3400,19 @@ def render_auth() -> None:
             or (st.session_state.get("login_email") or "").strip()
             or (st.session_state.get("user_email") or "").strip()
         )
-        st.session_state.logged_in = True
-        st.session_state.authenticated = True
         st.session_state.auth_mode = "회원가입"
         st.session_state.user_name = resolved_name
         st.session_state.user_email = resolved_email
-        st.session_state.role = signup_role_from_choice()
-        st.session_state.current_page = "dashboard" if st.session_state.role == ADMIN_ROLE else "main"
-        st.session_state.main_step = "start"
-        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
-        st.session_state.bt_balance = st.session_state.bt_points
+        st.session_state.auth_stage = "role_select"
+        signup_role_qp = st.query_params.get("signup_role")
+        if signup_role_qp == "admin":
+            st.session_state.signup_role_choice = "기관 관리자 (Admin)"
+        elif signup_role_qp == "user":
+            st.session_state.signup_role_choice = "이용자 (User)"
         try:
             del st.query_params["auth"]
+            if "signup_role" in st.query_params:
+                del st.query_params["signup_role"]
         except Exception:
             pass
         st.rerun()
@@ -3329,18 +3428,30 @@ def render_auth() -> None:
             or (st.session_state.get("login_email") or "").strip()
             or (st.session_state.get("user_email") or "").strip()
         )
-        st.session_state.logged_in = True
-        st.session_state.authenticated = True
         st.session_state.auth_mode = "로그인"
         st.session_state.user_name = resolved_name
         st.session_state.user_email = resolved_email
-        st.session_state.role = USER_ROLE
-        st.session_state.current_page = "main"
-        st.session_state.main_step = "start"
-        st.session_state.bt_points = int(st.session_state.get("bt_points", 3500))
-        st.session_state.bt_balance = st.session_state.bt_points
+        st.session_state.auth_stage = "role_select"
         try:
             del st.query_params["auth"]
+        except Exception:
+            pass
+        st.rerun()
+    if query_auth == "enter_app":
+        role_qp = st.query_params.get("role")
+        if role_qp == ADMIN_ROLE:
+            chosen_role = ADMIN_ROLE
+        elif role_qp == USER_ROLE:
+            chosen_role = USER_ROLE
+        elif st.session_state.get("auth_mode") == "회원가입":
+            chosen_role = signup_role_from_choice()
+        else:
+            chosen_role = USER_ROLE
+        finalize_app_entry(chosen_role)
+        try:
+            del st.query_params["auth"]
+            if "role" in st.query_params:
+                del st.query_params["role"]
         except Exception:
             pass
         st.rerun()
@@ -3359,6 +3470,64 @@ def render_auth() -> None:
                 del st.query_params["role"]
         except Exception:
             pass
+
+    if st.session_state.get("auth_stage", "entry") == "role_select":
+        icon_src = bandabi_icon_data_uri()
+        logo_html = (
+            f'<img class="auth-form-logo" src="{icon_src}" alt="반다비">'
+            if icon_src
+            else '<span class="auth-form-logo" style="background:#4a2d7a;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:30px;">B</span>'
+        )
+        st.markdown(
+            html_block(f"""
+            <div class="auth-form-page">
+                <section class="auth-form-card" aria-label="반다비 AI 모드 선택">
+                    <div class="auth-form-head">
+                        {logo_html}
+                        <div class="auth-form-copy">
+                            <div class="auth-form-title" role="heading" aria-level="1">반다비 AI</div>
+                            <p class="auth-form-sub">접속할 서비스를 선택하세요.</p>
+                        </div>
+                    </div>
+                    <div class="role-select-panel">
+                        <p class="role-select-kicker">Mode Select</p>
+                        <a class="role-select-card" href="?auth=enter_app&amp;role={USER_ROLE}" target="_self">
+                            <div class="role-select-card-inner">
+                                <div class="role-select-icon user" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M5 20c1.2-3.5 4-5.5 7-5.5s5.8 2 7 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="role-select-title">이용자 모드</p>
+                                    <p class="role-select-copy">경로 · 동행 · 강습 · 리포트</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="role-select-card" href="?auth=enter_app&amp;role={ADMIN_ROLE}" target="_self">
+                            <div class="role-select-card-inner">
+                                <div class="role-select-icon admin" aria-hidden="true">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                                        <rect x="4" y="8" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M8 8V6a4 4 0 0 1 8 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                        <path d="M12 12v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="role-select-title">기관 관리자 모드</p>
+                                    <p class="role-select-copy">스케줄 · 접근성 점검 보조 · 대시보드</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="role-select-back" href="?auth=entry" target="_self">로그인/회원가입으로 돌아가기</a>
+                    </div>
+                </section>
+            </div>
+            """),
+            unsafe_allow_html=True,
+        )
+        return
 
     if st.session_state.get("auth_stage", "entry") == "entry":
         icon_src = bandabi_icon_data_uri()
@@ -3448,6 +3617,7 @@ def render_auth() -> None:
         role_choice = st.session_state.get("signup_role_choice", "이용자 (User)")
         user_role_active = " active" if "User" in str(role_choice) else ""
         admin_role_active = " active" if "Admin" in str(role_choice) else ""
+        signup_role_param = "admin" if "Admin" in str(role_choice) else "user"
         st.markdown(
             html_block(f"""
             <div class="auth-form-page">
@@ -3490,7 +3660,7 @@ def render_auth() -> None:
 
                     <div class="auth-form-buttons">
                         <a class="auth-form-action back" href="?auth=entry" target="_self">이전</a>
-                        <a class="auth-form-action next" href="?auth=signup_done" target="_self">계속</a>
+                        <a class="auth-form-action next" href="?auth=signup_done&amp;signup_role={signup_role_param}" target="_self">계속</a>
                     </div>
 
                     <div class="auth-notice auth-form-notice">
@@ -3787,6 +3957,7 @@ def handle_user_chrome_query() -> None:
     elif action == "logout":
         st.session_state.logged_in = False
         st.session_state.authenticated = False
+        st.session_state.auth_stage = "entry"
         st.session_state.current_page = "main"
         st.session_state.main_step = "start"
         st.session_state.pending_confirm = None
