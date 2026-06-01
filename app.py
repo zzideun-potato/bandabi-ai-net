@@ -1282,10 +1282,11 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 80px;
-            border-radius: 22px;
-            font-size: 18px;
+            min-height: 82px;
+            border-radius: 20px;
+            font-size: 17px;
             font-weight: 900;
+            letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .start-footnote {{
@@ -1701,9 +1702,9 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9.2 5.5a3 3 0 0 0-5.8 1.1 2.8 2.8 0 0 0 .8 5.5v1a3.1 3.1 0 0 0 3.1 3.1h1.9V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14.8 5.5a3 3 0 0 1 5.8 1.1 2.8 2.8 0 0 1-.8 5.5v1a3.1 3.1 0 0 1-3.1 3.1h-1.9V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 5.5v10.7M9.8 10.2h.1M14.1 10.2h.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M10.7 5.2a3.1 3.1 0 0 0-5.9 1.2 2.7 2.7 0 0 0-.4 4.9c.4.4.9.7 1.5.8v.9a2.8 2.8 0 0 0 2.8 2.8h2V5.2Z" fill="currentColor"/>
+                <path d="M13.3 5.2a3.1 3.1 0 0 1 5.9 1.2 2.7 2.7 0 0 1 .4 4.9c-.4.4-.9.7-1.5.8v.9a2.8 2.8 0 0 1-2.8 2.8h-2V5.2Z" fill="currentColor"/>
+                <path d="M12 5.6v10.1" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity=".95"/>
             </svg>
         """,
         "calendar_check": """
@@ -2166,7 +2167,7 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("⚡ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+            if st.button("⚡︎ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
                 start_analysis()
             st.markdown("</div>", unsafe_allow_html=True)
 
