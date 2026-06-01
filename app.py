@@ -27,6 +27,11 @@ except Exception:  # pragma: no cover - Streamlit can still render without chart
 st.set_page_config(page_title="반다비 AI", page_icon="🐻", layout="wide", initial_sidebar_state="collapsed")
 
 
+PRETENDARD_STACK = (
+    '"Pretendard Local", "Pretendard Variable", Pretendard, '
+    '"Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif'
+)
+
 USER_ROLE = "B2C"
 ADMIN_ROLE = "B2G"
 DEFAULT_DESTINATION = "김포 반다비체육센터"
@@ -529,7 +534,7 @@ def inject_css() -> None:
         .auth-entry-title {{
             margin: 0;
             color: #2d2040;
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
             font-size: 30px;
             line-height: 1.05;
             font-weight: 900;
@@ -597,7 +602,7 @@ def inject_css() -> None:
         }}
         .auth-choice-title {{
             display: block;
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
             font-size: 20px;
             line-height: 1.2;
             font-weight: 900;
@@ -654,7 +659,7 @@ def inject_css() -> None:
             border-radius: 20px;
             padding: 34px 34px 28px;
             box-shadow: 0 24px 60px rgba(74,45,122,.115);
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
         }}
         .auth-form-page {{
             min-height: calc(100vh - 28px);
@@ -683,7 +688,7 @@ def inject_css() -> None:
         .auth-form-title {{
             margin: 0;
             color: #4a2d7a;
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
             font-size: 30px;
             line-height: 1.05;
             font-weight: 900;
@@ -743,7 +748,7 @@ def inject_css() -> None:
             background: #ffffff;
             padding: 0 20px;
             color: #4a2d7a;
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
             font-size: 16px;
             font-weight: 300;
             outline: none;
@@ -878,7 +883,7 @@ def inject_css() -> None:
             height: 55px;
             border-radius: 12px;
             text-decoration: none !important;
-            font-family: "Pretendard Variable", "Pretendard", sans-serif;
+            font-family: {PRETENDARD_STACK};
             font-size: 16px;
             font-weight: 900;
         }}
@@ -2717,10 +2722,14 @@ def inject_css() -> None:
         .admin-tab-track {{
             flex-wrap: wrap;
         }}
+        .dashboard-native-shell,
+        .dashboard-native-shell * {{
+            font-family: {PRETENDARD_STACK} !important;
+        }}
         .dashboard-native-shell {{
             display: grid;
             gap: 20px;
-            margin-top: 8px;
+            margin-top: 0;
         }}
         .dashboard-kpi-grid {{
             display: grid;
@@ -2735,13 +2744,13 @@ def inject_css() -> None:
         .dashboard-kpi-card {{
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.28);
-            border-radius: 24px;
-            padding: 18px 18px 16px;
+            border-radius: 32px;
+            padding: 16px;
             box-shadow: 0 1px 8px rgba(109,40,217,.06);
         }}
         .dashboard-kpi-icon {{
-            width: 22px;
-            height: 22px;
+            width: 20px;
+            height: 20px;
             color: #6b4fa0;
         }}
         .dashboard-kpi-label {{
@@ -2751,37 +2760,34 @@ def inject_css() -> None:
             font-weight: 700;
         }}
         .dashboard-kpi-value {{
-            margin: 6px 0 0;
+            margin: 4px 0 0;
             color: #2d2040;
-            font-size: 28px;
+            font-size: 24px;
             font-weight: 900;
-            line-height: 1.1;
+            line-height: 1.15;
         }}
         .dashboard-kpi-value.purple {{ color: #6b4fa0; }}
         .dashboard-kpi-value.amber {{ color: #b07a20; }}
         .dashboard-kpi-value.blue {{ color: #5b7fd4; }}
-        .dashboard-chart-grid {{
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
-        }}
-        @media (max-width: 980px) {{
-            .dashboard-chart-grid {{
-                grid-template-columns: 1fr;
-            }}
-        }}
         .dashboard-panel {{
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.28);
             border-radius: 32px;
-            padding: 22px 22px 20px;
+            padding: 20px;
             box-shadow: 0 2px 20px rgba(109,40,217,.07);
         }}
         .dashboard-panel-title {{
             margin: 0;
             color: #2d2040;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 900;
+        }}
+        .dashboard-board-title {{
+            margin: 6px 0 0;
+            color: #2d2040;
+            font-size: 24px;
+            font-weight: 900;
+            line-height: 1.2;
         }}
         .dashboard-board-head {{
             display: flex;
@@ -2806,7 +2812,7 @@ def inject_css() -> None:
             white-space: nowrap;
         }}
         .dashboard-table-wrap {{
-            margin-top: 18px;
+            margin-top: 20px;
             overflow-x: auto;
         }}
         .dashboard-table {{
@@ -2829,18 +2835,27 @@ def inject_css() -> None:
         .dashboard-table td.status-warn {{ color: #b07a20; text-align: right; font-weight: 800; }}
         .dashboard-table td.status-danger {{ color: #b4234a; text-align: right; font-weight: 900; }}
         .dashboard-log-feed {{
-            margin-top: 16px;
-            padding: 16px 18px;
-            border-radius: 24px;
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 16px;
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.28);
             min-height: 112px;
             max-height: 112px;
             overflow-y: auto;
-            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             font-size: 11px;
             line-height: 1.7;
             color: #7a6aa1;
+        }}
+        .dashboard-log-feed p {{
+            margin: 0;
+        }}
+        .dashboard-api-section {{
+            margin-top: 20px;
+            padding: 18px 20px;
+            border-radius: 24px;
+            background: #f0ecf8;
+            border: 1px solid rgba(184,172,216,.24);
         }}
         .dashboard-api-grid {{
             display: grid;
@@ -2849,7 +2864,7 @@ def inject_css() -> None:
             margin-top: 14px;
         }}
         .dashboard-api-item {{
-            background: #f0ecf8;
+            background: #ffffff;
             border: 1px solid rgba(184,172,216,.24);
             border-radius: 14px;
             padding: 12px 14px;
@@ -2857,9 +2872,19 @@ def inject_css() -> None:
             line-height: 1.55;
             color: #7a6aa1;
         }}
+        .dashboard-api-item.wide {{
+            grid-column: 1 / -1;
+        }}
         .dashboard-api-item b {{
             color: #4a2d7a;
             font-weight: 900;
+        }}
+        div[data-testid="stHtml"] iframe {{
+            border: 0;
+        }}
+        div[data-testid="stHtml"] {{
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
         }}
         .access-detail-native {{
             margin-top: 16px;
@@ -5900,8 +5925,22 @@ def render_dashboard_page() -> None:
         ("SendGrid", "payload 미리보기만"),
     ]
     api_html = "".join(
-        f'<div class="dashboard-api-item"><b>{esc(label)}</b><br>{esc(status)}</div>'
+        f'<div class="dashboard-api-item{" wide" if label == "SendGrid" else ""}"><b>{esc(label)}</b><br>{esc(status)}</div>'
         for label, status in api_items
+    )
+    font_data_uri = pretendard_font_data_uri()
+    chart_font_face = (
+        f"""
+          @font-face {{
+            font-family: "Pretendard Local";
+            src: url("{font_data_uri}") format("truetype");
+            font-weight: 45 920;
+            font-style: normal;
+            font-display: swap;
+          }}
+        """
+        if font_data_uri
+        else ""
     )
 
     st.markdown(
@@ -5950,21 +5989,43 @@ def render_dashboard_page() -> None:
     )
 
     st.components.v1.html(
-        """
+        f"""
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
         <style>
-          body { margin: 0; font-family: "Pretendard Variable", Pretendard, sans-serif; background: transparent; }
-          .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-          .panel {
+          {chart_font_face}
+          body {{
+            margin: 0;
+            font-family: "Pretendard Local", "Pretendard Variable", Pretendard, sans-serif;
+            background: transparent;
+          }}
+          .wrap {{
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+          }}
+          .panel {{
             background: #ffffff;
             border: 1px solid rgba(184,172,216,.28);
             border-radius: 32px;
-            padding: 22px 22px 16px;
+            padding: 20px 20px 16px;
             box-shadow: 0 2px 20px rgba(109,40,217,.07);
-          }
-          h3 { margin: 0; color: #2d2040; font-size: 20px; font-weight: 900; }
-          .chart-box { height: 288px; margin-top: 16px; position: relative; }
-          @media (max-width: 980px) { .wrap { grid-template-columns: 1fr; } }
+            box-sizing: border-box;
+          }}
+          h3 {{
+            margin: 0;
+            color: #2d2040;
+            font-size: 18px;
+            font-weight: 900;
+            font-family: "Pretendard Local", "Pretendard Variable", Pretendard, sans-serif;
+          }}
+          .chart-box {{
+            height: 288px;
+            margin-top: 16px;
+            position: relative;
+          }}
+          @media (max-width: 980px) {{
+            .wrap {{ grid-template-columns: 1fr; }}
+          }}
         </style>
         <div class="wrap">
           <div class="panel">
@@ -5978,40 +6039,42 @@ def render_dashboard_page() -> None:
         </div>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script>
-        new Chart(document.getElementById('bandabi-disability-chart'), {
+        const chartFont = '"Pretendard Local", "Pretendard Variable", Pretendard, sans-serif';
+        Chart.defaults.font.family = chartFont;
+        new Chart(document.getElementById('bandabi-disability-chart'), {{
           type: 'doughnut',
-          data: {
+          data: {{
             labels: ['보행 보조', '음성 안내', '단계별 안내', '기타'],
-            datasets: [{ data: [48, 18, 22, 12], backgroundColor: ['#8b5cf6', '#a78bfa', '#6d28d9', '#4c1d95'], borderWidth: 0 }]
-          },
-          options: {
+            datasets: [{{ data: [48, 18, 22, 12], backgroundColor: ['#8b5cf6', '#a78bfa', '#6d28d9', '#4c1d95'], borderWidth: 0 }}]
+          }},
+          options: {{
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'bottom', labels: { color: '#7868a0' } } }
-          }
-        });
-        new Chart(document.getElementById('bandabi-traffic-chart'), {
+            plugins: {{ legend: {{ position: 'bottom', labels: {{ color: '#7868a0', font: {{ family: chartFont, size: 12 }} }} }} }}
+          }}
+        }});
+        new Chart(document.getElementById('bandabi-traffic-chart'), {{
           type: 'bar',
-          data: {
+          data: {{
             labels: ['09시', '11시', '13시', '15시', '17시', '19시'],
             datasets: [
-              { label: '예약', data: [35, 68, 42, 95, 50, 20], backgroundColor: '#6366f1', borderRadius: 8 },
-              { label: '이동지원 지연', data: [5, 18, 8, 28, 12, 2], type: 'line', borderColor: '#ef4444', borderWidth: 2, fill: false, tension: 0.25 }
+              {{ label: '예약', data: [35, 68, 42, 95, 50, 20], backgroundColor: '#6366f1', borderRadius: 8 }},
+              {{ label: '이동지원 지연', data: [5, 18, 8, 28, 12, 2], type: 'line', borderColor: '#ef4444', borderWidth: 2, fill: false, tension: 0.25 }}
             ]
-          },
-          options: {
+          }},
+          options: {{
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-              x: { ticks: { color: '#7868a0' }, grid: { display: false } },
-              y: { ticks: { color: '#7868a0' }, grid: { color: 'rgba(184,172,216,.24)' } }
-            },
-            plugins: { legend: { position: 'bottom', labels: { color: '#7868a0' } } }
-          }
-        });
+            scales: {{
+              x: {{ ticks: {{ color: '#7868a0', font: {{ family: chartFont, size: 11 }} }}, grid: {{ display: false }} }},
+              y: {{ ticks: {{ color: '#7868a0', font: {{ family: chartFont, size: 11 }} }}, grid: {{ color: 'rgba(184,172,216,.24)' }} }}
+            }},
+            plugins: {{ legend: {{ position: 'bottom', labels: {{ color: '#7868a0', font: {{ family: chartFont, size: 12 }} }} }} }}
+          }}
+        }});
         </script>
         """,
-        height=380,
+        height=392,
     )
 
     st.markdown(
@@ -6021,7 +6084,7 @@ def render_dashboard_page() -> None:
                 <div class="dashboard-board-head">
                     <div>
                         <p class="access-kicker">B2G Operating Board</p>
-                        <h2 class="dashboard-panel-title" style="font-size:28px;margin-top:6px;">기관 운영 액션 보드</h2>
+                        <h2 class="dashboard-board-title">기관 운영 액션 보드</h2>
                     </div>
                     <a class="dashboard-dispatch-link" href="{esc(dispatch_href)}" target="_self">대체 매칭 알림</a>
                 </div>
@@ -6051,8 +6114,8 @@ def render_dashboard_page() -> None:
                         </tbody>
                     </table>
                 </div>
-                <div class="dashboard-panel" style="margin-top:16px;padding:18px 20px;box-shadow:none;">
-                    <p class="dashboard-panel-title" style="font-size:16px;">공공데이터 연동 상태 (mock)</p>
+                <div class="dashboard-api-section">
+                    <p class="dashboard-panel-title">공공데이터 연동 상태 (mock)</p>
                     <div class="dashboard-api-grid">{api_html}</div>
                 </div>
                 <div class="dashboard-log-feed">{log_html}</div>
