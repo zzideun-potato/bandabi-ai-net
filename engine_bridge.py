@@ -29,6 +29,8 @@ from modules.scoring import calculate_viable_path_score
 from modules.vision import analyze_accessibility_image, demo_vision_fallback, vision_status
 
 DEFAULT_DESTINATION = "김포 반다비체육센터"
+# VWorld는 시설명 검색이 잘 안 되어 주소로 좌표를 조회합니다 (변수.md 기준).
+BANDABI_DESTINATION_GEOCODE = "경기도 김포시 사우중로 1"
 
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -136,7 +138,7 @@ def _estimate_route_timing(
             "출발지·목적지 좌표가 시연용 대체값일 수 있어 직선 거리만으로는 시간을 추정하기 어렵습니다. "
             "성남·수도권 권역에서 출발한다면 장거리 이동으로 보고 환승·이동지원 여유를 두는 것이 안전합니다."
         )
-    elif near_gimpo or (distance_km < 18 and not origin_fallback):
+    elif (near_gimpo or distance_km < 18) and not both_fallback and not long_distance:
         total = max(10, min(30, int(distance_km * 2.0 + 12)))
         walk, transfers = max(6, int(total * 0.28)), 1
         alternative = "저상버스·센터 주변 보행 연계 가능"
@@ -168,7 +170,10 @@ def run_route_analysis(
     generated_at: str,
 ) -> dict[str, Any]:
     origin_coord = resolve_route_coordinate(origin, "default_origin")
-    destination_coord = resolve_route_coordinate(destination, "default_destination")
+    destination_coord = resolve_route_coordinate(
+        BANDABI_DESTINATION_GEOCODE if destination == DEFAULT_DESTINATION else destination,
+        "default_destination",
+    )
 
     weather_result: dict[str, Any] = {"status": "fallback", "summary": {"weather_summary": "기상 정보 확인 필요"}}
     bus_route_result: dict[str, Any] = {"status": "fallback"}

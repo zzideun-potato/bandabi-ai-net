@@ -3910,6 +3910,7 @@ def handle_user_chrome_query() -> None:
             result = build_route_analysis()
             st.session_state.route_result = result
             st.session_state.route_analysis_result = result
+            st.session_state.route_inputs_fingerprint = _route_inputs_fingerprint()
             st.session_state.main_step = "route"
             st.session_state.current_page = "main"
             st.session_state.pending_confirm = None
@@ -4612,10 +4613,26 @@ def render_start() -> None:
         )
 
 
+def _route_inputs_fingerprint() -> str:
+    return "|".join(
+        [
+            str(st.session_state.get("origin") or ""),
+            str(st.session_state.get("destination") or DEFAULT_DESTINATION),
+            str(st.session_state.get("support_type") or ""),
+            str(st.session_state.get("destination_choice") or ""),
+        ]
+    )
+
+
 def render_route() -> None:
-    result = st.session_state.get("route_result") or build_route_analysis()
-    st.session_state.route_result = result
-    st.session_state.route_analysis_result = result
+    fingerprint = _route_inputs_fingerprint()
+    cached = st.session_state.get("route_result")
+    if not cached or st.session_state.get("route_inputs_fingerprint") != fingerprint:
+        cached = build_route_analysis()
+        st.session_state.route_result = cached
+        st.session_state.route_analysis_result = cached
+        st.session_state.route_inputs_fingerprint = fingerprint
+    result = cached
 
     section_intro(
         "MAIN01",
