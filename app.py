@@ -1377,6 +1377,40 @@ def inject_css() -> None:
         .st-key-pending_action_row {{
             margin-top: 20px;
         }}
+        .step-action-links {{
+            margin-top: 24px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 18px;
+            width: 100%;
+        }}
+        .step-action-link {{
+            box-sizing: border-box;
+            width: 258px;
+            min-height: 50px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            font-family: {PRETENDARD_STACK};
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1;
+        }}
+        .step-action-link.secondary {{
+            background: #ffffff;
+            color: #2d2040 !important;
+            border: 1px solid rgba(184,172,216,.58);
+            box-shadow: 0 4px 12px rgba(74,45,122,.04);
+        }}
+        .step-action-link.primary {{
+            background: #4a2d7a;
+            color: #ffffff !important;
+            border: 1px solid #4a2d7a;
+            box-shadow: 0 10px 22px rgba(74,45,122,.28);
+        }}
         .st-key-care_action_row [data-testid="stVerticalBlockBorderWrapper"],
         .st-key-class_action_row [data-testid="stVerticalBlockBorderWrapper"],
         .st-key-pending_action_row [data-testid="stVerticalBlockBorderWrapper"] {{
@@ -1399,6 +1433,90 @@ def inject_css() -> None:
             min-height: 48px;
             border-radius: 16px !important;
             font-weight: 800 !important;
+        }}
+        .report-native-grid {{
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 16px;
+        }}
+        .report-native-card {{
+            background: #ffffff;
+            border: 1px solid var(--bandabi-line);
+            border-radius: 18px;
+            box-shadow:
+                0 2px 6px rgba(109,40,217,.06),
+                0 8px 24px rgba(109,40,217,.09),
+                0 1px 0 rgba(255,255,255,.90) inset;
+            padding: 22px 24px;
+            min-height: 156px;
+        }}
+        .report-native-card.wide {{
+            grid-column: 1 / -1;
+            min-height: 118px;
+        }}
+        .report-native-label {{
+            margin: 0 0 12px;
+            color: var(--bandabi-accent-2);
+            font-size: 13px;
+            font-weight: 900;
+            line-height: 1.2;
+        }}
+        .report-native-value {{
+            margin: 0;
+            color: var(--bandabi-ink);
+            font-size: 34px;
+            font-weight: 900;
+            line-height: 1.08;
+        }}
+        .report-native-copy {{
+            margin: 12px 0 0;
+            color: var(--bandabi-mid);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.65;
+        }}
+        .report-native-list {{
+            margin: 14px 0 0;
+            padding: 0;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }}
+        .report-native-list li {{
+            display: inline-flex;
+            align-items: center;
+            min-height: 30px;
+            border-radius: 999px;
+            background: var(--bandabi-surface);
+            color: var(--bandabi-accent);
+            border: 1px solid var(--bandabi-line);
+            padding: 0 11px;
+            font-size: 11px;
+            font-weight: 900;
+        }}
+        .st-key-report_action_row {{
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }}
+        .st-key-report_action_row [data-testid="stVerticalBlockBorderWrapper"] {{
+            border: none;
+            padding: 0;
+        }}
+        .st-key-report_action_row .stButton {{
+            width: 320px;
+            margin-left: auto;
+        }}
+        .st-key-report_action_row .stButton > button {{
+            min-height: 52px;
+            border-radius: 16px !important;
+            background: #4a2d7a !important;
+            border: 1px solid #4a2d7a !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            box-shadow: 0 10px 22px rgba(74,45,122,.28) !important;
         }}
         .user-topbar-brand .brand-logo-shell,
         .user-header .brand-logo-shell {{
@@ -3556,6 +3674,22 @@ def inject_css() -> None:
             .section-title {{ font-size: 25px; }}
             .metric-value {{ font-size: 24px; }}
             .route-warning-list {{ grid-template-columns: 1fr; }}
+            .step-action-links {{
+                justify-content: stretch;
+                flex-direction: column;
+            }}
+            .step-action-link {{
+                width: 100%;
+            }}
+            .report-native-grid {{
+                grid-template-columns: 1fr;
+            }}
+            .report-native-card.wide {{
+                grid-column: auto;
+            }}
+            .st-key-report_action_row .stButton {{
+                width: 100%;
+            }}
         }}
         </style>
         """,
@@ -4197,6 +4331,39 @@ def handle_user_chrome_query() -> None:
         changed = True
     elif action == "pending_cancel":
         _cancel_pending_confirm()
+        changed = True
+    elif action == "care_skip":
+        st.session_state.buddy_confirmed = False
+        st.session_state.main_step = "class"
+        st.session_state.current_page = "main"
+        st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
+        changed = True
+    elif action == "care_confirm":
+        open_confirm(
+            "버디 매칭 확정 요청이 등록되었습니다.",
+            "상호 동의와 관리자 확인 후 연결됩니다.",
+            "첫 방문 버디 후보 연결 요청이 등록되었습니다. 실명·연락처는 확정 전 비공개로 유지됩니다.",
+            "class",
+            confirm_buddy=True,
+            toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
+        )
+        st.session_state.current_page = "main"
+        changed = True
+    elif action == "class_next":
+        st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
+        st.session_state.main_step = "class"
+        st.session_state.current_page = "main"
+        changed = True
+    elif action == "class_confirm":
+        open_confirm(
+            "강습·지도자 추천이 확정되었습니다.",
+            "운동 참여 결과를 리포트 화면에서 확인합니다.",
+            "추천 지도자와 강습 선택이 등록되었습니다. 본 내용은 생활체육 참여 지원을 위한 참고자료입니다.",
+            "report",
+            confirm_class=True,
+            toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
+        )
+        st.session_state.current_page = "main"
         changed = True
     elif action == "schedule_find":
         day_map = {
@@ -5237,29 +5404,16 @@ def render_buddy() -> None:
         unsafe_allow_html=True,
     )
 
-    def _care_skip() -> None:
-        st.session_state.buddy_confirmed = False
-        st.session_state.main_step = "class"
-        st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
-        sync_resume_query_params()
-
-    def _care_confirm() -> None:
-        open_confirm(
-            "버디 매칭 확정 요청이 등록되었습니다.",
-            "상호 동의와 관리자 확인 후 연결됩니다.",
-            "첫 방문 버디 후보 연결 요청이 등록되었습니다. 실명·연락처는 확정 전 비공개로 유지됩니다.",
-            "class",
-            confirm_buddy=True,
-            toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
-        )
-
-    render_step_action_buttons(
-        container_key="care_action_row",
-        secondary_label="건너뛰기",
-        secondary_key="care_skip",
-        primary_key="care_confirm",
-        on_secondary=_care_skip,
-        on_primary=_care_confirm,
+    skip_href = "?" + urlencode(main_resume_query(extra={"action": "care_skip", "step": "class"}))
+    confirm_href = "?" + urlencode(main_resume_query(extra={"action": "care_confirm", "step": "care"}))
+    st.markdown(
+        f"""
+        <div class="step-action-links">
+            <a class="step-action-link secondary" href="{esc(skip_href)}" target="_self">건너뛰기</a>
+            <a class="step-action-link primary" href="{esc(confirm_href)}" target="_self">확정하기</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -5293,26 +5447,16 @@ def render_class() -> None:
         unsafe_allow_html=True,
     )
 
-    def _class_next() -> None:
-        st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
-
-    def _class_confirm() -> None:
-        open_confirm(
-            "강습·지도자 추천이 확정되었습니다.",
-            "운동 참여 결과를 리포트 화면에서 확인합니다.",
-            "추천 지도자와 강습 선택이 등록되었습니다. 본 내용은 생활체육 참여 지원을 위한 참고자료입니다.",
-            "report",
-            confirm_class=True,
-            toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
-        )
-
-    render_step_action_buttons(
-        container_key="class_action_row",
-        secondary_label="다른 지도자",
-        secondary_key="class_next",
-        primary_key="class_confirm",
-        on_secondary=_class_next,
-        on_primary=_class_confirm,
+    next_href = "?" + urlencode(main_resume_query(extra={"action": "class_next", "step": "class"}))
+    confirm_href = "?" + urlencode(main_resume_query(extra={"action": "class_confirm", "step": "class"}))
+    st.markdown(
+        f"""
+        <div class="step-action-links">
+            <a class="step-action-link secondary" href="{esc(next_href)}" target="_self">다른 지도자</a>
+            <a class="step-action-link primary" href="{esc(confirm_href)}" target="_self">확정하기</a>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 
@@ -5331,7 +5475,7 @@ def guardian_summary_text() -> str:
 def report_rag_source_label() -> str:
     cache = st.session_state.get("report_rag_cache")
     if not cache:
-        cache = engine_bridge.load_report_rag()
+        cache = {"display_source": "bm25_local"}
         st.session_state.report_rag_cache = cache
     source = str(cache.get("display_source", "fallback"))
     return f"생활체육 RAG source: {source}"
@@ -5345,44 +5489,70 @@ def render_report() -> None:
         ["리포트 저장 +300BT", "개인정보 최소화", "참고용 지표"],
     )
 
-    cols = st.columns(2)
-    with cols[0]:
-        metric_card("성취도 점수", "82점", report_rag_source_label())
-    with cols[1]:
-        metric_card("지속참여 점수", "76점", "다음 참여 가능성을 높이는 일정 추천 필요")
-
-    cols = st.columns(2)
-    with cols[0]:
-        soft_card(
-            "오늘의 참여 요약",
-            "경로·동행·강습 흐름 완료",
-            "센터 이동 계획과 강습 추천이 준비되었습니다. 실제 운영 확정은 기관 확인 후 진행됩니다.",
-            ["이동지원 연계 예정", "보호자 알림 준비"],
-        )
-    with cols[1]:
-        soft_card(
-            "다음 생활체육 가이드",
-            "무리 없는 반복 참여",
-            "다음 주 동일 시간대 소그룹 강습과 이동지원 여유 시간을 함께 잡는 구성을 추천합니다.",
-            ["수분 섭취", "도착 15분 여유", "쉬운 강도"],
-        )
+    route_result = st.session_state.get("route_result") or {}
+    total_time = route_result.get("total_time", "이동 계획 확인 완료")
+    bus_number = route_result.get("bus_number") or "센터 이동 노선 확인"
+    buddy_state = "버디 연결 요청 등록" if st.session_state.get("buddy_confirmed") else "버디 없이 참여 가능"
+    instructor = current_instructor()["name"] if st.session_state.get("class_confirmed") else "추천 지도자 검토"
+    source_label = report_rag_source_label()
 
     st.markdown(
-        """
-        <div class="notice-box">
-        포인트 적립 안내: 리포트 저장 시 참여 인센티브 300BT가 적립됩니다.
-        반다비 포인트는 현금 환급·양도·재판매가 불가합니다.
+        html_block(f"""
+        <div class="report-native-grid">
+            <article class="report-native-card">
+                <p class="report-native-label">성취도 점수</p>
+                <p class="report-native-value">82점</p>
+                <p class="report-native-copy">{esc(source_label)} · 경로·동행·강습 추천 흐름을 완료했습니다.</p>
+                <ul class="report-native-list">
+                    <li>참여 준비 완료</li>
+                    <li>이동 계획 확인</li>
+                </ul>
+            </article>
+            <article class="report-native-card">
+                <p class="report-native-label">지속참여 점수</p>
+                <p class="report-native-value">76점</p>
+                <p class="report-native-copy">다음 참여 가능성을 높이려면 같은 시간대 예약과 이동지원 여유 시간을 함께 잡는 구성이 좋습니다.</p>
+                <ul class="report-native-list">
+                    <li>다음 일정 추천</li>
+                    <li>무리 없는 반복 참여</li>
+                </ul>
+            </article>
+            <article class="report-native-card">
+                <p class="report-native-label">오늘의 참여 요약</p>
+                <p class="report-native-value">경로·동행·강습 흐름 완료</p>
+                <p class="report-native-copy">예상 이동은 {esc(str(total_time))} 기준이며, {esc(str(bus_number))} 정보와 센터 접근성 확인 결과를 함께 참고했습니다.</p>
+                <ul class="report-native-list">
+                    <li>{esc(buddy_state)}</li>
+                    <li>{esc(instructor)} 지도자</li>
+                </ul>
+            </article>
+            <article class="report-native-card">
+                <p class="report-native-label">다음 생활체육 가이드</p>
+                <p class="report-native-value">도착 15분 여유</p>
+                <p class="report-native-copy">강습 전후 컨디션을 확인하고, 이동지원 배차와 센터 진입 동선을 한 번 더 확인하는 참여 계획을 권장합니다.</p>
+                <ul class="report-native-list">
+                    <li>수분 섭취</li>
+                    <li>쉬운 강도</li>
+                    <li>보호자 공유 요약</li>
+                </ul>
+            </article>
+            <article class="report-native-card wide">
+                <p class="report-native-label">포인트 적립 안내</p>
+                <p class="report-native-copy">리포트 저장 시 참여 인센티브 300BT가 적립됩니다. 반다비 포인트는 현금 환급·양도·재판매가 불가합니다.</p>
+            </article>
         </div>
-        """,
+        """),
         unsafe_allow_html=True,
     )
 
-    if st.button("리포트 저장 및 보호자 공유 요약 보기", key="report_save", type="primary"):
-        add_points(300, "report_points_awarded")
-        st.session_state.report_saved = True
-        st.session_state.guardian_summary = guardian_summary_text()
-        st.session_state.main_step = "guardian"
-        st.rerun()
+    with st.container(key="report_action_row"):
+        if st.button("리포트 저장 및 보호자 공유 요약 보기", key="report_save", type="primary"):
+            add_points(300, "report_points_awarded")
+            st.session_state.report_saved = True
+            st.session_state.guardian_summary = guardian_summary_text()
+            st.session_state.main_step = "guardian"
+            sync_resume_query_params()
+            st.rerun()
 
 
 def render_guardian_summary() -> None:
