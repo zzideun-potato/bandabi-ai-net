@@ -954,12 +954,12 @@ def inject_css() -> None:
         }}
         .user-topbar-brand .brand-logo-shell,
         .user-header .brand-logo-shell {{
-            width: 48px;
-            height: 48px;
-            border-radius: 18px;
+            width: 62px;
+            height: 62px;
+            border-radius: 20px;
             overflow: hidden;
             background: #4a2d7a;
-            flex: 0 0 48px;
+            flex: 0 0 62px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -972,30 +972,36 @@ def inject_css() -> None:
             object-fit: cover;
         }}
         .user-topbar-shell {{
-            width: calc(100% + 2rem);
+            width: 100vw;
             max-width: 100vw;
-            margin: -0.85rem -1rem 18px;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            margin-top: -0.85rem;
+            margin-bottom: 14px;
+            position: sticky;
+            top: 0;
             z-index: 40;
         }}
         .user-topbar {{
-            background: rgba(243, 240, 247, .98);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(184, 172, 216, .24);
+            background: rgba(236, 232, 246, .92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(180, 166, 214, .42);
+            box-shadow: none;
         }}
         .user-topbar-inner {{
             max-width: 1120px;
             margin: 0 auto;
             padding: 12px 18px;
-            display: grid;
-            grid-template-columns: minmax(240px, 1fr) auto auto;
-            align-items: center;
-            gap: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 10px;
         }}
         .user-topbar-brand {{
             display: flex;
             align-items: center;
             gap: 12px;
-            min-width: 240px;
+            min-width: 0;
             flex: 0 1 auto;
         }}
         .user-topbar-copy {{
@@ -1003,74 +1009,75 @@ def inject_css() -> None:
         }}
         .user-topbar-title {{
             margin: 0;
-            color: #4a2d7a;
             font-size: 18px;
-            line-height: 1.15;
-            font-weight: 900;
+            line-height: 1.2;
             white-space: nowrap;
         }}
-        .user-topbar-title span {{
-            color: #7868a0;
+        .user-topbar-title-main {{
+            color: #4e3688;
+            font-weight: 900;
+            letter-spacing: 0;
+        }}
+        .user-topbar-title-user {{
+            color: #7a67a7;
             font-size: 14px;
             font-weight: 700;
+            margin-left: 4px;
         }}
         .user-topbar-badges {{
             display: flex;
             flex-wrap: wrap;
             align-items: center;
             gap: 8px;
-            margin-top: 8px;
+            margin-top: 6px;
         }}
         .topbar-badge {{
             display: inline-flex;
             align-items: center;
             min-height: 28px;
-            border-radius: 999px;
-            background: #f0ecf8;
-            border: 1px solid rgba(184, 172, 216, .24);
-            color: #7868a0;
-            padding: 4px 12px;
+            border-radius: 14px;
+            background: rgba(240,236,248,.9);
+            border: 1px solid rgba(184, 172, 216, .4);
+            color: #725e9f;
+            padding: 6px 14px;
             font-size: 11px;
             font-weight: 800;
             white-space: nowrap;
-        }}
-        .topbar-badge-token {{
-            background: rgba(255, 244, 224, .78);
-            border-color: rgba(180, 130, 40, .18);
-            color: #6b4fa0;
             gap: 5px;
         }}
         .topbar-badge-token small {{
-            color: #b8acd8;
+            color: #8f7db7;
             font-size: 10px;
             font-weight: 700;
         }}
         .user-topbar-nav {{
-            justify-self: center;
             overflow-x: auto;
             padding: 2px 0;
+            flex: 1 1 auto;
+            display: flex;
+            justify-content: center;
         }}
         .app-tab-track {{
             display: inline-flex;
             align-items: center;
             gap: 4px;
             max-width: 100%;
-            background: #ffffff;
-            border: 1px solid rgba(184, 172, 216, .24);
+            background: rgba(240,236,248,.9);
+            border: 1px solid rgba(184, 172, 216, .4);
             border-radius: 16px;
             padding: 4px;
-            box-shadow: 0 1px 4px rgba(109,40,217,.05);
+            box-shadow: none;
         }}
         .app-tab {{
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            min-height: 40px;
-            border-radius: 12px;
-            padding: 0 14px;
-            color: #7868a0 !important;
-            font-size: 13px;
-            font-weight: 800;
+            min-height: 48px;
+            border-radius: 10px;
+            padding: 0 18px;
+            color: #6f5a98 !important;
+            font-size: 17px;
+            font-weight: 500;
             line-height: 1.2;
             text-decoration: none !important;
             white-space: nowrap;
@@ -1082,7 +1089,8 @@ def inject_css() -> None:
         .app-tab.active {{
             background: #4a2d7a;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(74, 45, 122, .24);
+            font-weight: 700;
+            box-shadow: 0 4px 14px rgba(109, 40, 217, .22);
         }}
         .app-tab.active svg {{
             color: #ffffff;
@@ -1091,47 +1099,42 @@ def inject_css() -> None:
             display: flex;
             align-items: center;
             justify-content: flex-end;
-            gap: 8px;
-            justify-self: end;
+            gap: 10px;
+            flex: 0 0 auto;
         }}
         .app-tool-btn {{
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-height: 38px;
-            border-radius: 16px;
-            background: #ffffff;
-            border: 1px solid rgba(184, 172, 216, .24);
+            min-height: 40px;
+            border-radius: 14px;
+            background: rgba(240,236,248,.9);
+            border: 1px solid rgba(184, 172, 216, .4);
             color: #7868a0 !important;
-            padding: 0 12px;
-            font-size: 12px;
+            padding: 0 14px;
+            font-size: 13px;
             font-weight: 700;
             text-decoration: none !important;
             white-space: nowrap;
-            transition: border-color .15s ease, color .15s ease, transform .15s ease;
+            transition: border-color .15s ease, color .15s ease;
         }}
         .app-tool-btn:hover {{
             border-color: rgba(74, 45, 122, .34);
             color: #4a2d7a !important;
         }}
         .app-tool-btn.icon-only {{
-            width: 38px;
+            width: 40px;
             padding: 0;
         }}
         .app-tool-btn svg {{
             display: block;
         }}
-        @media (max-width: 980px) {{
+        @media (min-width: 981px) {{
             .user-topbar-inner {{
-                grid-template-columns: 1fr auto;
-            }}
-            .user-topbar-nav {{
-                grid-column: 1 / -1;
-                justify-self: stretch;
-            }}
-            .user-topbar-tools {{
-                justify-self: end;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
             }}
         }}
         @media (max-width: 640px) {{
@@ -1139,9 +1142,21 @@ def inject_css() -> None:
                 font-size: 16px;
                 white-space: normal;
             }}
+            .user-topbar-title-user {{
+                font-size: 13px;
+            }}
+            .topbar-badge {{
+                font-size: 11px;
+            }}
+            .topbar-badge-token small {{
+                font-size: 10px;
+            }}
             .app-tab {{
                 padding: 0 11px;
                 font-size: 12px;
+            }}
+            .app-tool-btn {{
+                font-size: 13px;
             }}
         }}
         .start-screen {{
@@ -1635,24 +1650,25 @@ def render_auth() -> None:
 
 
 USER_TABS: list[tuple[str, str, str]] = [
-    ("main", "AI 추천 및 이동지원 연계", "sparkle"),
-    ("schedule", "내 운동 일정 추천", "calendar"),
+    ("main", "AI 추천 및 이동지원 연계", "brain"),
+    ("schedule", "내 운동 일정 추천", "calendar_check"),
     ("accessibility", "AI 기반 접근성 점검 보조", "eye"),
 ]
 
 
 def tab_icon_svg(kind: str) -> str:
     icons = {
-        "sparkle": """
+        "brain": """
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M12 3l1.6 4.9L18.5 9.5 13.6 11.1 12 16 10.4 11.1 5.5 9.5 10.4 7.9 12 3Z" fill="currentColor"/>
-                <path d="M19 14l.9 2.7 2.6.9-2.6.9-.9 2.7-.9-2.7-2.6-.9 2.6-.9.9-2.7Z" fill="currentColor" opacity=".85"/>
+                <path d="M8.5 5.5a2.5 2.5 0 0 0-2.5 2.5V9a2 2 0 0 0-1.5 1.93V11a3.5 3.5 0 0 0 3.5 3.5V16a1.5 1.5 0 0 0 3 0v-1.5a3.5 3.5 0 0 0 3.5-3.5 2 2 0 0 0-1.5-1.93V8a2.5 2.5 0 0 0-2.5-2.5 1.75 1.75 0 0 0-3.5 0Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M9 11.5c.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
             </svg>
         """,
-        "calendar": """
+        "calendar_check": """
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="4" y="6" width="16" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
                 <path d="M8 4v4M16 4v4M4 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <path d="M9 15l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         """,
         "eye": """
@@ -1726,9 +1742,10 @@ def render_user_topbar() -> None:
                     <div class="user-topbar-brand">
                         <div class="brand-logo-shell">{logo_html}</div>
                         <div class="user-topbar-copy">
-                            <h1 class="user-topbar-title">
-                                반다비 AI <span>(User | {esc(name)}님)</span>
-                            </h1>
+                            <div class="user-topbar-title" role="heading" aria-level="1">
+                                <span class="user-topbar-title-main">반다비 AI</span>
+                                <span class="user-topbar-title-user">(User | {esc(name)}님)</span>
+                            </div>
                             <div class="user-topbar-badges">
                                 <span class="topbar-badge">이용자 모드</span>
                                 <span class="topbar-badge topbar-badge-token">
@@ -1761,8 +1778,8 @@ def render_user_topbar() -> None:
                         </a>
                         <a class="app-tool-btn" href="?action=voice" target="_self" aria-label="음성">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <rect x="9" y="4" width="6" height="11" rx="3" stroke="#6b4fa0" stroke-width="2"/>
-                                <path d="M6 11a6 6 0 0 0 12 0M12 17v3" stroke="#6b4fa0" stroke-width="2" stroke-linecap="round"/>
+                                <rect x="9" y="4" width="6" height="11" rx="3" stroke="currentColor" stroke-width="2"/>
+                                <path d="M6 11a6 6 0 0 0 12 0M12 17v3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                             음성
                         </a>
