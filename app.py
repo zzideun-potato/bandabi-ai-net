@@ -1178,7 +1178,9 @@ def inject_css() -> None:
             background: #ffffff;
             border: 1px solid var(--bandabi-line);
             border-radius: 32px;
-            padding: 28px 28px 24px;
+            padding: 34px 38px 30px;
+            max-width: 1040px;
+            margin: 0 auto;
             box-shadow:
                 0 2px 6px rgba(109,40,217,.06),
                 0 10px 28px rgba(109,40,217,.10),
@@ -1197,7 +1199,7 @@ def inject_css() -> None:
         }}
         .start-kicker {{
             color: #6b4fa0;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: .12em;
             text-transform: uppercase;
@@ -1205,34 +1207,34 @@ def inject_css() -> None:
         }}
         .start-greeting {{
             color: #4a2d7a;
-            font-size: clamp(28px, 3vw, 36px);
+            font-size: clamp(50px, 4vw, 58px);
             font-weight: 900;
-            line-height: 1.12;
-            margin: 10px 0 0;
+            line-height: 1.08;
+            margin: 14px 0 0;
         }}
         .start-lead {{
             color: #7868a0;
             font-size: 18px;
-            line-height: 1.45;
+            line-height: 1.5;
             font-weight: 300;
-            margin: 14px 0 0;
+            margin: 16px 0 0;
         }}
         .start-copy {{
             color: #b8acd8;
-            font-size: 12px;
+            font-size: 13px;
             line-height: 1.65;
             font-weight: 300;
-            margin: 8px 0 0;
+            margin: 10px 0 0;
         }}
         .start-grid-shell {{
-            margin-top: 28px;
+            margin-top: 34px;
         }}
         .start-label {{
             display: block;
             color: #7868a0;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 800;
-            margin: 0 0 8px;
+            margin: 0 0 10px;
         }}
         .start-fields [data-testid="stSelectbox"],
         .start-fields [data-testid="stTextInput"] {{
@@ -1244,12 +1246,12 @@ def inject_css() -> None:
         }}
         .start-fields [data-testid="stSelectbox"] div[data-baseweb="select"] > div,
         .start-fields [data-testid="stTextInput"] input {{
-            min-height: 48px;
+            min-height: 58px;
             border-radius: 16px;
             border-color: rgba(119, 96, 160, .22);
             background: #fff;
             color: #4a2d7a;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
         }}
         .start-tile-grid {{
@@ -1258,12 +1260,12 @@ def inject_css() -> None:
             gap: 12px;
         }}
         .start-tile {{
-            min-height: 58px;
+            min-height: 64px;
             border-radius: 16px;
             background: #f0ecf8;
             border: 1px solid rgba(184,172,216,.22);
             color: #4a2d7a;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 800;
             display: flex;
             align-items: center;
@@ -1275,18 +1277,18 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 58px;
+            min-height: 82px;
             border-radius: 24px;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .start-footnote {{
             color: #b8acd8;
-            font-size: 11px;
+            font-size: 12px;
             line-height: 1.65;
             font-weight: 300;
-            margin: 28px 0 0;
+            margin: 30px 0 0;
         }}
         @media (max-width: 760px) {{
             .block-container {{ padding: 1rem 1rem 4rem; }}
@@ -1694,8 +1696,9 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8.4 5.6A2.6 2.6 0 0 0 5.8 8.2v1.2A2.4 2.4 0 0 0 4 11.7v.1A3.9 3.9 0 0 0 7.9 15.7V17a1.7 1.7 0 0 0 3.4 0v-1.2c2.3-.2 4-1.9 4-4.1a2.4 2.4 0 0 0-1.8-2.3V8.2a2.6 2.6 0 0 0-2.6-2.6 2 2 0 0 0-3.9 0Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
-                <path d="M9 11.7c.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+                <path d="M9 4.8a2.8 2.8 0 0 0-5.2 1.5V7a2.4 2.4 0 0 0-1.8 2.3 3.7 3.7 0 0 0 3.6 3.7V15a2.2 2.2 0 0 0 2.2 2.2h1.2V4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M15 4.8a2.8 2.8 0 0 1 5.2 1.5V7a2.4 2.4 0 0 1 1.8 2.3 3.7 3.7 0 0 1-3.6 3.7V15a2.2 2.2 0 0 1-2.2 2.2H15V4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                <path d="M9 8.8h1.2M9 11.8h1.2M13.8 8.8H15M13.8 11.8H15M12 4.8v12.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
@@ -2118,7 +2121,7 @@ def render_start() -> None:
         )
 
         st.markdown('<div class="start-grid-shell">', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([1.05, 1])
         with col1:
             st.markdown('<div class="start-fields">', unsafe_allow_html=True)
             st.markdown('<span class="start-label">접근성 지원 필요 유형</span>', unsafe_allow_html=True)
