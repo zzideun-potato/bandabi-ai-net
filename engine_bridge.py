@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
 from math import asin, cos, radians, sin, sqrt
 from typing import Any
 
@@ -161,6 +162,60 @@ def _estimate_route_timing(
     return total, walk, transfers, alternative, risk, route, opinion
 
 
+def _fetch_route_public_apis_parallel() -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    def _weather() -> dict[str, Any]:
+        try:
+            return fetch_weather_short_forecast()
+        except Exception:
+            return {"status": "network_error", "summary": {"weather_summary": "기상 API 네트워크 오류 · fallback"}}
+
+    def _bus_route() -> dict[str, Any]:
+        try:
+            return fetch_bus_route()
+        except Exception:
+            return {"status": "api_error"}
+
+    def _bus_arrival() -> dict[str, Any]:
+        try:
+            return fetch_bus_arrival()
+        except Exception:
+            return {"status": "network_error"}
+
+    with ThreadPoolExecutor(max_workers=3) as pool:
+        weather_future = pool.submit(_weather)
+        route_future = pool.submit(_bus_route)
+        arrival_future = pool.submit(_bus_arrival)
+        return weather_future.result(), route_future.result(), arrival_future.result()
+
+
+def _load_route_public_api_bundle(force_refresh: bool = False) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    try:
+        import streamlit as st
+
+        cached = st.session_state.get("route_public_api_cache")
+        if cached and not force_refresh:
+            return (
+                cached.get("weather", {"status": "fallback"}),
+                cached.get("bus_route", {"status": "fallback"}),
+                cached.get("bus_arrival", {"status": "fallback"}),
+            )
+    except Exception:
+        pass
+
+    weather_result, bus_route_result, bus_arrival_result = _fetch_route_public_apis_parallel()
+    try:
+        import streamlit as st
+
+        st.session_state.route_public_api_cache = {
+            "weather": weather_result,
+            "bus_route": bus_route_result,
+            "bus_arrival": bus_arrival_result,
+        }
+    except Exception:
+        pass
+    return weather_result, bus_route_result, bus_arrival_result
+
+
 def run_route_analysis(
     origin: str,
     destination: str,
@@ -168,6 +223,7 @@ def run_route_analysis(
     *,
     buddy_matching: bool,
     generated_at: str,
+    force_refresh_apis: bool = False,
 ) -> dict[str, Any]:
     origin_coord = resolve_route_coordinate(origin, "default_origin")
     destination_coord = resolve_route_coordinate(
@@ -175,21 +231,7 @@ def run_route_analysis(
         "default_destination",
     )
 
-    weather_result: dict[str, Any] = {"status": "fallback", "summary": {"weather_summary": "기상 정보 확인 필요"}}
-    bus_route_result: dict[str, Any] = {"status": "fallback"}
-    bus_arrival_result: dict[str, Any] = {"status": "fallback"}
-    try:
-        weather_result = fetch_weather_short_forecast()
-    except Exception:
-        weather_result = {"status": "network_error", "summary": {"weather_summary": "기상 API 네트워크 오류 · fallback"}}
-    try:
-        bus_route_result = fetch_bus_route()
-    except Exception:
-        bus_route_result = {"status": "api_error"}
-    try:
-        bus_arrival_result = fetch_bus_arrival()
-    except Exception:
-        bus_arrival_result = {"status": "network_error"}
+    weather_result, bus_route_result, bus_arrival_result = _load_route_public_api_bundle(force_refresh_apis)
 
     weather_status = _normalize_api_status(weather_result.get("status", weather_result.get("data_status")))
     bus_route_status = _normalize_api_status(bus_route_result.get("status"))
