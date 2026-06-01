@@ -4021,8 +4021,11 @@ def handle_user_chrome_query() -> None:
         st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
         changed = True
     elif action == "start_ai":
+        incoming_origin = (st.query_params.get("origin") or "").strip()
+        if incoming_origin:
+            st.session_state.origin = incoming_origin
         start_analysis()
-        changed = False
+        changed = True
     elif action == "schedule_find":
         day_map = {
             "화·목 중심": ["화", "목"],
@@ -4576,14 +4579,12 @@ def start_analysis() -> None:
     st.session_state.destination = DEFAULT_DESTINATION
     st.session_state.route_public_api_cache = None
     st.session_state.route_api_force_refresh = True
-    result = build_route_analysis()
-    st.session_state.route_result = result
-    st.session_state.route_analysis_result = result
-    st.session_state.route_inputs_fingerprint = _route_inputs_fingerprint()
+    st.session_state.route_result = None
+    st.session_state.route_analysis_result = None
+    st.session_state.route_inputs_fingerprint = ""
     st.session_state.main_step = "route"
     st.session_state.current_page = "main"
     st.session_state.pending_confirm = None
-    st.rerun()
 
 
 def open_confirm(title: str, subtitle: str, message: str, next_step: str, **extra: Any) -> None:
@@ -4728,8 +4729,54 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
-                start_analysis()
+            start_href = "?" + urlencode(
+                {
+                    "resume": "1",
+                    "page": "main",
+                    "step": "start",
+                    "role": st.session_state.get("role", USER_ROLE),
+                    "user": st.session_state.get("user_name", ""),
+                    "email": st.session_state.get("user_email", ""),
+                    "origin": st.session_state.get("origin") or "",
+                    "action": "start_ai",
+                }
+            )
+            zap_src = zap_icon_data_uri()
+            st.markdown(
+                f'<a class="start-ai-link" href="{esc(start_href)}" target="_self">'
+                f'<img class="start-ai-icon" src="{esc(zap_src)}" alt="">AI 추천 시작</a>',
+                unsafe_allow_html=True,
+            )
+            st.components.v1.html(
+                """
+                <script>
+                (function () {
+                  const root = window.parent.document;
+                  const link = root.querySelector(".start-action-wrap a.start-ai-link");
+                  if (!link || link.dataset.originBound === "1") return;
+                  link.dataset.originBound = "1";
+                  link.addEventListener("click", function () {
+                    const inputs = root.querySelectorAll('[data-testid="stTextInput"] input');
+                    let origin = "";
+                    for (const input of inputs) {
+                      const placeholder = input.getAttribute("placeholder") || "";
+                      if (placeholder.includes("구래역") || placeholder.includes("출발")) {
+                        origin = (input.value || "").trim();
+                        break;
+                      }
+                    }
+                    if (!origin) return;
+                    try {
+                      const url = new URL(link.href, window.parent.location.href);
+                      url.searchParams.set("origin", origin);
+                      link.href = url.pathname + url.search;
+                    } catch (err) {}
+                  });
+                })();
+                </script>
+                """,
+                height=0,
+            )
             st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -4762,11 +4809,18 @@ def _route_inputs_fingerprint() -> str:
 def render_route() -> None:
     fingerprint = _route_inputs_fingerprint()
     cached = st.session_state.get("route_result")
-    if not cached or st.session_state.get("route_inputs_fingerprint") != fingerprint:
-        cached = build_route_analysis()
+    need_build = (
+        not cached
+        or st.session_state.get("route_inputs_fingerprint") != fingerprint
+        or st.session_state.get("route_api_force_refresh")
+    )
+    if need_build:
+        with st.spinner("이동 가능성을 계산하고 있어요..."):
+            cached = build_route_analysis()
         st.session_state.route_result = cached
         st.session_state.route_analysis_result = cached
         st.session_state.route_inputs_fingerprint = fingerprint
+        st.session_state.route_api_force_refresh = False
     result = cached
 
     section_intro(
