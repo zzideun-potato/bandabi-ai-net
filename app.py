@@ -1693,20 +1693,20 @@ USER_TABS: list[tuple[str, str, str]] = [
 def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8.5 5.5a2.5 2.5 0 0 0-2.5 2.5V9a2 2 0 0 0-1.5 1.93V11a3.5 3.5 0 0 0 3.5 3.5V16a1.5 1.5 0 0 0 3 0v-1.5a3.5 3.5 0 0 0 3.5-3.5 2 2 0 0 0-1.5-1.93V8a2.5 2.5 0 0 0-2.5-2.5 1.75 1.75 0 0 0-3.5 0Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                <path d="M9 11.5c.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M8.4 5.6A2.6 2.6 0 0 0 5.8 8.2v1.2A2.4 2.4 0 0 0 4 11.7v.1A3.9 3.9 0 0 0 7.9 15.7V17a1.7 1.7 0 0 0 3.4 0v-1.2c2.3-.2 4-1.9 4-4.1a2.4 2.4 0 0 0-1.8-2.3V8.2a2.6 2.6 0 0 0-2.6-2.6 2 2 0 0 0-3.9 0Z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"/>
+                <path d="M9 11.7c.5 1 1.5 1.5 3 1.5s2.5-.5 3-1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="4" y="6" width="16" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
                 <path d="M8 4v4M16 4v4M4 10h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <path d="M9 15l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
         """,
         "eye": """
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M2.5 12C4.6 7.8 8 5.5 12 5.5s7.4 2.3 9.5 6.5c-2.1 4.2-5.5 6.5-9.5 6.5S4.6 16.2 2.5 12Z" stroke="currentColor" stroke-width="2"/>
                 <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="2"/>
             </svg>
@@ -1783,10 +1783,11 @@ def render_user_topbar() -> None:
                             <div class="user-topbar-badges">
                                 <span class="topbar-badge">이용자 모드</span>
                                 <span class="topbar-badge topbar-badge-token">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                        <ellipse cx="12" cy="14" rx="7" ry="3" fill="currentColor" opacity=".35"/>
-                                        <circle cx="12" cy="10" r="6" stroke="currentColor" stroke-width="2"/>
-                                        <path d="M8.5 9.5h7M10 7.5h4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                        <ellipse cx="12" cy="6.5" rx="7" ry="2.8" fill="currentColor" opacity=".22"/>
+                                        <path d="M5 6.5v9c0 1.7 3.1 3 7 3s7-1.3 7-3v-9" stroke="currentColor" stroke-width="2"/>
+                                        <ellipse cx="12" cy="6.5" rx="7" ry="2.8" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M5 11c0 1.7 3.1 3 7 3s7-1.3 7-3M5 14.5c0 1.7 3.1 3 7 3s7-1.3 7-3" stroke="currentColor" stroke-width="1.7"/>
                                     </svg>
                                     {points_value:,} BT
                                     <small>현금 환급·양도 불가</small>
