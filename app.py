@@ -105,7 +105,7 @@ def init_state() -> None:
         "selected_schedule": None,
         "accessibility_report": None,
         "vision_result": None,
-        "origin": "김포 구래역 1번 출구",
+        "origin": "",
         "destination": DEFAULT_DESTINATION,
         "destination_choice": DEFAULT_DESTINATION,
         "support_type": SUPPORT_TYPES[0],
@@ -1254,6 +1254,11 @@ def inject_css() -> None:
             font-size: 15px;
             font-weight: 500;
         }}
+        .start-fields [data-testid="stTextInput"] input::placeholder {{
+            color: #b7abcf;
+            opacity: 1;
+            font-weight: 500;
+        }}
         .start-tile-grid {{
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1277,9 +1282,9 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 82px;
-            border-radius: 24px;
-            font-size: 20px;
+            min-height: 80px;
+            border-radius: 22px;
+            font-size: 18px;
             font-weight: 900;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
@@ -1696,9 +1701,9 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9 4.8a2.8 2.8 0 0 0-5.2 1.5V7a2.4 2.4 0 0 0-1.8 2.3 3.7 3.7 0 0 0 3.6 3.7V15a2.2 2.2 0 0 0 2.2 2.2h1.2V4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                <path d="M15 4.8a2.8 2.8 0 0 1 5.2 1.5V7a2.4 2.4 0 0 1 1.8 2.3 3.7 3.7 0 0 1-3.6 3.7V15a2.2 2.2 0 0 1-2.2 2.2H15V4.8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                <path d="M9 8.8h1.2M9 11.8h1.2M13.8 8.8H15M13.8 11.8H15M12 4.8v12.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M9.2 5.5a3 3 0 0 0-5.8 1.1 2.8 2.8 0 0 0 .8 5.5v1a3.1 3.1 0 0 0 3.1 3.1h1.9V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.8 5.5a3 3 0 0 1 5.8 1.1 2.8 2.8 0 0 1-.8 5.5v1a3.1 3.1 0 0 1-3.1 3.1h-1.9V5.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 5.5v10.7M9.8 10.2h.1M14.1 10.2h.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
