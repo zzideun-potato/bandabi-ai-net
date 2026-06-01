@@ -1245,36 +1245,39 @@ def inject_css() -> None:
             border-radius: 16px !important;
             font-weight: 800 !important;
         }}
-        .st-key-pending_confirm_shell {{
-            margin-bottom: 8px;
-        }}
-        .st-key-pending_confirm_shell .pending-confirm-card {{
-            margin-bottom: 0;
-        }}
-        .st-key-pending_confirm_shell .st-key-pending_action_row {{
-            margin-top: 14px;
-        }}
-        .st-key-pending_confirm_shell .st-key-pending_action_row [data-testid="stHorizontalBlock"] {{
+        .pending-confirm-actions {{
+            margin-top: 22px;
+            display: flex;
             justify-content: flex-end;
+            align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }}
-        .st-key-pending_confirm_shell .st-key-pending_confirm_cancel > button {{
-            background: #ffffff !important;
+        .pending-confirm-btn {{
+            min-width: 104px;
+            height: 46px;
+            padding: 0 18px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            font-size: 15px;
+            font-weight: 900;
+            line-height: 1;
+            box-sizing: border-box;
+            cursor: pointer;
+        }}
+        .pending-confirm-btn-cancel {{
+            background: #ffffff;
             color: #4a2d7a !important;
-            border: 1px solid var(--bandabi-line) !important;
-            box-shadow: none !important;
-            min-height: 46px;
-            border-radius: 12px !important;
-            font-weight: 800 !important;
+            border: 1px solid var(--bandabi-line);
         }}
-        .st-key-pending_confirm_shell .st-key-pending_confirm_ok > button {{
-            background: #6d28d9 !important;
+        .pending-confirm-btn-ok {{
+            background: #6d28d9;
             color: #ffffff !important;
-            border: 0 !important;
-            box-shadow: 0 6px 18px rgba(109,40,217,.24) !important;
-            min-height: 46px;
-            border-radius: 12px !important;
-            font-weight: 900 !important;
+            border: 0;
+            box-shadow: 0 6px 18px rgba(109,40,217,.24);
         }}
         .st-key-care_action_row,
         .st-key-class_action_row,
@@ -4065,6 +4068,12 @@ def handle_user_chrome_query() -> None:
             st.session_state.origin = incoming_origin
         start_analysis()
         changed = True
+    elif action == "pending_ok":
+        apply_pending_confirm()
+        changed = True
+    elif action == "pending_cancel":
+        _cancel_pending_confirm()
+        changed = True
     elif action == "schedule_find":
         day_map = {
             "화·목 중심": ["화", "목"],
@@ -4696,31 +4705,41 @@ def apply_pending_confirm() -> None:
     sync_resume_query_params()
 
 
+def main_resume_query(*, extra: dict[str, str] | None = None) -> dict[str, str]:
+    query = {
+        "resume": "1",
+        "page": "main",
+        "step": st.session_state.get("main_step", "start"),
+        "role": st.session_state.get("role", USER_ROLE),
+        "user": st.session_state.get("user_name", ""),
+        "email": st.session_state.get("user_email", ""),
+    }
+    if extra:
+        query.update(extra)
+    return {k: v for k, v in query.items() if v != ""}
+
+
 def render_pending_confirm() -> None:
     pending = st.session_state.get("pending_confirm")
     if not pending:
         return
-    with st.container(key="pending_confirm_shell"):
-        st.markdown(
-            f"""
-            <div class="section-card pending-confirm-card">
-                <p class="tiny-label">Confirm</p>
-                <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;">{esc(pending.get("title", "확정 요청"))}</h2>
-                <p class="section-copy">{esc(pending.get("subtitle", ""))}</p>
-                <div class="notice-box" style="margin-top:16px;">{esc(pending.get("message", ""))}</div>
+    cancel_href = "?" + urlencode(main_resume_query(extra={"action": "pending_cancel"}))
+    ok_href = "?" + urlencode(main_resume_query(extra={"action": "pending_ok"}))
+    st.markdown(
+        f"""
+        <div class="section-card pending-confirm-card">
+            <p class="tiny-label">Confirm</p>
+            <h2 style="margin:0;color:var(--bandabi-ink);font-weight:900;">{esc(pending.get("title", "확정 요청"))}</h2>
+            <p class="section-copy">{esc(pending.get("subtitle", ""))}</p>
+            <div class="notice-box" style="margin-top:16px;">{esc(pending.get("message", ""))}</div>
+            <div class="pending-confirm-actions">
+                <a class="pending-confirm-btn pending-confirm-btn-cancel" href="{esc(cancel_href)}" target="_self">취소</a>
+                <a class="pending-confirm-btn pending-confirm-btn-ok" href="{esc(ok_href)}" target="_self">확인</a>
             </div>
-            """,
-            unsafe_allow_html=True,
-        )
-        render_step_action_buttons(
-            container_key="pending_action_row",
-            secondary_label="취소",
-            secondary_key="pending_confirm_cancel",
-            primary_label="확인",
-            primary_key="pending_confirm_ok",
-            on_secondary=_cancel_pending_confirm,
-            on_primary=apply_pending_confirm,
-        )
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def render_start() -> None:
