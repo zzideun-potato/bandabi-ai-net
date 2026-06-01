@@ -4389,6 +4389,28 @@ def handle_user_chrome_query() -> None:
     elif action == "schedule_select":
         selected = st.query_params.get("schedule_time", "")
         if selected:
+            day_map = {
+                "화·목 중심": ["화", "목"],
+                "월·수 중심": ["월", "수"],
+                "주말 가능": ["토", "일"],
+            }
+            incoming_day = st.query_params.get("schedule_day_label")
+            incoming_time = st.query_params.get("schedule_time_label")
+            if incoming_day in day_map:
+                st.session_state.schedule_day_label = incoming_day
+            if incoming_time in {"오전 10시 전후", "오후 2시 전후", "오후 4시 전후"}:
+                st.session_state.schedule_time_label = incoming_time
+            day_label = st.session_state.get("schedule_day_label", "화·목 중심")
+            time_label = st.session_state.get("schedule_time_label", "오전 10시 전후")
+            recommendations = list(st.session_state.get("schedule_recommendations") or [])
+            if not recommendations:
+                recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
+                st.session_state.schedule_recommendations = recommendations
+            st.session_state.schedule_generated = True
+            st.session_state.schedule_top_pick = (
+                st.session_state.get("schedule_top_pick")
+                or (recommendations[0]["full_label"] if recommendations else selected)
+            )
             st.session_state.schedule_selected_time = selected
             st.session_state.current_page = "schedule"
             changed = True
@@ -4406,9 +4428,17 @@ def handle_user_chrome_query() -> None:
             st.session_state.notice = "대체 매칭 알림 mock 로그가 추가되었습니다."
             changed = True
     elif action == "schedule_continue":
-        st.session_state.selected_schedule = st.session_state.get("schedule_selected_time") or st.session_state.get("schedule_top_pick")
+        selected_schedule = st.session_state.get("schedule_selected_time") or st.session_state.get("schedule_top_pick")
+        if not selected_schedule:
+            recommendations = list(st.session_state.get("schedule_recommendations") or [])
+            if recommendations:
+                selected_schedule = recommendations[0]["full_label"]
+        st.session_state.selected_schedule = selected_schedule
         st.session_state.current_page = "main"
         st.session_state.main_step = "route"
+        st.session_state.route_result = None
+        st.session_state.route_analysis_result = None
+        st.session_state.route_api_force_refresh = True
         st.session_state.notice = "선택한 시간 기준으로 예약 흐름을 이어갑니다."
         changed = True
     elif action == "access_scan":
@@ -5695,7 +5725,14 @@ def schedule_slot_card_html(item: dict[str, str]) -> str:
         classes.append("selected")
     card_class = " ".join(classes)
     select_href = "?" + urlencode(
-        schedule_resume_query(extra={"action": "schedule_select", "schedule_time": item["full_label"]})
+        schedule_resume_query(
+            extra={
+                "action": "schedule_select",
+                "schedule_time": item["full_label"],
+                "schedule_day_label": st.session_state.get("schedule_day_label", "화·목 중심"),
+                "schedule_time_label": st.session_state.get("schedule_time_label", "오전 10시 전후"),
+            }
+        )
     )
     return f"""
     <a class="{card_class}" href="{esc(select_href)}" target="_self">
