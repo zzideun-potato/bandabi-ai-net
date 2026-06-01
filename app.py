@@ -3518,9 +3518,9 @@ def signup_role_from_choice() -> str:
 
 
 def _resolve_demo_auth_identity() -> tuple[str, str]:
-    """데모 HTML 폼 GET 파라미터(user/email) → 세션 이름."""
-    qp_name = (st.query_params.get("user") or "").strip()
-    qp_email = (st.query_params.get("email") or "").strip()
+    """데모 HTML 폼 GET 파라미터(auth_user/auth_email) → 세션 이름."""
+    qp_name = (st.query_params.get("auth_user") or st.query_params.get("user") or "").strip()
+    qp_email = (st.query_params.get("auth_email") or st.query_params.get("email") or "").strip()
     name = (
         qp_name
         or (st.session_state.get("auth_name") or "").strip()
@@ -3579,7 +3579,7 @@ def render_auth() -> None:
             st.session_state.signup_role_choice = "이용자 (User)"
         try:
             del st.query_params["auth"]
-            for key in ("signup_role", "user", "email"):
+            for key in ("signup_role", "auth_user", "auth_email", "user", "email", "role"):
                 if key in st.query_params:
                     del st.query_params[key]
         except Exception:
@@ -3591,19 +3591,19 @@ def render_auth() -> None:
         st.session_state.auth_stage = "role_select"
         try:
             del st.query_params["auth"]
-            for key in ("user", "email"):
+            for key in ("auth_user", "auth_email", "user", "email", "role"):
                 if key in st.query_params:
                     del st.query_params[key]
         except Exception:
             pass
         st.rerun()
     if query_auth == "enter_app":
-        qp_user = (st.query_params.get("user") or "").strip()
+        qp_user = (st.query_params.get("auth_user") or st.query_params.get("user") or "").strip()
         if qp_user:
             st.session_state.user_name = qp_user
             st.session_state.auth_name = qp_user
             st.session_state.login_name = qp_user
-        qp_email = (st.query_params.get("email") or "").strip()
+        qp_email = (st.query_params.get("auth_email") or st.query_params.get("email") or "").strip()
         if qp_email:
             st.session_state.user_email = qp_email
         role_qp = st.query_params.get("role")
@@ -3618,7 +3618,7 @@ def render_auth() -> None:
         finalize_app_entry(chosen_role)
         try:
             del st.query_params["auth"]
-            for key in ("role", "user", "email"):
+            for key in ("role", "auth_user", "auth_email", "user", "email"):
                 if key in st.query_params:
                     del st.query_params[key]
         except Exception:
@@ -3628,21 +3628,27 @@ def render_auth() -> None:
         st.session_state.auth_stage = "form"
         st.session_state.auth_mode = "로그인" if query_auth == "login" else "회원가입"
         if query_auth == "signup":
-            role_qp = st.query_params.get("role")
-            if role_qp == "admin":
+            signup_role_qp = st.query_params.get("signup_role") or st.query_params.get("role")
+            if signup_role_qp == "admin":
                 st.session_state.signup_role_choice = "기관 관리자 (Admin)"
-            elif role_qp == "user":
+            elif signup_role_qp == "user":
                 st.session_state.signup_role_choice = "이용자 (User)"
         try:
             del st.query_params["auth"]
-            if "role" in st.query_params:
-                del st.query_params["role"]
+            for key in ("signup_role", "role", "auth_user", "auth_email"):
+                if key in st.query_params:
+                    del st.query_params[key]
         except Exception:
             pass
 
     if st.session_state.get("auth_stage", "entry") == "role_select":
         preview_name = (st.session_state.get("user_name") or "반다비").strip()
-        user_qp = urlencode({"user": preview_name, "email": st.session_state.get("user_email") or ""})
+        user_qp = urlencode(
+            {
+                "auth_user": preview_name,
+                "auth_email": st.session_state.get("user_email") or "",
+            }
+        )
         icon_src = bandabi_icon_data_uri()
         logo_html = (
             f'<img class="auth-form-logo" src="{icon_src}" alt="반다비">'
@@ -3789,8 +3795,8 @@ def render_auth() -> None:
         user_role_active = " active" if "User" in str(role_choice) else ""
         admin_role_active = " active" if "Admin" in str(role_choice) else ""
         signup_role_param = "admin" if "Admin" in str(role_choice) else "user"
-        demo_name = esc(st.session_state.get("user_name") or "")
-        demo_email = esc(st.session_state.get("user_email") or "")
+        demo_name = esc(st.session_state.get("auth_name") or st.session_state.get("user_name") or "")
+        demo_email = esc(st.session_state.get("auth_email") or st.session_state.get("user_email") or "")
         st.markdown(
             html_block(f"""
             <div class="auth-form-page">
@@ -3811,11 +3817,11 @@ def render_auth() -> None:
 
                             <label class="signup-field">
                                 <span class="signup-label">이름</span>
-                                <input class="signup-input" type="text" name="user" value="{demo_name}" placeholder="예: 000" autocomplete="name">
+                                <input class="signup-input" type="text" name="auth_user" value="{demo_name}" placeholder="예: 000" autocomplete="name">
                             </label>
                             <label class="signup-field">
                                 <span class="signup-label">이메일</span>
-                                <input class="signup-input" type="email" name="email" value="{demo_email}" placeholder="user@example.com" autocomplete="email">
+                                <input class="signup-input" type="email" name="auth_email" value="{demo_email}" placeholder="user@example.com" autocomplete="email">
                             </label>
                             <label class="signup-field">
                                 <span class="signup-label">비밀번호</span>
@@ -3828,8 +3834,8 @@ def render_auth() -> None:
                             <div class="signup-field">
                                 <span class="signup-label">회원 유형</span>
                                 <div class="signup-role-links">
-                                    <a class="signup-role-link{user_role_active}" href="?auth=signup&amp;role=user" target="_self">이용자 (User)</a>
-                                    <a class="signup-role-link{admin_role_active}" href="?auth=signup&amp;role=admin" target="_self">기관 관리자 (Admin)</a>
+                                    <a class="signup-role-link{user_role_active}" href="?auth=signup&amp;signup_role=user" target="_self">이용자 (User)</a>
+                                    <a class="signup-role-link{admin_role_active}" href="?auth=signup&amp;signup_role=admin" target="_self">기관 관리자 (Admin)</a>
                                 </div>
                             </div>
                         </div>
@@ -3862,8 +3868,8 @@ def render_auth() -> None:
         )
         return
 
-    demo_name = esc(st.session_state.get("user_name") or "")
-    demo_email = esc(st.session_state.get("user_email") or "")
+    demo_name = esc(st.session_state.get("auth_name") or st.session_state.get("user_name") or "")
+    demo_email = esc(st.session_state.get("auth_email") or st.session_state.get("user_email") or "")
     st.markdown(
         html_block(f"""
         <div class="auth-form-page">
@@ -3883,11 +3889,11 @@ def render_auth() -> None:
 
                         <label class="signup-field">
                             <span class="signup-label">이름</span>
-                            <input class="signup-input" type="text" name="user" value="{demo_name}" placeholder="예: 000" autocomplete="name">
+                            <input class="signup-input" type="text" name="auth_user" value="{demo_name}" placeholder="예: 000" autocomplete="name">
                         </label>
                         <label class="signup-field">
                             <span class="signup-label">이메일</span>
-                            <input class="signup-input" type="email" name="email" value="{demo_email}" placeholder="user@example.com" autocomplete="email">
+                            <input class="signup-input" type="email" name="auth_email" value="{demo_email}" placeholder="user@example.com" autocomplete="email">
                         </label>
                         <label class="signup-field">
                             <span class="signup-label">비밀번호</span>
