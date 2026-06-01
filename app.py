@@ -8,6 +8,7 @@ External services and real authentication are not invoked in this UI-first build
 from __future__ import annotations
 
 import html
+import base64
 from datetime import datetime, timedelta
 from pathlib import Path
 from textwrap import dedent
@@ -79,6 +80,15 @@ def bandabi_icon_data_uri() -> str:
         return ""
     svg = svg.replace("#7770FF", "#4a2d7a").replace("#DAD8FF", "#d9d3ef")
     return "data:image/svg+xml;charset=utf-8," + quote(svg)
+
+
+def pretendard_font_data_uri() -> str:
+    font_path = Path(__file__).resolve().parent / "assets" / "fonts" / "PretendardVariable.ttf"
+    try:
+        raw = font_path.read_bytes()
+    except OSError:
+        return ""
+    return "data:font/ttf;base64," + base64.b64encode(raw).decode("ascii")
 
 
 def html_block(markup: str) -> str:
@@ -160,10 +170,25 @@ def inject_css() -> None:
     ink = "#16121f" if high else "#2d2040"
     mid = "#4a4656" if high else "#7868a0"
 
+    font_data_uri = pretendard_font_data_uri()
+    font_face = (
+        f"""
+        @font-face {{
+            font-family: "Pretendard Local";
+            src: url("{font_data_uri}") format("truetype");
+            font-weight: 45 920;
+            font-style: normal;
+            font-display: swap;
+        }}
+        """
+        if font_data_uri
+        else ""
+    )
+
     st.markdown(
         f"""
         <style>
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+        {font_face}
         :root {{
             --bandabi-bg: {bg};
             --bandabi-card: {card};
@@ -183,7 +208,7 @@ def inject_css() -> None:
         .stApp {{
             background: var(--bandabi-bg);
             color: var(--bandabi-ink);
-            font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
+            font-family: "Pretendard Local", "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo",
                 "Malgun Gothic", system-ui, sans-serif;
             font-optical-sizing: auto;
             -webkit-font-smoothing: antialiased;
@@ -1103,9 +1128,9 @@ def inject_css() -> None:
             transition: background .15s ease, color .15s ease, box-shadow .15s ease;
         }}
         .app-tab svg {{
-            flex: 0 0 17px;
-            width: 17px;
-            height: 17px;
+            flex: 0 0 16px;
+            width: 16px;
+            height: 16px;
         }}
         .app-tab.active {{
             background: #4a2d7a;
@@ -1219,8 +1244,8 @@ def inject_css() -> None:
         }}
         .start-greeting {{
             color: #4a2d7a;
-            font-size: clamp(50px, 4vw, 58px);
-            font-weight: 900;
+            font-size: clamp(46px, 3.8vw, 54px);
+            font-weight: 820;
             line-height: 1.08;
             margin: 14px 0 0;
         }}
@@ -1228,14 +1253,14 @@ def inject_css() -> None:
             color: #7868a0;
             font-size: 18px;
             line-height: 1.5;
-            font-weight: 300;
+            font-weight: 260;
             margin: 16px 0 0;
         }}
         .start-copy {{
             color: #b8acd8;
             font-size: 13px;
             line-height: 1.65;
-            font-weight: 300;
+            font-weight: 240;
             margin: 10px 0 0;
         }}
         .start-grid-shell {{
@@ -1294,27 +1319,18 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 96px;
-            border-radius: 21px;
-            font-size: 20px;
+            min-height: 116px;
+            border-radius: 22px;
+            font-size: 25px;
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .st-key-btn_ai_start > button p {{
-            font-size: 20px;
+            font-size: 25px;
             font-weight: 900;
             margin: 0;
             line-height: 1;
-        }}
-        .st-key-btn_ai_start > button::before {{
-            content: "⚡︎";
-            display: inline-block;
-            font-size: 23px;
-            font-weight: 900;
-            margin-right: 9px;
-            transform: translateY(2px);
-            color: #ffffff;
         }}
         .start-footnote {{
             color: #b8acd8;
@@ -1726,14 +1742,13 @@ USER_TABS: list[tuple[str, str, str]] = [
 
 
 def tab_icon_svg(kind: str) -> str:
+    if kind == "brain":
+        brain_path = Path(__file__).resolve().parent / "assets" / "img" / "brain.svg"
+        try:
+            return brain_path.read_text(encoding="utf-8")
+        except OSError:
+            pass
     icons = {
-        "brain": """
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M9.5 3a3.5 3.5 0 0 0-3.5 3.5v1a2.5 2.5 0 0 0-2.5 2.5 3.5 3.5 0 0 0 3.5 3.5V15a3 3 0 0 0 3 3h.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M14.5 3a3.5 3.5 0 0 1 3.5 3.5v1a2.5 2.5 0 0 1 2.5 2.5 3.5 3.5 0 0 1-3.5 3.5V15a3 3 0 0 1-3 3h-.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M12 3v18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
-        """,
         "calendar_check": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <rect x="4" y="6" width="16" height="14" rx="3" stroke="currentColor" stroke-width="2"/>
@@ -2213,7 +2228,7 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+            if st.button("⚡ AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
                 start_analysis()
             st.markdown("</div>", unsafe_allow_html=True)
 
