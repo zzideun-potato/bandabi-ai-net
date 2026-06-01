@@ -23,6 +23,8 @@ try:
 except Exception:  # pragma: no cover - Streamlit can still render without charts.
     pd = None
 
+import engine_bridge
+
 
 st.set_page_config(page_title="반다비 AI", page_icon="🐻", layout="wide", initial_sidebar_state="collapsed")
 
@@ -4386,54 +4388,13 @@ def render_flow_steps() -> None:
 def build_route_analysis() -> dict[str, Any]:
     origin = st.session_state.get("origin") or "김포 구래역 1번 출구"
     support = st.session_state.get("support_type") or SUPPORT_TYPES[0]
-    normalized = origin.replace(" ", "")
-    long_distance = any(token in normalized for token in ["성남", "신흥역", "분당", "수원", "서울역"])
-    near_gimpo = any(token in normalized for token in ["김포", "구래", "장기", "운양", "마산"])
-
-    if long_distance:
-        total, walk, transfers = 86, 16, 2
-        alternative = "장거리 · 이동지원 연계 검토"
-        risk = "중간 이상"
-        opinion = (
-            "출발지가 성남권 또는 신흥역 권역으로 보입니다. 김포 반다비체육센터까지는 "
-            "장거리 이동에 해당하므로 환승 여유와 이동지원센터 연계 검토가 필요합니다."
-        )
-        route = "성남권 출발지 → 수도권 전철 환승 → 김포골드라인 → 김포 반다비체육센터"
-    elif near_gimpo:
-        total, walk, transfers = 28, 8, 1
-        alternative = "저상버스·센터 주변 보행 연계 가능"
-        risk = "낮음"
-        opinion = (
-            "김포 관내 출발지로 확인되어 이동 부담이 비교적 낮습니다. "
-            "센터 주변 마지막 보행 구간만 천천히 확인하면 무리가 적은 계획입니다."
-        )
-        route = "김포 관내 출발지 → 김포골드라인 또는 저상버스 → 센터 주변 보행"
-    else:
-        total, walk, transfers = 72, 13, 2
-        alternative = "대체 이동수단 사전 문의 권장"
-        risk = "중간"
-        opinion = (
-            "출발지와 센터 사이 이동 거리가 있는 편입니다. 대중교통과 이동지원 차량을 "
-            "함께 검토하면 참여 가능성이 높아집니다."
-        )
-        route = "출발지 → 광역/도시철도 환승 → 김포 반다비체육센터"
-
-    return {
-        "origin": origin,
-        "destination": DEFAULT_DESTINATION,
-        "support": support,
-        "recommended_route": route,
-        "opinion": opinion,
-        "total_time": f"약 {total}분",
-        "walk_time": f"도보 약 {walk}분",
-        "transfers": f"{transfers}회",
-        "alternative": alternative,
-        "walk_risk": risk,
-        "weather_adjustment": "비 예보 시 도보 구간 6분 여유 권장",
-        "facility_access": "센터 주출입구, 승강기, 접근 가능한 화장실 확인 필요",
-        "bus_arrival": "저상버스 또는 이동지원 차량 시간 사전 확인",
-        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-    }
+    return engine_bridge.run_route_analysis(
+        origin,
+        DEFAULT_DESTINATION,
+        support,
+        buddy_matching=bool(st.session_state.get("buddy_matching")),
+        generated_at=datetime.now().strftime("%Y-%m-%d %H:%M"),
+    )
 
 
 def route_map_svg(result: dict[str, Any]) -> str:
@@ -4630,7 +4591,7 @@ def render_route() -> None:
     section_intro(
         "MAIN01",
         "AI 기반 도착 가능성 / 경로분석",
-        "실제 API가 아닌 화면 검증용 mock 결과입니다. 장거리 출발지는 비현실적인 짧은 시간으로 표시하지 않습니다.",
+        result.get("status_line", "연동 상태 확인 중") + ". 장거리 출발지는 비현실적인 짧은 시간으로 표시하지 않습니다.",
         [result["origin"], result["destination"], result["support"]],
     )
 
@@ -4817,6 +4778,15 @@ def guardian_summary_text() -> str:
     )
 
 
+def report_rag_source_label() -> str:
+    cache = st.session_state.get("report_rag_cache")
+    if not cache:
+        cache = engine_bridge.load_report_rag()
+        st.session_state.report_rag_cache = cache
+    source = str(cache.get("display_source", "fallback"))
+    return f"생활체육 RAG source: {source}"
+
+
 def render_report() -> None:
     section_intro(
         "MAIN03",
@@ -4827,7 +4797,7 @@ def render_report() -> None:
 
     cols = st.columns(2)
     with cols[0]:
-        metric_card("성취도 점수", "82점", "오늘 참여 조건을 기준으로 한 mock 점수")
+        metric_card("성취도 점수", "82점", report_rag_source_label())
     with cols[1]:
         metric_card("지속참여 점수", "76점", "다음 참여 가능성을 높이는 일정 추천 필요")
 
@@ -5414,20 +5384,8 @@ def mock_accessibility_result(report_type: str) -> dict[str, Any]:
 
 
 def build_official_draft(report: dict[str, Any]) -> tuple[str, str]:
-    facility = report.get("facility_type") or report.get("report_type", "접근성 점검")
-    subject = f"[접근성 점검 요청] {DEFAULT_DESTINATION} {facility} 확인 요청"
-    body = (
-        "안녕하세요.\n\n"
-        f"{DEFAULT_DESTINATION} 이용 과정에서 접근성 확인이 필요한 지점이 있어 검토를 요청드립니다.\n\n"
-        f"- 제보 시설: {facility}\n"
-        f"- AI 보조 점검 등급: {report.get('grade', report.get('risk', '점검 필요'))}\n"
-        f"- 개선 우선순위 참고 점수: {report.get('priority_score', '—')}점\n"
-        f"- AI 보조 요약: {report.get('summary', '')}\n"
-        "- 요청 사항: 현장 확인 후 보행 동선, 안내 표식, 안전 조치 필요 여부를 검토해 주세요.\n\n"
-        "본 내용은 이용자 제보와 AI 보조 분석 결과를 바탕으로 작성된 참고용 초안이며, "
-        "최종 판단은 담당 기관의 현장 확인을 따릅니다."
-    )
-    return subject, body
+    prepared = engine_bridge.prepare_access_email_draft(report, default_destination=DEFAULT_DESTINATION)
+    return prepared["subject"], prepared["body"]
 
 
 def access_map_item_html(item: dict[str, Any], *, tone: str) -> str:
@@ -5495,11 +5453,21 @@ def access_run_scan(
     issue_choices: list[str],
     has_photo: bool,
 ) -> dict[str, Any]:
+    uploaded = st.session_state.get("access_photo_upload")
+    photo_bytes = uploaded.getvalue() if uploaded is not None else None
+    vision_raw = None
+    if has_photo and photo_bytes:
+        vision_raw = engine_bridge.run_vision_analysis(
+            facility_type, disability_focus, issue_choices, photo_bytes
+        )
     analysis = analyze_accessibility_demo(
         facility_type,
         disability_focus,
         issue_choices,
         has_photo,
+    )
+    analysis = engine_bridge.merge_vision_into_analysis(
+        analysis, vision_raw, has_photo=has_photo
     )
     st.session_state.access_analysis = analysis
     st.session_state.accessibility_report = analysis
@@ -5836,25 +5804,13 @@ def render_accessibility_page() -> None:
             st.session_state.get("access_facility_type", "점자블록")
         )
         facility = report.get("facility_type") or report.get("report_type", "점자블록")
-        to_email = "facility@gimpo.go.kr"
-        from_name = "김포 반다비 AI 운영팀"
-        from_email = "no-reply@bandabi-ai.kr"
-        subject = f"{DEFAULT_DESTINATION} 접근성 위험 요소 개선 검토 요청"
-        body = (
-            "수신: 김포시 시설관리 담당부서\n\n"
-            f"제목: {subject}\n\n"
-            f"{DEFAULT_DESTINATION} 1층 로비 구간에서 {facility} 관련 접근성 확인이 필요한 제보가 접수되었습니다.\n\n"
-            "본 내용은 AI 기반 접근성 점검 보조 결과와 이용자 제보를 바탕으로 생성된 관리자 검토용 초안입니다. "
-            "실제 시설 적합 여부와 개선 필요성은 담당자 현장 확인 후 판단해 주시기 바랍니다.\n\n"
-            "첨부 예정: AI 비전 분석 이미지, 현장 제보 요약, 접근성 위험 요소 리포트"
-        )
-        payload = {
-            "personalizations": [{"to": [{"email": to_email}], "subject": subject}],
-            "from": {"email": from_email, "name": from_name},
-            "content": [{"type": "text/plain", "value": body}],
-            "send_disabled": True,
-            "note": "실제 SendGrid 발송은 이 화면에서 실행하지 않습니다. API Key 값도 표시하지 않습니다.",
-        }
+        prepared = engine_bridge.prepare_access_email_draft(report, default_destination=DEFAULT_DESTINATION)
+        subject = prepared["subject"]
+        body = prepared["body"]
+        to_email = prepared["to_email"]
+        from_name = prepared["from_name"]
+        from_email = prepared["from_email"]
+        payload = prepared["payload"]
         payload_text = json.dumps(payload, ensure_ascii=False, indent=2)
         body_textarea = esc(body).replace("\n", "&#10;")
         st.markdown(
@@ -5997,15 +5953,10 @@ def render_dashboard_page() -> None:
     )
     log_lines = list(st.session_state.get("dashboard_log_lines") or [])
     log_html = "".join(f"<p>{esc(line)}</p>" for line in log_lines)
-    api_items = [
-        ("VWorld 주소검색", "연결 성공 (mock geocode_vworld)"),
-        ("버스 노선 정보", "mock 사용 중 (fetchBusRoute)"),
-        ("버스 도착 정보", "mock · no_data fallback"),
-        ("기상 단기예보", "mock 사용 중"),
-        ("접근성 제보", "프론트 세션 저장"),
-        ("RAG 문서검색", "mock 응답"),
-        ("SendGrid", "payload 미리보기만"),
-    ]
+    api_items = engine_bridge.dashboard_api_status_items(
+        cache=st.session_state.get("dashboard_api_cache")
+    )
+    st.session_state.dashboard_api_cache = api_items
     api_html = "".join(
         f'<div class="dashboard-api-item{" wide" if label == "SendGrid" else ""}"><b>{esc(label)}</b><br>{esc(status)}</div>'
         for label, status in api_items
@@ -6198,7 +6149,7 @@ def render_dashboard_page() -> None:
                     </table>
                 </div>
                 <div class="dashboard-api-section">
-                    <p class="dashboard-panel-title">공공데이터 연동 상태 (mock)</p>
+                    <p class="dashboard-panel-title">공공데이터 연동 상태</p>
                     <div class="dashboard-api-grid">{api_html}</div>
                 </div>
                 <div class="dashboard-log-feed">{log_html}</div>

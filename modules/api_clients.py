@@ -239,6 +239,22 @@ def _vworld_display_message(source: str) -> str:
     return messages.get(source, messages["fallback"])
 
 
+def _vworld_action_needed(status: str, reason_code: str) -> str:
+    if status == "real_api":
+        return "없음"
+    if status == "missing_key":
+        return "VWORLD_API_KEY Secret 등록 필요"
+    if reason_code in {"connection_error", "network_error", "timeout", "ssl_error"}:
+        return "VWorld API 키의 도메인/IP 허용 설정, 로컬 네트워크, VWorld 서비스 접속 가능 여부를 확인하세요."
+    if reason_code in {"invalid_key", "incorrect_key", "unavailable_key"}:
+        return "VWorld API 키 상태 확인 필요"
+    if reason_code == "no_result":
+        return "검색어 또는 주소 표기 확인 필요"
+    if reason_code == "missing_input":
+        return "검색어 또는 주소 입력 필요"
+    return "VWorld 설정, 검색어, 주소 표기 확인 필요"
+
+
 def _vworld_meta(status: str, reason_code: str, source: str = "fallback", **extra: str) -> dict[str, str]:
     meta = {
         "data_status": status,
@@ -246,6 +262,7 @@ def _vworld_meta(status: str, reason_code: str, source: str = "fallback", **extr
         "source": source,
         "reason": reason_code,
         "reason_code": reason_code,
+        "action_needed": _vworld_action_needed(status, reason_code),
         "display_message": _vworld_display_message(source),
     }
     meta.update({key: str(value) for key, value in extra.items() if value not in (None, "")})
@@ -417,6 +434,7 @@ def test_vworld_geocode_connection(address: str = "운양역") -> dict[str, Any]
         "has_coordinate": geocode is not None,
         "search_type": meta.get("search_type", ""),
         "address_type_tried": meta.get("address_type_tried", ""),
+        "action_needed": meta.get("action_needed", _vworld_action_needed(meta.get("data_status", "mock_fallback"), meta.get("reason_code", ""))),
         "display_message": meta.get("display_message", _vworld_display_message("fallback")),
     }
 

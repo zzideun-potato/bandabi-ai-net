@@ -69,7 +69,7 @@ def get_config_status(name: str) -> str:
     """Return a safe status label without exposing, masking, or measuring the value."""
     if name == "ENABLE_SENDGRID_SEND":
         return "enabled" if get_bool_secret(name, False) else "disabled"
-    return "configured" if get_secret(name, None) not in (None, "") else "missing"
+    return "configured" if get_secret(name, None) not in (None, "") else "missing_key"
 
 
 def list_config_status() -> dict[str, str]:
