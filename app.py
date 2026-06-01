@@ -989,7 +989,7 @@ def inject_css() -> None:
             box-shadow: none;
         }}
         .user-topbar-inner {{
-            max-width: 1120px;
+            max-width: 1360px;
             margin: 0 auto;
             padding: 12px 18px;
             display: flex;
@@ -1002,7 +1002,7 @@ def inject_css() -> None:
             align-items: center;
             gap: 12px;
             min-width: 0;
-            flex: 0 1 auto;
+            flex: 0 0 auto;
         }}
         .user-topbar-copy {{
             min-width: 0;
@@ -1053,7 +1053,7 @@ def inject_css() -> None:
         .user-topbar-nav {{
             overflow-x: auto;
             padding: 2px 0;
-            flex: 1 1 auto;
+            flex: 1 1 640px;
             display: flex;
             justify-content: center;
         }}
@@ -1061,7 +1061,8 @@ def inject_css() -> None:
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            max-width: 100%;
+            width: 100%;
+            max-width: 640px;
             background: rgba(240,236,248,.9);
             border: 1px solid rgba(184, 172, 216, .4);
             border-radius: 16px;
@@ -1072,12 +1073,14 @@ def inject_css() -> None:
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            flex: 1 1 0;
+            justify-content: center;
             min-height: 48px;
             border-radius: 10px;
-            padding: 0 18px;
+            padding: 0 14px;
             color: #6f5a98 !important;
-            font-size: 17px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 700;
             line-height: 1.2;
             text-decoration: none !important;
             white-space: nowrap;
@@ -1113,8 +1116,8 @@ def inject_css() -> None:
             border: 1px solid rgba(184, 172, 216, .4);
             color: #7868a0 !important;
             padding: 0 14px;
-            font-size: 13px;
-            font-weight: 700;
+            font-size: 14px;
+            font-weight: 800;
             text-decoration: none !important;
             white-space: nowrap;
             transition: border-color .15s ease, color .15s ease;
@@ -1152,6 +1155,7 @@ def inject_css() -> None:
                 font-size: 10px;
             }}
             .app-tab {{
+                flex: 0 0 auto;
                 padding: 0 11px;
                 font-size: 12px;
             }}
@@ -1391,11 +1395,22 @@ def render_auth() -> None:
         except Exception:
             pass
     if query_auth == "signup_done":
+        resolved_name = (
+            (st.session_state.get("auth_name") or "").strip()
+            or (st.session_state.get("login_name") or "").strip()
+            or (st.session_state.get("user_name") or "").strip()
+            or "반다비"
+        )
+        resolved_email = (
+            (st.session_state.get("auth_email") or "").strip()
+            or (st.session_state.get("login_email") or "").strip()
+            or (st.session_state.get("user_email") or "").strip()
+        )
         st.session_state.logged_in = True
         st.session_state.authenticated = True
         st.session_state.auth_mode = "회원가입"
-        st.session_state.user_name = (st.session_state.get("auth_name") or "").strip() or "반다비"
-        st.session_state.user_email = (st.session_state.get("auth_email") or "").strip()
+        st.session_state.user_name = resolved_name
+        st.session_state.user_email = resolved_email
         st.session_state.role = signup_role_from_choice()
         st.session_state.current_page = "dashboard" if st.session_state.role == ADMIN_ROLE else "main"
         st.session_state.main_step = "start"
@@ -1407,11 +1422,22 @@ def render_auth() -> None:
             pass
         st.rerun()
     if query_auth == "login_done":
+        resolved_name = (
+            (st.session_state.get("auth_name") or "").strip()
+            or (st.session_state.get("login_name") or "").strip()
+            or (st.session_state.get("user_name") or "").strip()
+            or "반다비"
+        )
+        resolved_email = (
+            (st.session_state.get("auth_email") or "").strip()
+            or (st.session_state.get("login_email") or "").strip()
+            or (st.session_state.get("user_email") or "").strip()
+        )
         st.session_state.logged_in = True
         st.session_state.authenticated = True
         st.session_state.auth_mode = "로그인"
-        st.session_state.user_name = (st.session_state.get("auth_name") or "").strip() or "반다비"
-        st.session_state.user_email = (st.session_state.get("auth_email") or "").strip()
+        st.session_state.user_name = resolved_name
+        st.session_state.user_email = resolved_email
         st.session_state.role = USER_ROLE
         st.session_state.current_page = "main"
         st.session_state.main_step = "start"
