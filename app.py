@@ -1207,6 +1207,76 @@ def inject_css() -> None:
             border: 1px solid rgba(80,180,120,.25) !important;
             box-shadow: none !important;
         }}
+        .st-key-route_plan_banner {{
+            border-radius: 32px;
+            background: linear-gradient(90deg, #edf8f2 0%, #f0ecf8 100%);
+            border: 1px solid rgba(80,180,120,.22);
+            padding: 18px 20px 14px;
+            margin-top: 14px;
+        }}
+        .st-key-route_plan_banner [data-testid="stVerticalBlockBorderWrapper"] {{
+            border: none;
+            padding: 0;
+        }}
+        .st-key-route_plan_banner [data-testid="stHorizontalBlock"] {{
+            align-items: center;
+            gap: 14px;
+        }}
+        .route-plan-title {{
+            margin: 0;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--bandabi-ink);
+            line-height: 1.35;
+        }}
+        .route-plan-sub {{
+            margin: 6px 0 0;
+            font-size: 13px;
+            color: var(--bandabi-mid);
+            line-height: 1.55;
+        }}
+        .st-key-route_plan_banner .st-key-route_retry > button {{
+            background: #e8e4f0 !important;
+            color: #4a2d7a !important;
+            border: 1px solid var(--bandabi-line) !important;
+            box-shadow: none !important;
+            font-weight: 800 !important;
+            min-height: 48px;
+            border-radius: 16px !important;
+        }}
+        .st-key-route_plan_banner .confirm-action .stButton > button {{
+            min-height: 48px;
+            border-radius: 16px !important;
+            font-weight: 800 !important;
+        }}
+        .st-key-care_action_row,
+        .st-key-class_action_row,
+        .st-key-pending_action_row {{
+            margin-top: 20px;
+        }}
+        .st-key-care_action_row [data-testid="stVerticalBlockBorderWrapper"],
+        .st-key-class_action_row [data-testid="stVerticalBlockBorderWrapper"],
+        .st-key-pending_action_row [data-testid="stVerticalBlockBorderWrapper"] {{
+            border: none;
+            padding: 0;
+        }}
+        .st-key-care_skip > button,
+        .st-key-class_next > button {{
+            background: #f43f5e !important;
+            color: #fff !important;
+            border: 1px solid rgba(244,63,94,.35) !important;
+            box-shadow: none !important;
+            font-weight: 800 !important;
+            min-height: 48px;
+            border-radius: 16px !important;
+        }}
+        .st-key-care_action_row .confirm-action .stButton > button,
+        .st-key-class_action_row .confirm-action .stButton > button,
+        .st-key-pending_action_row .stButton > button {{
+            min-height: 48px;
+            border-radius: 16px !important;
+            font-weight: 800 !important;
+        }}
         .user-topbar-brand .brand-logo-shell,
         .user-header .brand-logo-shell {{
             width: 62px;
@@ -3888,20 +3958,8 @@ def handle_user_chrome_query() -> None:
         st.session_state.notice = "음성 안내는 프로토타입 데모 기능입니다."
         changed = True
     elif action == "start_ai":
-        if st.session_state.get("destination_choice") == UNAVAILABLE_DESTINATION:
-            block_unavailable_destination()
-        else:
-            st.session_state.destination = DEFAULT_DESTINATION
-            st.session_state.route_public_api_cache = None
-            st.session_state.route_api_force_refresh = True
-            result = build_route_analysis()
-            st.session_state.route_result = result
-            st.session_state.route_analysis_result = result
-            st.session_state.route_inputs_fingerprint = _route_inputs_fingerprint()
-            st.session_state.main_step = "route"
-            st.session_state.current_page = "main"
-            st.session_state.pending_confirm = None
-        changed = True
+        start_analysis()
+        changed = False
     elif action == "schedule_find":
         day_map = {
             "화·목 중심": ["화", "목"],
@@ -4453,9 +4511,12 @@ def start_analysis() -> None:
         block_unavailable_destination()
         return
     st.session_state.destination = DEFAULT_DESTINATION
+    st.session_state.route_public_api_cache = None
+    st.session_state.route_api_force_refresh = True
     result = build_route_analysis()
     st.session_state.route_result = result
     st.session_state.route_analysis_result = result
+    st.session_state.route_inputs_fingerprint = _route_inputs_fingerprint()
     st.session_state.main_step = "route"
     st.session_state.current_page = "main"
     st.session_state.pending_confirm = None
@@ -4470,6 +4531,43 @@ def open_confirm(title: str, subtitle: str, message: str, next_step: str, **extr
         "next_step": next_step,
         **extra,
     }
+
+
+def render_step_action_buttons(
+    *,
+    container_key: str,
+    secondary_label: str,
+    secondary_key: str,
+    primary_label: str = "확정하기",
+    primary_key: str,
+    on_secondary: Any,
+    on_primary: Any,
+) -> None:
+    """HTML `flex justify-end gap-3` — secondary + confirm on the right."""
+    with st.container(key=container_key):
+        spacer, actions = st.columns([1.35, 1], gap="small")
+        with spacer:
+            pass
+        with actions:
+            btn_cols = st.columns(2, gap="small")
+            with btn_cols[0]:
+                if st.button(secondary_label, key=secondary_key, use_container_width=True):
+                    on_secondary()
+            with btn_cols[1]:
+                st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
+                if st.button(
+                    primary_label,
+                    key=primary_key,
+                    type="primary",
+                    use_container_width=True,
+                ):
+                    on_primary()
+                st.markdown("</div>", unsafe_allow_html=True)
+
+
+def _cancel_pending_confirm() -> None:
+    st.session_state.pending_confirm = None
+    st.rerun()
 
 
 def apply_pending_confirm() -> None:
@@ -4501,14 +4599,15 @@ def render_pending_confirm() -> None:
         """,
         unsafe_allow_html=True,
     )
-    cols = st.columns([1, 1, 4])
-    with cols[0]:
-        if st.button("확인", key="pending_confirm_ok", type="primary"):
-            apply_pending_confirm()
-    with cols[1]:
-        if st.button("취소", key="pending_confirm_cancel"):
-            st.session_state.pending_confirm = None
-            st.rerun()
+    render_step_action_buttons(
+        container_key="pending_action_row",
+        secondary_label="취소",
+        secondary_key="pending_confirm_cancel",
+        primary_label="확인",
+        primary_key="pending_confirm_ok",
+        on_secondary=_cancel_pending_confirm,
+        on_primary=apply_pending_confirm,
+    )
 
 
 def render_start() -> None:
@@ -4566,23 +4665,8 @@ def render_start() -> None:
                 unsafe_allow_html=True,
             )
             st.markdown('<div class="start-action-wrap">', unsafe_allow_html=True)
-            start_href = "?" + urlencode(
-                {
-                    "resume": "1",
-                    "page": "main",
-                    "step": "start",
-                    "role": st.session_state.get("role", USER_ROLE),
-                    "user": st.session_state.get("user_name", ""),
-                    "email": st.session_state.get("user_email", ""),
-                    "action": "start_ai",
-                }
-            )
-            zap_src = zap_icon_data_uri()
-            st.markdown(
-                f'<a class="start-ai-link" href="{esc(start_href)}" target="_self">'
-                f'<img class="start-ai-icon" src="{esc(zap_src)}" alt="">AI 추천 시작</a>',
-                unsafe_allow_html=True,
-            )
+            if st.button("AI 추천 시작", key="btn_ai_start", type="primary", use_container_width=True):
+                start_analysis()
             st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown("</div>", unsafe_allow_html=True)
@@ -4670,25 +4754,42 @@ def render_route() -> None:
         unsafe_allow_html=True,
     )
 
-    cols = st.columns([1, 1, 4])
-    with cols[0]:
-        if st.button("다시하기", key="route_retry"):
-            st.session_state.main_step = "start"
-            st.rerun()
-    with cols[1]:
-        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
-        if st.button("확정하기", key="route_confirm", type="primary"):
-            open_confirm(
-                "운영 확정 요청이 등록되었습니다.",
-                "예약·이동·동행 플랜이 다음 단계로 연결됩니다.",
-                "참여 인센티브 500BT가 적립됩니다. 현금 환급·양도·재판매는 불가하며 생활체육 서비스 혜택으로만 사용할 수 있습니다.",
-                "care",
-                bt_delta=500,
-                point_key="route_points_awarded",
-                toast="경로가 확정되었습니다. 버디 추천 화면으로 이동합니다.",
+    def _route_retry() -> None:
+        st.session_state.main_step = "start"
+        st.rerun()
+
+    def _route_confirm() -> None:
+        open_confirm(
+            "운영 확정 요청이 등록되었습니다.",
+            "예약·이동·동행 플랜이 다음 단계로 연결됩니다.",
+            "참여 인센티브 500BT가 적립됩니다. 현금 환급·양도·재판매는 불가하며 생활체육 서비스 혜택으로만 사용할 수 있습니다.",
+            "care",
+            bt_delta=500,
+            point_key="route_points_awarded",
+            toast="경로가 확정되었습니다. 버디 추천 화면으로 이동합니다.",
+        )
+        st.rerun()
+
+    with st.container(key="route_plan_banner"):
+        copy_col, action_col = st.columns([1.45, 1], gap="medium")
+        with copy_col:
+            st.markdown(
+                """
+                <p class="route-plan-title">예약·이동·동행 플랜이 준비됐어요</p>
+                <p class="route-plan-sub">확정하면 버디 후보와 강습 추천으로 이어집니다.</p>
+                """,
+                unsafe_allow_html=True,
             )
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+        with action_col:
+            btn_cols = st.columns(2, gap="small")
+            with btn_cols[0]:
+                if st.button("다시하기", key="route_retry", use_container_width=True):
+                    _route_retry()
+            with btn_cols[1]:
+                st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
+                if st.button("확정하기", key="route_confirm", type="primary", use_container_width=True):
+                    _route_confirm()
+                st.markdown("</div>", unsafe_allow_html=True)
 
 
 def buddy_for_support() -> dict[str, str]:
@@ -4728,26 +4829,31 @@ def render_buddy() -> None:
         unsafe_allow_html=True,
     )
 
-    cols = st.columns([1, 1, 4])
-    with cols[0]:
-        if st.button("건너뛰기", key="care_skip"):
-            st.session_state.buddy_confirmed = False
-            st.session_state.main_step = "class"
-            st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
-            st.rerun()
-    with cols[1]:
-        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
-        if st.button("확정하기", key="care_confirm", type="primary"):
-            open_confirm(
-                "버디 매칭 확정 요청이 등록되었습니다.",
-                "상호 동의와 관리자 확인 후 연결됩니다.",
-                "첫 방문 버디 후보 연결 요청이 등록되었습니다. 실명·연락처는 확정 전 비공개로 유지됩니다.",
-                "class",
-                confirm_buddy=True,
-                toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
-            )
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+    def _care_skip() -> None:
+        st.session_state.buddy_confirmed = False
+        st.session_state.main_step = "class"
+        st.session_state.notice = "버디 매칭을 건너뛰고 강습·지도자 추천으로 이동합니다."
+        st.rerun()
+
+    def _care_confirm() -> None:
+        open_confirm(
+            "버디 매칭 확정 요청이 등록되었습니다.",
+            "상호 동의와 관리자 확인 후 연결됩니다.",
+            "첫 방문 버디 후보 연결 요청이 등록되었습니다. 실명·연락처는 확정 전 비공개로 유지됩니다.",
+            "class",
+            confirm_buddy=True,
+            toast="버디 후보가 임시 확정되었습니다. 강습·지도자 추천으로 이동합니다.",
+        )
+        st.rerun()
+
+    render_step_action_buttons(
+        container_key="care_action_row",
+        secondary_label="건너뛰기",
+        secondary_key="care_skip",
+        primary_key="care_confirm",
+        on_secondary=_care_skip,
+        on_primary=_care_confirm,
+    )
 
 
 def current_instructor() -> dict[str, str]:
@@ -4780,24 +4886,29 @@ def render_class() -> None:
         unsafe_allow_html=True,
     )
 
-    cols = st.columns([1, 1, 4])
-    with cols[0]:
-        if st.button("다른 지도자", key="class_next"):
-            st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
-            st.rerun()
-    with cols[1]:
-        st.markdown('<div class="confirm-action">', unsafe_allow_html=True)
-        if st.button("확정하기", key="class_confirm", type="primary"):
-            open_confirm(
-                "강습·지도자 추천이 확정되었습니다.",
-                "운동 참여 결과를 리포트 화면에서 확인합니다.",
-                "추천 지도자와 강습 선택이 등록되었습니다. 본 내용은 생활체육 참여 지원을 위한 참고자료입니다.",
-                "report",
-                confirm_class=True,
-                toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
-            )
-            st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
+    def _class_next() -> None:
+        st.session_state.instructor_index = (int(st.session_state.get("instructor_index", 0)) + 1) % len(INSTRUCTORS)
+        st.rerun()
+
+    def _class_confirm() -> None:
+        open_confirm(
+            "강습·지도자 추천이 확정되었습니다.",
+            "운동 참여 결과를 리포트 화면에서 확인합니다.",
+            "추천 지도자와 강습 선택이 등록되었습니다. 본 내용은 생활체육 참여 지원을 위한 참고자료입니다.",
+            "report",
+            confirm_class=True,
+            toast="강습 추천이 확정되었습니다. 생활체육 리포트로 이동합니다.",
+        )
+        st.rerun()
+
+    render_step_action_buttons(
+        container_key="class_action_row",
+        secondary_label="다른 지도자",
+        secondary_key="class_next",
+        primary_key="class_confirm",
+        on_secondary=_class_next,
+        on_primary=_class_confirm,
+    )
 
 
 def guardian_summary_text() -> str:
