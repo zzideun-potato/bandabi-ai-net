@@ -1294,15 +1294,15 @@ def inject_css() -> None:
             margin-top: 12px;
         }}
         .st-key-btn_ai_start > button {{
-            min-height: 82px;
+            min-height: 86px;
             border-radius: 20px;
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             letter-spacing: 0;
             box-shadow: 0 12px 24px rgba(74,45,122,.28);
         }}
         .st-key-btn_ai_start > button p {{
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 900;
             margin: 0;
             line-height: 1;
@@ -1310,10 +1310,11 @@ def inject_css() -> None:
         .st-key-btn_ai_start > button::before {{
             content: "⚡";
             display: inline-block;
-            font-size: 18px;
+            font-size: 24px;
             font-weight: 900;
-            margin-right: 7px;
-            transform: translateY(1px);
+            margin-right: 8px;
+            transform: translateY(2px);
+            color: #ffffff;
         }}
         .start-footnote {{
             color: #b8acd8;
@@ -1728,10 +1729,9 @@ def tab_icon_svg(kind: str) -> str:
     icons = {
         "brain": """
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M8 6.4a3 3 0 0 0-4.5 3.8 3.1 3.1 0 0 0 2.9 5h1.1v-8.8H8Z" fill="currentColor"/>
-                <path d="M16 6.4a3 3 0 0 1 4.5 3.8 3.1 3.1 0 0 1-2.9 5h-1.1v-8.8h-.5Z" fill="currentColor"/>
-                <rect x="9.1" y="5.2" width="5.8" height="10.9" rx="2.2" fill="currentColor"/>
-                <path d="M12 7.1v7.3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M9.5 6a3.5 3.5 0 0 0-6.8 1.3c0 1 .4 1.9 1.1 2.5A3.8 3.8 0 0 0 7 16h2.5V6Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.5 6a3.5 3.5 0 0 1 6.8 1.3c0 1-.4 1.9-1.1 2.5A3.8 3.8 0 0 1 17 16h-2.5V6Z" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 6v10M9.6 9.3h.1M14.3 9.3h.1M9.6 12.2h.1M14.3 12.2h.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
             </svg>
         """,
         "calendar_check": """
