@@ -45,7 +45,7 @@ SUPPORT_TYPES = [
 INSTRUCTORS = [
     {
         "name": "박강훈",
-        "summary": "수중 생활체육 · 보행 보조 및 휠체어 이용자 지도 경험",
+        "summary": "수중 생활체육 · 보행 보조 및 휠체어 이용 지원 경험",
         "time": "화·목 10:00",
         "group": "4명 소그룹",
     },
@@ -151,7 +151,7 @@ def init_state() -> None:
         "high_contrast": False,
         "vision_last_report_type": "점자블록",
         "access_facility_type": "점자블록",
-        "access_disability_focus": "시각장애인",
+        "access_disability_focus": "시각 정보 접근 지원 필요",
         "access_issue_choices": [],
         "access_analysis": None,
         "access_last_submission": None,
@@ -167,7 +167,7 @@ def init_state() -> None:
             },
             {
                 "id": "RPT-2398",
-                "facility": "장애인 화장실",
+                "facility": "접근 가능한 화장실",
                 "location": "2층",
                 "grade": "양호",
                 "score": 42,
@@ -262,7 +262,7 @@ def inject_css() -> None:
             padding-bottom: 5rem;
         }}
         h1, h2, h3, p, label, span, div, a, button, input, select, textarea, li, td, th {{
-            font-family: "Pretendard Variable", Pretendard, "Pretendard Local", "Apple SD Gothic Neo",
+            font-family: "Pretendard Local", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo",
                 "Malgun Gothic", system-ui, sans-serif !important;
             letter-spacing: 0;
         }}
@@ -281,8 +281,48 @@ def inject_css() -> None:
         [data-baseweb="input"],
         [data-baseweb="textarea"],
         [data-baseweb="popover"] {{
-            font-family: "Pretendard Variable", Pretendard, "Pretendard Local", "Apple SD Gothic Neo",
+            font-family: "Pretendard Local", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo",
                 "Malgun Gothic", system-ui, sans-serif !important;
+        }}
+        .material-icons,
+        .material-icons-outlined,
+        .material-icons-round,
+        .material-symbols-outlined,
+        .material-symbols-rounded,
+        .material-symbols-sharp,
+        [class*="material-icons"],
+        [class*="material-symbols"] {{
+            font-family: "Material Symbols Rounded", "Material Symbols Outlined", "Material Icons", sans-serif !important;
+            font-weight: normal !important;
+            font-style: normal !important;
+            letter-spacing: normal !important;
+            text-transform: none !important;
+            white-space: nowrap !important;
+            word-wrap: normal !important;
+            direction: ltr !important;
+            -webkit-font-feature-settings: "liga" !important;
+            -webkit-font-smoothing: antialiased !important;
+            font-feature-settings: "liga" !important;
+        }}
+        [data-baseweb="select"] [data-baseweb="icon"] {{
+            width: 18px !important;
+            height: 18px !important;
+            min-width: 18px !important;
+            font-size: 0 !important;
+            display: grid !important;
+            place-items: center !important;
+            color: transparent !important;
+        }}
+        [data-baseweb="select"] [data-baseweb="icon"]::before {{
+            content: "";
+            width: 14px;
+            height: 14px;
+            background: #7c5fb8;
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+        }}
+        [data-baseweb="select"] [data-baseweb="icon"] svg {{
+            display: none !important;
         }}
         .bandabi-header {{
             position: sticky;
@@ -1518,6 +1558,8 @@ def inject_css() -> None:
             background: #4a2d7a;
             color: #fff !important;
             text-decoration: none !important;
+            border: 0;
+            cursor: pointer;
             font-size: 16px;
             font-weight: 900 !important;
             white-space: nowrap;
@@ -1525,6 +1567,11 @@ def inject_css() -> None:
             width: auto;
             min-width: 200px;
             align-self: flex-start;
+        }}
+        .schedule-find-form {{
+            margin: 0;
+            display: flex;
+            justify-content: flex-end;
         }}
         .schedule-find-link svg {{
             width: 19px;
@@ -2444,7 +2491,36 @@ def inject_css() -> None:
             border: 1px solid rgba(184,172,216,.32);
         }}
         .access-upload-native .access-upload-copy {{
-            margin-bottom: 0;
+            margin-bottom: 16px;
+        }}
+        .access-upload-action-row {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }}
+        .access-upload-visual-btn {{
+            min-height: 42px;
+            border-radius: 14px;
+            padding: 0 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #4a2d7a;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 900;
+            box-shadow: 0 10px 22px rgba(74,45,122,.18);
+        }}
+        .access-upload-visual-btn svg {{
+            width: 17px;
+            height: 17px;
+        }}
+        .access-upload-file-name {{
+            color: #7a6aa1;
+            font-size: 13px;
+            font-weight: 600;
         }}
         .access-preview-native {{
             margin-top: 22px;
@@ -3024,6 +3100,12 @@ def handle_user_chrome_query() -> None:
             "월·수 중심": ["월", "수"],
             "주말 가능": ["토", "일"],
         }
+        incoming_day = st.query_params.get("schedule_day_label")
+        incoming_time = st.query_params.get("schedule_time_label")
+        if incoming_day in day_map:
+            st.session_state.schedule_day_label = incoming_day
+        if incoming_time in {"오전 10시 전후", "오후 2시 전후", "오후 4시 전후"}:
+            st.session_state.schedule_time_label = incoming_time
         day_label = st.session_state.get("schedule_day_label", "화·목 중심")
         time_label = st.session_state.get("schedule_time_label", "오전 10시 전후")
         recommendations = make_schedule_recommendations(day_map.get(day_label, ["화", "목"]), time_label)
@@ -3048,7 +3130,7 @@ def handle_user_chrome_query() -> None:
     elif action == "access_scan":
         access_run_scan(
             st.session_state.get("access_facility_type", "점자블록"),
-            st.session_state.get("access_disability_focus", "시각장애인"),
+            st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
             st.session_state.get("access_issue_choices") or [],
             st.session_state.get("access_photo_upload") is not None,
         )
@@ -3057,7 +3139,7 @@ def handle_user_chrome_query() -> None:
     elif action == "access_reward":
         current = st.session_state.get("access_analysis") or access_run_scan(
             st.session_state.get("access_facility_type", "점자블록"),
-            st.session_state.get("access_disability_focus", "시각장애인"),
+            st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
             st.session_state.get("access_issue_choices") or [],
             st.session_state.get("access_photo_upload") is not None,
         )
@@ -3070,7 +3152,7 @@ def handle_user_chrome_query() -> None:
         if not st.session_state.get("access_analysis"):
             access_run_scan(
                 st.session_state.get("access_facility_type", "점자블록"),
-                st.session_state.get("access_disability_focus", "시각장애인"),
+                st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요"),
                 st.session_state.get("access_issue_choices") or [],
                 st.session_state.get("access_photo_upload") is not None,
             )
@@ -3092,12 +3174,21 @@ def handle_user_chrome_query() -> None:
                 except Exception:
                     pass
         changed = True
-    for key in ("nav_tab", "action", "schedule_time"):
+    for key in ("nav_tab", "action", "schedule_time", "schedule_day_label", "schedule_time_label"):
         if key in st.query_params:
             try:
                 del st.query_params[key]
             except Exception:
                 pass
+    if changed and st.session_state.get("logged_in"):
+        st.query_params["resume"] = "1"
+        st.query_params["page"] = st.session_state.get("current_page", "main")
+        st.query_params["step"] = st.session_state.get("main_step", "start")
+        st.query_params["role"] = st.session_state.get("role", USER_ROLE)
+        if st.session_state.get("user_name"):
+            st.query_params["user"] = st.session_state.get("user_name")
+        if st.session_state.get("user_email"):
+            st.query_params["email"] = st.session_state.get("user_email")
     if changed:
         st.rerun()
 
@@ -3886,44 +3977,55 @@ def schedule_resume_query(*, extra: dict[str, str] | None = None) -> dict[str, s
 def make_schedule_recommendations(days: list[str], time_range: str) -> list[dict[str, str]]:
     if not days:
         days = ["화", "목"]
-    tue = format_schedule_date_label(schedule_next_js_weekday(2))
-    thu = format_schedule_date_label(schedule_next_js_weekday(4))
-    fri = format_schedule_date_label(schedule_next_js_weekday(5))
-    tue_label = f"{tue} 10:00"
-    thu_label = f"{thu} 14:00"
-    fri_label = f"{fri} 16:00"
+    weekday_to_js = {"일": 0, "월": 1, "화": 2, "수": 3, "목": 4, "금": 5, "토": 6}
+    weekday_label = {"일": "일요일", "월": "월요일", "화": "화요일", "수": "수요일", "목": "목요일", "금": "금요일", "토": "토요일"}
+    time_sets = {
+        "오전 10시 전후": ["10:00", "11:00", "14:00"],
+        "오후 2시 전후": ["14:00", "15:00", "16:00"],
+        "오후 4시 전후": ["16:00", "17:00", "14:00"],
+    }
+    times = time_sets.get(time_range, time_sets["오전 10시 전후"])
+    primary_day = days[0]
+    second_day = days[1] if len(days) > 1 else days[0]
+    fallback_day = "금" if primary_day != "금" else "목"
+    first = format_schedule_date_label(schedule_next_js_weekday(weekday_to_js.get(primary_day, 2)))
+    second = format_schedule_date_label(schedule_next_js_weekday(weekday_to_js.get(second_day, 4)))
+    third = format_schedule_date_label(schedule_next_js_weekday(weekday_to_js.get(fallback_day, 5)))
+    first_label = f"{first} {times[0]}"
+    second_label = f"{second} {times[1]}"
+    third_label = f"{third} {times[2]}"
     return [
         {
             "rank_label": "1순위 추천",
             "rank_tone": "purple",
-            "headline": "화요일 10:00",
-            "date_label": tue,
+            "headline": f"{weekday_label.get(primary_day, '화요일')} {times[0]}",
+            "date_label": first,
             "reason": "지도자 가능 · 이동지원 가능성 높음 · 버디 후보 있음",
             "badge": "추천",
             "badge_tone": "good",
-            "full_label": tue_label,
+            "full_label": first_label,
             "primary": True,
         },
         {
             "rank_label": "2순위 후보",
             "rank_tone": "blue",
-            "headline": "목요일 14:00",
-            "date_label": thu,
+            "headline": f"{weekday_label.get(second_day, '목요일')} {times[1]}",
+            "date_label": second,
             "reason": "지도자 가능 · 이동지원 혼잡 가능성 있음",
             "badge": "보통",
             "badge_tone": "normal",
-            "full_label": thu_label,
+            "full_label": second_label,
             "primary": False,
         },
         {
             "rank_label": "대체 후보",
             "rank_tone": "amber",
-            "headline": "금요일 16:00",
-            "date_label": fri,
+            "headline": f"{weekday_label.get(fallback_day, '금요일')} {times[2]}",
+            "date_label": third,
             "reason": "퇴근 시간대 혼잡 · 버디 후보 없음 · 이동지원 사전 확인 권장",
             "badge": "주의",
             "badge_tone": "warn",
-            "full_label": fri_label,
+            "full_label": third_label,
             "primary": False,
         },
     ]
@@ -3994,18 +4096,36 @@ def build_schedule_results_html() -> str:
 
 
 def render_schedule_page() -> None:
-    schedule_find_href = "?" + urlencode(schedule_resume_query(extra={"action": "schedule_find"}))
+    schedule_find_query = schedule_resume_query(extra={"action": "schedule_find"})
+    schedule_hidden_inputs = "".join(
+        f'<input type="hidden" name="{esc(key)}" value="{esc(value)}" />'
+        for key, value in schedule_find_query.items()
+    )
+    day_values = ["화·목 중심", "월·수 중심", "주말 가능"]
+    time_values = ["오전 10시 전후", "오후 2시 전후", "오후 4시 전후"]
+    current_day = st.session_state.get("schedule_day_label", "화·목 중심")
+    current_time = st.session_state.get("schedule_time_label", "오전 10시 전후")
+    day_options = "".join(
+        f'<option value="{esc(value)}"{" selected" if value == current_day else ""}>{esc(value)}</option>'
+        for value in day_values
+    )
+    time_options = "".join(
+        f'<option value="{esc(value)}"{" selected" if value == current_time else ""}>{esc(value)}</option>'
+        for value in time_values
+    )
     sliders_icon = """
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-            <path d="M1.5 14h5M9.5 8h5M17.5 16h5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M4 7h4M14 7h6M4 12h10M18 12h2M4 17h2M12 17h8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+            <circle cx="11" cy="7" r="2.25" fill="currentColor"/>
+            <circle cx="16" cy="12" r="2.25" fill="currentColor"/>
+            <circle cx="9" cy="17" r="2.25" fill="currentColor"/>
         </svg>
     """
     calendar_check_icon = """
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="4" y="5.5" width="16" height="15" rx="3" stroke="currentColor" stroke-width="2.4"/>
-            <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
-            <path d="M9 15.5l2 2 4-4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 2.75a1.25 1.25 0 0 1 1.25 1.25v1h7.5V4a1.25 1.25 0 1 1 2.5 0v1H19a3 3 0 0 1 3 3v10.5a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3h.75V4A1.25 1.25 0 0 1 7 2.75Z" fill="currentColor"/>
+            <path d="M2 9.5h20" stroke="#fff" stroke-width="2.2"/>
+            <path d="M8.4 15.4 11 18l5-5.3" stroke="#fff" stroke-width="2.45" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
     """
     info_icon = """
@@ -4028,30 +4148,28 @@ def render_schedule_page() -> None:
                     <h2 class="schedule-title">내 운동 일정 추천</h2>
                     <p class="schedule-sub">강습 가능 시간, 이동지원 연계 가능성, 버디 후보 여부를 함께 계산해 실제로 참여하기 쉬운 시간대를 추천합니다.</p>
                 </div>
-                <a class="schedule-find-link" href="{esc(schedule_find_href)}" target="_self">
+                <form id="schedule-preference-form" class="schedule-find-form" method="get">
+                    {schedule_hidden_inputs}
+                    <button class="schedule-find-link" type="submit">
                     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                        <path d="M10.8 4.2a6.6 6.6 0 1 0 0 13.2 6.6 6.6 0 0 0 0-13.2Zm0 2.9a2.7 2.7 0 0 1 2.7 2.7c0 2-2.7 5.1-2.7 5.1S8.1 11.8 8.1 9.8a2.7 2.7 0 0 1 2.7-2.7Z" fill="currentColor"/>
-                        <path d="M16.2 16.2 21 21" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-                        <circle cx="10.8" cy="9.8" r="1.1" fill="#4a2d7a"/>
+                        <path d="M10.9 3.6a7.25 7.25 0 0 0-2.7 13.98c.42.16.87-.06 1.02-.49.15-.42-.06-.88-.48-1.04A5.63 5.63 0 1 1 16.05 8.8c.16.42.62.64 1.04.49.43-.15.65-.61.5-1.04A7.25 7.25 0 0 0 10.9 3.6Z" fill="currentColor"/>
+                        <path d="M10.9 7.2c-1.65 0-3 1.34-3 3 0 2.25 3 5.65 3 5.65s3-3.4 3-5.65c0-1.66-1.35-3-3-3Zm0 4.05a1.05 1.05 0 1 1 0-2.1 1.05 1.05 0 0 1 0 2.1ZM15.4 15.4l4.95 4.95" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
                     </svg>
                     가능한 시간 찾기
-                </a>
+                    </button>
+                </form>
             </div>
             <div class="schedule-native-grid">
                 <div class="schedule-left-stack">
                     <div class="schedule-soft">
                         <h3 class="schedule-soft-title">{sliders_icon}선호 조건</h3>
                         <label class="schedule-field-label">선호 요일</label>
-                        <select class="schedule-control" aria-label="선호 요일">
-                            <option>화·목 중심</option>
-                            <option>월·수 중심</option>
-                            <option>주말 가능</option>
+                        <select class="schedule-control" aria-label="선호 요일" name="schedule_day_label" form="schedule-preference-form">
+                            {day_options}
                         </select>
                         <label class="schedule-field-label">선호 시간대</label>
-                        <select class="schedule-control" aria-label="선호 시간대">
-                            <option>오전 10시 전후</option>
-                            <option>오후 2시 전후</option>
-                            <option>오후 4시 전후</option>
+                        <select class="schedule-control" aria-label="선호 시간대" name="schedule_time_label" form="schedule-preference-form">
+                            {time_options}
                         </select>
                         <div class="schedule-check-grid">
                             <div class="schedule-check"><span>✓</span>이동지원 우선</div>
@@ -4084,12 +4202,12 @@ def render_schedule_page() -> None:
 ACCESS_FACILITY_TYPES = [
     "출입구",
     "경사로",
-    "장애인 화장실",
+    "접근 가능한 화장실",
     "승강기",
     "점자블록",
     "락커룸",
     "샤워실",
-    "장애인 주차구역",
+    "접근성 주차구역",
     "이동 동선",
 ]
 
@@ -4105,11 +4223,11 @@ ACCESS_ISSUE_OPTIONS = [
 ]
 
 ACCESS_DISABILITY_FOCUS = [
-    "휠체어 이용자",
-    "시각장애인",
-    "청각장애인",
-    "발달장애인",
-    "고령자/보행약자",
+    "휠체어 이용 또는 보행 보조 필요",
+    "시각 정보 접근 지원 필요",
+    "청각 안내 지원 필요",
+    "천천히 단계별 안내 필요",
+    "고령자·보행 속도 배려 필요",
 ]
 
 ACCESS_GRADE_CLASSES = {
@@ -4138,7 +4256,7 @@ def access_preview_caption(facility_type: str) -> str:
     location_map = {
         "점자블록": "김포 반다비 1층 로비 점자블록",
         "경사로": "김포 반다비체육센터 북측 경사로",
-        "장애인 화장실": "김포 반다비체육센터 2층 장애인 화장실",
+        "접근 가능한 화장실": "김포 반다비체육센터 2층 접근 가능한 화장실",
     }
     return location_map.get(facility_type, f"{DEFAULT_DESTINATION} {facility_type}")
 
@@ -4156,23 +4274,23 @@ def access_grade_from_score(score: int) -> str:
 def access_disability_impacts(facility_type: str, issues: list[str]) -> dict[str, str]:
     issue_text = " · ".join(issues[:2]) if issues else "선택된 불편 요소"
     return {
-        "휠체어 이용자": (
+        "휠체어 이용 또는 보행 보조 필요": (
             f"{facility_type} 구간에서 회전 공간, 단차, 출입문 폭, 경사로 기울기 확인이 필요할 수 있습니다. "
             f"({issue_text})"
         ),
-        "시각장애인": (
+        "시각 정보 접근 지원 필요": (
             f"{facility_type} 구간에서 점자블록 연속성, 음성 안내, 유도 표지 확인이 필요할 수 있습니다. "
             f"({issue_text})"
         ),
-        "청각장애인": (
+        "청각 안내 지원 필요": (
             f"{facility_type} 구간에서 시각 안내, 진동/문자 알림, 소음 환경 확인이 필요할 수 있습니다. "
             f"({issue_text})"
         ),
-        "발달장애인": (
+        "천천히 단계별 안내 필요": (
             f"{facility_type} 구간에서 안내 표지의 명확성, 혼잡도, 안정적 대기 공간 확인이 필요할 수 있습니다. "
             f"({issue_text})"
         ),
-        "고령자/보행약자": (
+        "고령자·보행 속도 배려 필요": (
             f"{facility_type} 구간에서 미끄럼, 난간, 휴식 공간, 동선 길이 확인이 필요할 수 있습니다. "
             f"({issue_text})"
         ),
@@ -4214,18 +4332,18 @@ def analyze_accessibility_demo(
         "이용자 안전 영향도": 28,
         "이동 동선 영향도": 24,
         "반복 제보 가능성": 18,
-        "장애유형 관련성": 22,
+        "지원 필요 유형 관련성": 22,
         "즉시 개선 필요도": 20,
     }
     facility_weights = {
         "경사로": 18,
         "출입구": 14,
-        "장애인 화장실": 16,
+        "접근 가능한 화장실": 16,
         "승강기": 12,
         "점자블록": 15,
         "락커룸": 10,
         "샤워실": 11,
-        "장애인 주차구역": 13,
+        "접근성 주차구역": 13,
         "이동 동선": 14,
     }
     issue_weights = {
@@ -4239,11 +4357,11 @@ def analyze_accessibility_demo(
         "주차·진입 동선 혼란": 10,
     }
     disability_weights = {
-        "휠체어 이용자": 10,
-        "시각장애인": 9,
-        "청각장애인": 7,
-        "발달장애인": 8,
-        "고령자/보행약자": 6,
+        "휠체어 이용 또는 보행 보조 필요": 10,
+        "시각 정보 접근 지원 필요": 9,
+        "청각 안내 지원 필요": 7,
+        "천천히 단계별 안내 필요": 8,
+        "고령자·보행 속도 배려 필요": 6,
     }
 
     total = sum(score_parts.values())
@@ -4258,14 +4376,14 @@ def analyze_accessibility_demo(
     admin_review = grade in {"점검 필요", "관리자 확인 필요"}
 
     expected_issue_map = {
-        "출입구": "출입문 폭과 문턱 높이가 휠체어·보행 보조 동선에 영향을 줄 수 있습니다.",
+        "출입구": "출입문 폭과 문턱 높이가 휠체어 이용·보행 보조 동선에 영향을 줄 수 있습니다.",
         "경사로": "경사로 기울기와 미끄럼 방지 상태에 대한 현장 점검이 권장됩니다.",
-        "장애인 화장실": "회전 공간, 손잡이 위치, 출입문 개폐 동선 확인이 필요할 수 있습니다.",
+        "접근 가능한 화장실": "회전 공간, 손잡이 위치, 출입문 개폐 동선 확인이 필요할 수 있습니다.",
         "승강기": "버튼 높이, 음성 안내, 혼잡 시간대 대기 동선 확인이 필요할 수 있습니다.",
-        "점자블록": "점자블록 단절 가능성이 있어 시각장애인 이동 안내 보완이 필요할 수 있습니다.",
+        "점자블록": "점자블록 단절 가능성이 있어 시각 정보 접근 지원 보완이 필요할 수 있습니다.",
         "락커룸": "좁은 통로와 회전 공간 부족으로 이용자 불편 가능성이 있습니다.",
         "샤워실": "미끄럼과 온도 조절 안내, 좌석·손잡이 위치 확인이 필요할 수 있습니다.",
-        "장애인 주차구역": "주차구역과 출입 동선 연결, 표지 가독성 확인이 필요할 수 있습니다.",
+        "접근성 주차구역": "주차구역과 출입 동선 연결, 표지 가독성 확인이 필요할 수 있습니다.",
         "이동 동선": "주요 이동 동선에서 장애물·단차·혼잡 구간 확인이 필요할 수 있습니다.",
     }
     expected_issues = [expected_issue_map.get(facility_type, "선택 구간의 접근성 보완 여부 확인이 필요할 수 있습니다.")]
@@ -4273,7 +4391,7 @@ def analyze_accessibility_demo(
         expected_issues.append(f"제보 항목: {', '.join(issues[:3])}")
 
     user_impact = (
-        f"{disability_focus} 기준으로 {facility_type} 이용 시 이동·안내·대기 과정에서 "
+        f"{disability_focus} 관점에서 {facility_type} 이용 시 이동·안내·대기 과정에서 "
         "불편 가능성이 있어 현장 확인이 권장됩니다."
     )
     improvement_need = (
@@ -4321,7 +4439,7 @@ def analyze_accessibility_demo(
 def mock_accessibility_result(report_type: str) -> dict[str, Any]:
     mapped = report_type if report_type in ACCESS_FACILITY_TYPES else "점자블록"
     issues = ["점자블록 단절·장애물"] if "점자" in report_type else []
-    focus = "시각장애인" if "점자" in report_type else "휠체어 이용자"
+    focus = "시각 정보 접근 지원 필요" if "점자" in report_type else "휠체어 이용 또는 보행 보조 필요"
     return analyze_accessibility_demo(mapped, focus, issues, has_photo=False)
 
 
@@ -4440,7 +4558,7 @@ def register_accessibility_submission(analysis: dict[str, Any]) -> dict[str, Any
 
 def render_accessibility_page() -> None:
     facility_type = st.session_state.get("access_facility_type", "점자블록")
-    disability_focus = st.session_state.get("access_disability_focus", "시각장애인")
+    disability_focus = st.session_state.get("access_disability_focus", "시각 정보 접근 지원 필요")
     issue_choices = st.session_state.get("access_issue_choices") or []
     analysis = st.session_state.get("access_analysis")
 
@@ -4459,6 +4577,7 @@ def render_accessibility_page() -> None:
 
     uploaded = st.session_state.get("access_photo_upload")
     has_photo = uploaded is not None
+    upload_file_label = uploaded.name if has_photo and getattr(uploaded, "name", None) else "선택된 파일 없음"
     if has_photo:
         photo_bytes = uploaded.getvalue()
         mime = uploaded.type or "image/jpeg"
@@ -4516,6 +4635,17 @@ def render_accessibility_page() -> None:
                         경사로, 점자블록, 출입문, 화장실, 승강기 등 접근성 확인이 필요한 사진을 올려주세요.<br>
                         JPG, PNG 파일을 지원합니다. 실제 제출 전 개인정보가 포함되지 않았는지 확인해 주세요.
                     </p>
+                    <div class="access-upload-action-row">
+                        <span class="access-upload-visual-btn">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M4 5h10l2 3h4v11H4V5Z" fill="currentColor"/>
+                                <path d="M8 15.5 10.4 13l1.8 1.8 2.7-3.1L18 15.5H8Z" fill="#fff"/>
+                                <circle cx="9.4" cy="10.1" r="1.35" fill="#fff"/>
+                            </svg>
+                            사진 선택
+                        </span>
+                        <span class="access-upload-file-name">{esc(upload_file_label)}</span>
+                    </div>
                 </div>
                 <div class="access-preview-native">
                     {preview_markup}
@@ -4583,7 +4713,7 @@ def render_accessibility_page() -> None:
                 key="access_photo_upload",
             )
             st.selectbox("점검 시설 유형", ACCESS_FACILITY_TYPES, key="access_facility_type")
-            st.selectbox("중점 확인 장애유형", ACCESS_DISABILITY_FOCUS, key="access_disability_focus")
+            st.selectbox("중점 확인 관점", ACCESS_DISABILITY_FOCUS, key="access_disability_focus")
             st.multiselect("불편 요소 선택", ACCESS_ISSUE_OPTIONS, key="access_issue_choices")
             if st.button("선택값으로 AI 보조 점검 실행", key="access_analyze_btn", type="primary"):
                 access_run_scan(
@@ -4647,7 +4777,7 @@ def render_accessibility_page() -> None:
                 </div>
                 <div class="access-section-grid">
                     <div class="access-soft">
-                        <p class="access-soft-title">장애유형별 영향 안내</p>
+                        <p class="access-soft-title">지원 필요 유형별 영향 안내</p>
                         <ul class="access-impact-list">{impact_html}</ul>
                     </div>
                     <div class="access-soft">
